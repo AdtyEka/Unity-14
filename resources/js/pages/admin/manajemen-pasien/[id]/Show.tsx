@@ -256,7 +256,7 @@ export default function ManajemenPasienShow({
             </Card>
 
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-                <Card className={cn(card3dClassName, 'bg-white xl:col-span-1')}>
+                <Card className={cn(card3dClassName, 'gap-0 py-0 bg-white xl:col-span-1')}>
                     <CardContent className="p-0">
                         <div className="rounded-t-xl border-b bg-red-50 p-4">
                             <p className="text-sm font-semibold text-red-900">Analisis Risiko AI</p>

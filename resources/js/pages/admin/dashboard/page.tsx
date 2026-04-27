@@ -455,7 +455,7 @@ export default function DashboardPage() {
                 {/* Schedule */}
                 <Card className={card3dClassName}>
                     <CardHeader>
-                        <CardTitle>Jadwal Kontrol Terdekat</CardTitle>
+                        <CardTitle>Riwayat Kontrol Kesehatan</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-3">
                         {schedules.map((s, i) => (
