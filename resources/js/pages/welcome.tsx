@@ -2,6 +2,7 @@ import Hero from '@/components/sections/hero';
 import About from '@/components/sections/about';
 import CTA from '@/components/sections/CTA';
 import Footer from '@/components/sections/footer';
+import MarketingLayout from '@/components/layouts/navbar';
 
 export default function Home() {
     return (
@@ -23,10 +24,12 @@ export default function Home() {
 
             {/* Scrollable content — all sections share the same video frame */}
             <div className="relative z-10">
-                <Hero />
-                <About />
-                <CTA />
-                <Footer />
+                <MarketingLayout>
+                    <Hero />
+                    <About />
+                    <CTA />
+                    <Footer />
+                </MarketingLayout>
             </div>
         </div>
     );

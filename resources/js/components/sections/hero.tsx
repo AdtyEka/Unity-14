@@ -3,58 +3,6 @@ import { Play } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 
-// ─── Navbar ────────────────────────────────────────────────────────────────
-
-function Navbar() {
-    return (
-        <div className="relative z-20 px-4 pt-4 md:px-10 lg:px-16">
-            <div
-                className="mx-auto w-full max-w-6xl rounded-2xl"
-                style={{
-                    background: 'rgba(255,255,255,0.4)',
-                    border: '1px solid rgba(255,255,255,0.5)',
-                    boxShadow: 'var(--shadow-dashboard)',
-                    backdropFilter: 'blur(20px)',
-                    WebkitBackdropFilter: 'blur(20px)',
-                }}
-            >
-                <nav className="flex items-center justify-between px-4 py-4 md:px-6" style={{ fontFamily: 'var(--font-body)' }}>
-                    {/* Logo */}
-                    <div className="flex items-center gap-2">
-                        <img
-                            src="/assets/images/login/Icon%20Dashboard.webp"
-                            alt="NA Team"
-                            className="h-7 w-7"
-                        />
-                        <span className="text-foreground text-xl font-semibold tracking-tight">NA Team</span>
-                    </div>
-
-                    {/* Nav links — hidden on mobile */}
-                    <div className="hidden items-center gap-8 md:flex">
-                        {['Home', 'Layanan', 'MPASI', 'Artikel'].map((link) => (
-                            <a
-                                key={link}
-                                href="#"
-                                className="text-muted-foreground hover:text-foreground text-sm transition-colors duration-150"
-                            >
-                                {link}
-                            </a>
-                        ))}
-                    </div>
-
-                    {/* CTA */}
-                    <Button
-                        className="rounded-full bg-black px-5 text-sm font-medium text-white hover:bg-black/90"
-                        style={{ fontFamily: 'var(--font-body)' }}
-                    >
-                        Get started
-                    </Button>
-                </nav>
-            </div>
-        </div>
-    );
-}
-
 const EASE = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
 const fadeUp = (delay = 0, y = 16, duration = 0.6) => ({
@@ -89,8 +37,6 @@ function DashboardPreview() {
 export default function Hero() {
     return (
         <div className="flex min-h-screen flex-col bg-transparent">
-            <Navbar />
-
             {/* Hero section — fills remaining height */}
             <section className="relative flex flex-1 flex-col items-center px-6 pt-12 pb-20">
 
