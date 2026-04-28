@@ -1,3 +1,4 @@
+import { Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { Play } from 'lucide-react';
 
@@ -66,10 +67,11 @@ export default function Hero() {
                     {/* 4. CTA Buttons */}
                     <motion.div {...fadeUp(0.3, 16, 0.6)} className="mt-5 flex items-center gap-3">
                         <Button
+                            asChild
                             className="rounded-full px-6 py-5 text-sm font-medium bg-black text-white hover:bg-black/90"
                             style={{ fontFamily: 'var(--font-body)' }}
                         >
-                            Book a demo
+                            <Link href="/login">Book a demo</Link>
                         </Button>
 
                         <button

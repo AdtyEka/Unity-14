@@ -9,9 +9,9 @@ const fadeUp = (delay = 0, y = 20, duration = 0.6) => ({
 });
 
 const CREATORS = [
-    { name: 'Aditya Eka Narayan', href: '#' },
-    { name: 'Muhammad Nafhis Fadhil', href: '#' },
-    { name: 'Nabil Hibban Hardian', href: '#' },
+    { name: 'Aditya Eka Narayan', href: 'https://portal.dinus.ac.id/show/MTUwMDY4ODI2NjJiZGI3MjIzNWMxMTMzZmI1MDk3NzUtOTUyNDMtMTI5MDU0Mzc3MDE0MjA2NjExMg~~' },
+    { name: 'Muhammad Nafhis Fadhil', href: 'https://portal.dinus.ac.id/show/NTQwN2JiNGVkNzYyOWY1MTM5ZTg3ZTYzODI0NzE1YWUtOTQ3MTktMjQ1MTI3MzM0MzgwMzcwOTcwMA~~' },
+    { name: 'Nabil Hibban Hardian', href: 'https://portal.dinus.ac.id/show/MTI5YjhkMjA5ZWZlZmNhYWE4NTI5NDIxNGM2MmFlMmMtOTUyNzYtMzI4MDYyODQyODA0NjM3MjI1Ng~~' },
 ];
 
 export default function Footer() {
