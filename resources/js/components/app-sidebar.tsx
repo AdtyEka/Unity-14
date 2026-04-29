@@ -8,6 +8,7 @@ import {
     Settings2,
     Users,
     UsersRound,
+    Calendar,
 } from 'lucide-react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -39,6 +40,7 @@ type AdminSection =
     | 'manajemen-pasien'
     | 'manajemen-pengurus'
     | 'konfigurasi-posyandu'
+    | 'jadwal-kesehatan'
     | 'mpasi'
     | 'ekspor';
 
@@ -53,10 +55,11 @@ const navItems: {
     { key: 'manajemen-pasien', label: 'Manajemen Pasien', icon: Users },
     { key: 'manajemen-pengurus', label: 'Manajemen Pengurus', icon: UsersRound },
     { key: 'konfigurasi-posyandu', label: 'Konfigurasi Posyandu', icon: Settings2 },
+    { key: 'jadwal-kesehatan', label: 'Jadwal Kesehatan', icon: Calendar },
     { key: 'mpasi', label: 'MPASI', icon: ClipboardList },
     { key: 'ekspor', label: 'Ekspor', icon: Download },
 ];
-
+    
 function NavUser() {
     const { isMobile } = useSidebar();
 

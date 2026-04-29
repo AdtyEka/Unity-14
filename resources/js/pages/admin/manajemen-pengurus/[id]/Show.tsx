@@ -116,13 +116,13 @@ function DetailItem({
     value: string;
 }) {
     return (
-        <div className="flex items-start gap-3 rounded-xl border border-emerald-100 bg-emerald-50/50 p-4">
-            <div className="rounded-lg bg-white p-2 text-emerald-700 shadow-sm ring-1 ring-emerald-100">
+        <div className="flex min-w-0 items-start gap-3 rounded-xl border border-emerald-100 bg-emerald-50/50 p-4">
+            <div className="shrink-0 rounded-lg bg-white p-2 text-emerald-700 shadow-sm ring-1 ring-emerald-100">
                 <Icon className="size-4" />
             </div>
             <div className="min-w-0">
                 <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">{label}</p>
-                <p className="mt-1 text-sm font-semibold text-foreground">{value}</p>
+                <p className="mt-1 text-sm font-semibold text-foreground break-words [overflow-wrap:anywhere]">{value}</p>
             </div>
         </div>
     );
@@ -206,15 +206,15 @@ export default function ManajemenPengurusShow({
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:min-w-[360px]">
                                 <div className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
                                     <p className="text-xs uppercase tracking-[0.16em] text-white/75">Status</p>
-                                    <p className="mt-2 text-lg font-semibold">{user.status}</p>
+                                    <p className="mt-2 text-lg font-semibold break-words [overflow-wrap:anywhere]">{user.status}</p>
                                 </div>
                                 <div className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
                                     <p className="text-xs uppercase tracking-[0.16em] text-white/75">NIK</p>
-                                    <p className="mt-2 text-lg font-semibold">{user.nik}</p>
+                                    <p className="mt-2 text-lg font-semibold break-words [overflow-wrap:anywhere]">{user.nik}</p>
                                 </div>
                                 <div className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
                                     <p className="text-xs uppercase tracking-[0.16em] text-white/75">Bergabung</p>
-                                    <p className="mt-2 text-lg font-semibold">{user.joinedAt}</p>
+                                    <p className="mt-2 text-lg font-semibold break-words [overflow-wrap:anywhere]">{user.joinedAt}</p>
                                 </div>
                             </div>
                         </div>
