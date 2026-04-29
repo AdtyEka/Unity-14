@@ -1,14 +1,14 @@
 import * as React from 'react';
 import { Head } from '@inertiajs/react';
 
-import { AppSidebar, type AdminSection } from '@/components/app-sidebar';
+import { KaderSidebar, type KaderSection } from '@/components/kader-sidebar';
 import {
     Breadcrumb,
     BreadcrumbItem,
+    BreadcrumbLink,
     BreadcrumbList,
     BreadcrumbPage,
     BreadcrumbSeparator,
-    BreadcrumbLink,
 } from '@/components/ui/breadcrumb';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -17,41 +17,16 @@ import {
     SidebarTrigger,
 } from '@/components/ui/sidebar';
 
-import DashboardPage from '@/pages/admin/dashboard/page';
-import ManajemenPasienPage from '@/pages/admin/manajemen-pasien/page';
-import ManajemenPengurusPage from '@/pages/admin/manajemen-pengurus/page';
-import KonfigurasiPosyankesPage from '@/pages/admin/konfigurasi-posyankes/page';
-import MpasiPage from '@/pages/admin/mpasi/page';
-import EksporPage from '@/pages/admin/ekspor/page';
-import JadwalKesehatanPage from './jadwal-kesehatan/page';
+import DashboardPage from '@/pages/kader/dashboard/page';
+import ManajemenPasienPage from '@/pages/kader/manajemen-pasien/page';
 
-const sectionLabels: Record<AdminSection, string> = {
+const sectionLabels: Record<KaderSection, string> = {
     dashboard: 'Dashboard',
     'manajemen-pasien': 'Manajemen Pasien',
-    'manajemen-pengurus': 'Manajemen Pengurus',
-    'konfigurasi-posyandu': 'Konfigurasi Posyandu',
-    'jadwal-kesehatan': 'Jadwal Kesehatan',
-    mpasi: 'Mpasi',
-    ekspor: 'Ekspor',
 };
 
-function PlaceholderContent({ title }: { title: string }) {
-    return (
-        <div className="flex flex-1 flex-col gap-4 p-4">
-            <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                <div className="aspect-video rounded-xl bg-muted/50" />
-                <div className="aspect-video rounded-xl bg-muted/50" />
-                <div className="aspect-video rounded-xl bg-muted/50" />
-            </div>
-            <div className="flex min-h-[40vh] flex-1 items-center justify-center rounded-xl bg-muted/50 text-sm text-muted-foreground">
-                {title} — konten menyusul
-            </div>
-        </div>
-    );
-}
-
-export default function AdminPage() {
-    const [active, setActive] = React.useState<AdminSection>('dashboard');
+export default function KaderPage() {
+    const [active, setActive] = React.useState<KaderSection>('dashboard');
 
     const content = React.useMemo(() => {
         switch (active) {
@@ -59,16 +34,6 @@ export default function AdminPage() {
                 return <DashboardPage />;
             case 'manajemen-pasien':
                 return <ManajemenPasienPage />;
-            case 'manajemen-pengurus':
-                return <ManajemenPengurusPage />;
-            case 'konfigurasi-posyandu':
-                return <KonfigurasiPosyankesPage />;
-            case 'mpasi':
-                return <MpasiPage />;
-            case 'ekspor':
-                return <EksporPage />;
-            case 'jadwal-kesehatan':
-                return <JadwalKesehatanPage />;
             default:
                 return <DashboardPage />;
         }
@@ -76,9 +41,9 @@ export default function AdminPage() {
 
     return (
         <>
-            <Head title="Admin Dashboard" />
+            <Head title="Kader Dashboard" />
             <SidebarProvider>
-                <AppSidebar active={active} onNavigate={setActive} />
+                <KaderSidebar active={active} onNavigate={setActive} />
                 <SidebarInset className="bg-[#f7faf6]">
                     <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
                         <div className="flex items-center gap-2 px-4">
@@ -90,7 +55,7 @@ export default function AdminPage() {
                             <Breadcrumb>
                                 <BreadcrumbList>
                                     <BreadcrumbItem className="hidden md:block">
-                                        <BreadcrumbLink href="#">Admin</BreadcrumbLink>
+                                        <BreadcrumbLink href="#">Kader</BreadcrumbLink>
                                     </BreadcrumbItem>
                                     <BreadcrumbSeparator className="hidden md:block" />
                                     <BreadcrumbItem>

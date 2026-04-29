@@ -10,12 +10,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 
-export type UserRole = 'Bidan' | 'Admin Puskesmas' | 'Admin Dinas';
+export type UserRole = 'Bidan' | 'Admin Puskesmas' | 'Admin Dinas' | 'Kader';
 export type UserStatus = 'Aktif' | 'Nonaktif';
 export type RoleFilter = 'Semua Peran' | UserRole;
 export type StatusFilter = 'Semua Status' | UserStatus;
 
-const roleOptions: RoleFilter[] = ['Semua Peran', 'Bidan', 'Admin Puskesmas', 'Admin Dinas'];
+const roleOptions: RoleFilter[] = ['Semua Peran', 'Bidan', 'Admin Puskesmas', 'Admin Dinas', 'Kader'];
 const statusOptions: StatusFilter[] = ['Semua Status', 'Aktif', 'Nonaktif'];
 
 function FilterDropdown<T extends string>({

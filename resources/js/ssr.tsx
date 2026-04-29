@@ -1,5 +1,5 @@
 import { createInertiaApp } from '@inertiajs/react';
-import ReactDOMServer from 'react-dom/server';
+import { renderToString } from 'react-dom/server';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
 const pages = import.meta.glob('./pages/**/*.tsx') as Record<
@@ -19,7 +19,7 @@ export default createInertiaApp({
         return module.default;
     },
     setup({ App, props }) {
-        return ReactDOMServer.renderToString(
+        return renderToString(
             <TooltipProvider>
                 <App {...props} />
             </TooltipProvider>,
