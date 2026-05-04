@@ -1,11 +1,12 @@
+import { AlertTriangle, Calendar, ChevronRight, User, Users } from 'lucide-react';
 import * as React from 'react';
-import { Calendar, ChevronRight, User, Users } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
+import { usiaBulanDariTanggalLahir } from '@/pages/admin/manajemen-pasien/_utils/usia-bulan';
 
 const card3dClassName =
     'relative overflow-hidden transition-all duration-200 ease-out will-change-transform ' +
@@ -44,13 +45,17 @@ export default function CreateStepOne({
 }) {
     const jenisKelamin = value.jenisKelamin;
     const setJenisKelamin = (jk: JenisKelamin) => onChange({ ...value, jenisKelamin: jk });
+    const usiaBulan = usiaBulanDariTanggalLahir(value.tanggalLahir);
+    const diBawahSatuTahun = usiaBulan !== null && usiaBulan < 12;
+    const diAtasLimaTahun = usiaBulan !== null && usiaBulan > 60;
 
     return (
         <div className="flex flex-col gap-6 p-4 md:p-6">
             <div>
                 <h1 className="text-2xl font-bold tracking-tight">Pemeriksaan Pasien Baru</h1>
                 <p className="mt-1 text-sm text-muted-foreground">
-                    Silakan lengkapi data identitas bayi dan orang tua untuk memulai proses analisis risiko stunting.
+                    Silakan lengkapi data identitas bayi dan orang tua. Prediksi AI di langkah berikutnya optimal untuk
+                    balita <span className="font-medium text-foreground">1–5 tahun</span> (12–60 bulan).
                 </p>
             </div>
 
@@ -136,6 +141,28 @@ export default function CreateStepOne({
                                 </div>
                             </div>
                         </div>
+
+                        {(diBawahSatuTahun || diAtasLimaTahun) && (
+                            <div className="flex items-start gap-3 border-t bg-amber-50/80 px-4 py-3 text-sm text-amber-950">
+                                <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-700" />
+                                <div className="leading-relaxed">
+                                    {diBawahSatuTahun && (
+                                        <>
+                                            <span className="font-medium">Usia belum 1 tahun.</span> Di langkah berikutnya
+                                            tidak ada prediksi ML — hanya pencatatan panjang/tinggi dan berat badan.
+                                            Penilaian mengacu pada <span className="font-medium">kurva WHO</span> di halaman
+                                            detail.
+                                        </>
+                                    )}
+                                    {diAtasLimaTahun && !diBawahSatuTahun && (
+                                        <>
+                                            <span className="font-medium">Usia di atas 5 tahun.</span> Model prediksi
+                                            mengacu pada balita 1–5 tahun; hasil analisis mungkin kurang representatif.
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div className="mt-5 rounded-lg border bg-white">

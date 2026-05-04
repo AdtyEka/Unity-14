@@ -1,18 +1,20 @@
-import * as React from 'react';
 import { Plus } from 'lucide-react';
+import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import PatientFilter, { type FilterOption, type RiskStatus } from '@/pages/admin/manajemen-pasien/_components/PatientFilter';
-import PatientTable, { type PatientRow } from '@/pages/admin/manajemen-pasien/_components/PatientTable';
-import ManajemenPasienCreate from '@/pages/admin/manajemen-pasien/Create';
 import ManajemenPasienShow from '@/pages/admin/manajemen-pasien/[id]/Show';
+import PatientFilter from '@/pages/admin/manajemen-pasien/_components/PatientFilter';
+import type {FilterOption, RiskStatus} from '@/pages/admin/manajemen-pasien/_components/PatientFilter';
+import PatientTable from '@/pages/admin/manajemen-pasien/_components/PatientTable';
+import type {PatientRow} from '@/pages/admin/manajemen-pasien/_components/PatientTable';
+import ManajemenPasienCreate from '@/pages/admin/manajemen-pasien/Create';
 
 type NestedRoute =
     | { name: 'index' }
     | { name: 'create' }
-    | { name: 'show'; id: string };
+    | { name: 'show'; id: string; tanpaPrediksiMl?: boolean };
 
 const patientsSeed: PatientRow[] = [
     { uid: '#B-1042', namaBalita: 'Budi Santoso', namaIbu: 'Siti Aminah', usia: '18 Bulan', status: 'Stunting' },
@@ -63,6 +65,7 @@ export default function ManajemenPasienPage() {
 
     const rows = React.useMemo(() => {
         const start = (page - 1) * pageSize;
+
         return filtered.slice(start, start + pageSize);
     }, [filtered, page]);
 
@@ -71,12 +74,27 @@ export default function ManajemenPasienPage() {
 
     if (route.name === 'create') {
         return (
-            <ManajemenPasienCreate onCancel={() => setRoute({ name: 'index' })} onDone={() => setRoute({ name: 'index' })} />
+            <ManajemenPasienCreate
+                onCancel={() => setRoute({ name: 'index' })}
+                onDone={(pasienId, { prediksiMl }) =>
+                    setRoute({
+                        name: 'show',
+                        id: pasienId,
+                        ...(!prediksiMl ? { tanpaPrediksiMl: true } : {}),
+                    })
+                }
+            />
         );
     }
 
     if (route.name === 'show') {
-        return <ManajemenPasienShow id={route.id} onBack={() => setRoute({ name: 'index' })} />;
+        return (
+            <ManajemenPasienShow
+                id={route.id}
+                tanpaPrediksiMl={route.tanpaPrediksiMl === true}
+                onBack={() => setRoute({ name: 'index' })}
+            />
+        );
     }
 
     return (
