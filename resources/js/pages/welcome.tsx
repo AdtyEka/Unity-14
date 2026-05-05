@@ -1,7 +1,7 @@
 import Hero from '@/components/sections/hero';
 import About from '@/components/sections/about';
 import CTA from '@/components/sections/CTA';
-import Footer from '@/components/sections/footer';
+import Footer from '@/components/layouts/footer';
 import MarketingLayout from '@/components/layouts/navbar';
 
 export default function Home() {

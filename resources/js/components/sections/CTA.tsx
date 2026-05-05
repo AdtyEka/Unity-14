@@ -9,27 +9,27 @@ import { Button } from '@/components/ui/button';
 const SLIDES = [
     {
         id: 1,
-        src: 'https://images.unsplash.com/photo-1581093804475-577d72e35330?w=900&q=80',
+        src: '/assets/images/gallery/gallery-1.webp',
         label: 'Pemantauan Posyandu',
     },
     {
         id: 2,
-        src: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=900&q=80',
+        src: '/assets/images/gallery/gallery-2.webp',
         label: 'Konsultasi Gizi',
     },
     {
         id: 3,
-        src: 'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=900&q=80',
+        src: '/assets/images/gallery/gallery-3.webp',
         label: 'Pencatatan Data Anak',
     },
     {
         id: 4,
-        src: 'https://images.unsplash.com/photo-1504439468489-c8920d796a29?w=900&q=80',
+        src: '/assets/images/gallery/gallery-4.webp',
         label: 'Deteksi Dini Stunting',
     },
     {
         id: 5,
-        src: 'https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=900&q=80',
+        src: '/assets/images/gallery/gallery-5.webp',
         label: 'Edukasi Orang Tua',
     },
 ];

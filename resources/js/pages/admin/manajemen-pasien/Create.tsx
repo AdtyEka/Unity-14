@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import CreateStepOne from '@/pages/admin/manajemen-pasien/_components/CreateStepOne';
 import CreateStepTwo from '@/pages/admin/manajemen-pasien/_components/CreateStepTwo';
+import { usiaBulanDariTanggalLahir } from '@/pages/admin/manajemen-pasien/_utils/usia-bulan';
 
 export type PemeriksaanBaruDraft = {
     namaBayi: string;
@@ -13,14 +14,9 @@ export type PemeriksaanBaruDraft = {
     nomorHp: string;
 };
 
-function diffMonths(from: Date, to: Date): number {
-    const years = to.getFullYear() - from.getFullYear();
-    const months = to.getMonth() - from.getMonth();
-    let total = years * 12 + months;
-    if (to.getDate() < from.getDate()) {
-        total -= 1;
-    }
-    return Math.max(0, total);
+/** UID sementara untuk navigasi ke detail setelah pemeriksaan (ganti saat sudah ada respons API). */
+export function uidPemeriksaanBaru(): string {
+    return `#B-${Date.now()}`;
 }
 
 export default function ManajemenPasienCreate({
@@ -28,7 +24,10 @@ export default function ManajemenPasienCreate({
     onDone,
 }: {
     onCancel: () => void;
-    onDone: () => void;
+    /**
+     * @param prediksiMl `true` hanya jika usia 12–60 bulan (model ML tersedia). Untuk 0–11 bulan selalu `false`.
+     */
+    onDone: (pasienId: string, meta: { prediksiMl: boolean }) => void;
 }) {
     const [step, setStep] = React.useState<1 | 2>(1);
     const [draft, setDraft] = React.useState<PemeriksaanBaruDraft>({
@@ -52,16 +51,16 @@ export default function ManajemenPasienCreate({
         );
     }
 
-    const birthDate = draft.tanggalLahir ? new Date(draft.tanggalLahir) : null;
-    const ageMonths = birthDate ? diffMonths(birthDate, new Date()) : null;
-    const isUnder2Years = ageMonths === null ? true : ageMonths < 24;
+    const usiaBulan = usiaBulanDariTanggalLahir(draft.tanggalLahir);
+    const prediksiMl = usiaBulan !== null && usiaBulan >= 12 && usiaBulan <= 60;
 
     return (
         <CreateStepTwo
-            variant={isUnder2Years ? 'under-2' : 'over-2'}
+            usiaBulan={usiaBulan}
+            prediksiMl={prediksiMl}
             onBack={() => setStep(1)}
             onCancel={onCancel}
-            onSubmit={onDone}
+            onSubmit={() => onDone(uidPemeriksaanBaru(), { prediksiMl })}
         />
     );
 }

@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { Clock, Hospital, Map, PencilLine, Plus, Save } from 'lucide-react';
 
+import MapWilayahPuskesmas from '@/pages/admin/konfigurasi-posyankes/_components/MapWilayahPuskesmas';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -154,14 +156,8 @@ export default function KonfigurasiPosyankesPage() {
                                 Puskesmas ini.
                             </p>
 
-                            <div className="mt-4 overflow-hidden rounded-xl border bg-muted/10">
-                                <div className="relative h-40 w-full bg-[radial-gradient(circle_at_30%_30%,rgba(16,185,129,0.18),transparent_55%),radial-gradient(circle_at_70%_60%,rgba(15,23,42,0.08),transparent_60%)]">
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <Button type="button" variant="outline" className="h-9 rounded-lg">
-                                            Lihat Peta Besar
-                                        </Button>
-                                    </div>
-                                </div>
+                            <div className="mt-4 overflow-hidden rounded-xl border">
+                                <MapWilayahPuskesmas />
                             </div>
 
                             <div className="mt-4 flex items-center justify-between">

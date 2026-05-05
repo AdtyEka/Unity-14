@@ -1,28 +1,30 @@
-import * as React from 'react';
 import {
     ArrowLeft,
     CalendarDays,
     CircleAlert,
     Dot,
+    Info,
     Printer,
     Send,
     SquarePen,
     UserRound,
 } from 'lucide-react';
+import * as React from 'react';
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import {
     ChartContainer,
     ChartLegend,
     ChartLegendContent,
     ChartTooltip,
-    ChartTooltipContent,
-    type ChartConfig,
+    ChartTooltipContent
+    
 } from '@/components/ui/chart';
+import type {ChartConfig} from '@/components/ui/chart';
+import { Input } from '@/components/ui/input';
 import {
     Table,
     TableBody,
@@ -43,6 +45,25 @@ const kontribusiUtama = [
     { label: 'Tinggi Badan (Z-score -2.8)', value: 34, color: 'bg-red-500' },
     { label: 'Riwayat Diare (Berulang)', value: 22, color: 'bg-orange-500' },
     { label: 'Asupan Protein (Kurang)', value: 14, color: 'bg-amber-500' },
+];
+
+const rekomendasiTanpaMl = [
+    {
+        title: 'Pertumbuhan menurut WHO',
+        description:
+            'Plotting Z-score panjang/tinggi dan berat badan pada kurva WHO sesuai usia. Diskusikan tren dengan tenaga kesehatan.',
+        className: 'border-emerald-200 bg-emerald-50',
+    },
+    {
+        title: 'ASI & MPASI / gizi',
+        description: 'Pastikan ASI eksklusif sesuai usia dan transisi MPASI yang cukup energi-protein.',
+        className: 'border-slate-200 bg-slate-50',
+    },
+    {
+        title: 'Jadwal posyandu',
+        description: 'Lanjutkan pemantauan rutin sesuai jadwal posyandu atau poli anak.',
+        className: 'border-slate-200 bg-slate-50',
+    },
 ];
 
 const rekomendasi = [
@@ -99,9 +120,12 @@ function RiskBadge({ status }: { status: 'Tinggi' | 'Sedang' | 'Normal' }) {
 
 export default function ManajemenPasienShow({
     id,
+    tanpaPrediksiMl = false,
     onBack,
 }: {
     id: string;
+    /** Dari pemeriksaan baru di luar rentang model ML (mis. 0–11 bulan). */
+    tanpaPrediksiMl?: boolean;
     onBack: () => void;
 }) {
     const [isEditingIdentity, setIsEditingIdentity] = React.useState(false);
@@ -141,6 +165,18 @@ export default function ManajemenPasienShow({
                 </Button>
             </div>
 
+            {tanpaPrediksiMl ? (
+                <div className="flex items-start gap-3 rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-950">
+                    <Info className="mt-0.5 size-4 shrink-0 text-sky-700" />
+                    <p className="leading-relaxed">
+                        <span className="font-medium">Pemeriksaan tersimpan tanpa prediksi ML.</span> Untuk usia di luar
+                        rentang model (1–5 tahun) atau bayi di bawah 1 tahun, gunakan interpretasi{' '}
+                        <span className="font-medium">kurva pertumbuhan WHO</span> dan penilaian klinis — bukan skor
+                        probabilitas AI.
+                    </p>
+                </div>
+            ) : null}
+
             <Card className={cn(card3dClassName, 'bg-white')}>
                 <CardContent className="p-4 md:p-5">
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -150,9 +186,15 @@ export default function ManajemenPasienShow({
                             </div>
                             <div>
                                 <h2 className="text-2xl font-bold">{patientIdentity.namaBayi}</h2>
-                                <Badge className="mt-1 rounded-full bg-red-100 text-red-800 hover:bg-red-100">
-                                    RISIKO TINGGI
-                                </Badge>
+                                {tanpaPrediksiMl ? (
+                                    <Badge className="mt-1 rounded-full bg-sky-100 text-sky-800 hover:bg-sky-100">
+                                        Pencatatan antropometri
+                                    </Badge>
+                                ) : (
+                                    <Badge className="mt-1 rounded-full bg-red-100 text-red-800 hover:bg-red-100">
+                                        RISIKO TINGGI
+                                    </Badge>
+                                )}
                                 <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                                     <span className="inline-flex items-center gap-1.5">
                                         <CircleAlert className="size-4" />
@@ -255,121 +297,127 @@ export default function ManajemenPasienShow({
                 </CardContent>
             </Card>
 
-            <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-                <Card className={cn(card3dClassName, 'gap-0 py-0 bg-white xl:col-span-1')}>
-                    <CardContent className="p-0">
-                        <div className="rounded-t-xl border-b bg-red-50 p-4">
-                            <p className="text-sm font-semibold text-red-900">Analisis Risiko AI</p>
-                            <div className="mt-2 flex items-end gap-2">
-                                <span className="text-5xl font-black text-red-700">82%</span>
-                                <span className="mb-1 text-sm text-red-800">
-                                    Probabilitas stunting
-                                    <br />
-                                    dalam 3 bulan
-                                </span>
+            {!tanpaPrediksiMl ? (
+                <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+                    <Card className={cn(card3dClassName, 'gap-0 py-0 bg-white xl:col-span-1')}>
+                        <CardContent className="p-0">
+                            <div className="rounded-t-xl border-b bg-red-50 p-4">
+                                <p className="text-sm font-semibold text-red-900">Analisis Risiko AI</p>
+                                <div className="mt-2 flex items-end gap-2">
+                                    <span className="text-5xl font-black text-red-700">82%</span>
+                                    <span className="mb-1 text-sm text-red-800">
+                                        Probabilitas stunting
+                                        <br />
+                                        dalam 3 bulan
+                                    </span>
+                                </div>
                             </div>
-                        </div>
-                        <div className="p-4">
-                            <p className="text-sm font-semibold text-foreground">Faktor Kontribusi Utama (SHAP)</p>
-                            <div className="mt-3 space-y-3">
-                                {kontribusiUtama.map((item) => (
-                                    <div key={item.label}>
-                                        <div className="mb-1 flex items-center justify-between text-xs">
-                                            <span className="text-muted-foreground">{item.label}</span>
-                                            <span className="font-semibold text-red-700">+{item.value}%</span>
+                            <div className="p-4">
+                                <p className="text-sm font-semibold text-foreground">Faktor Kontribusi Utama (SHAP)</p>
+                                <div className="mt-3 space-y-3">
+                                    {kontribusiUtama.map((item) => (
+                                        <div key={item.label}>
+                                            <div className="mb-1 flex items-center justify-between text-xs">
+                                                <span className="text-muted-foreground">{item.label}</span>
+                                                <span className="font-semibold text-red-700">+{item.value}%</span>
+                                            </div>
+                                            <div className="h-2 rounded-full bg-muted">
+                                                <div
+                                                    className={cn('h-2 rounded-full', item.color)}
+                                                    style={{ width: `${item.value}%` }}
+                                                />
+                                            </div>
                                         </div>
-                                        <div className="h-2 rounded-full bg-muted">
-                                            <div
-                                                className={cn('h-2 rounded-full', item.color)}
-                                                style={{ width: `${item.value}%` }}
-                                            />
-                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card className={cn(card3dClassName, 'bg-white xl:col-span-2')}>
+                        <CardContent className="p-4">
+                            <div className="mb-4 flex items-center justify-between">
+                                <p className="text-lg font-semibold">Kurva Pertumbuhan WHO</p>
+                                <div className="flex items-center gap-2">
+                                    <Badge variant="outline" className="rounded-full bg-emerald-50 text-emerald-700">
+                                        Tinggi/Umur
+                                    </Badge>
+                                    <Badge variant="outline" className="rounded-full">
+                                        Berat/Umur
+                                    </Badge>
+                                </div>
+                            </div>
+                            <ChartContainer
+                                config={growthChartConfig}
+                                className="h-[240px] w-full overflow-hidden rounded-lg border bg-gradient-to-b from-amber-50 to-white p-2"
+                            >
+                                <LineChart
+                                    accessibilityLayer
+                                    data={growthChartData}
+                                    margin={{ left: 12, right: 12, top: 8 }}
+                                >
+                                    <CartesianGrid vertical={false} />
+                                    <XAxis
+                                        dataKey="month"
+                                        tickLine={false}
+                                        axisLine={false}
+                                        tickMargin={8}
+                                    />
+                                    <YAxis
+                                        dataKey="zscore"
+                                        tickLine={false}
+                                        axisLine={false}
+                                        tickMargin={8}
+                                        domain={[-3.2, -1.8]}
+                                        tickFormatter={(value) => value.toFixed(1)}
+                                    />
+                                    <ChartTooltip
+                                        cursor={false}
+                                        content={<ChartTooltipContent indicator="line" />}
+                                    />
+                                    <Line
+                                        dataKey="zscore"
+                                        type="natural"
+                                        stroke="var(--color-zscore)"
+                                        strokeWidth={2.5}
+                                        dot={{ fill: 'var(--color-zscore)', r: 3 }}
+                                        activeDot={{ r: 5 }}
+                                    />
+                                    <ChartLegend content={<ChartLegendContent />} />
+                                </LineChart>
+                            </ChartContainer>
+                            <div className="mt-2 flex items-center justify-end text-xs text-muted-foreground">
+                                <Dot className="size-4 text-red-600" />
+                                Z-Score mendekati -3 menandakan risiko makin tinggi
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            ) : null}
+
+            <div className={cn('grid grid-cols-1 gap-4', tanpaPrediksiMl ? 'xl:grid-cols-1' : 'xl:grid-cols-3')}>
+                {!tanpaPrediksiMl ? (
+                    <Card className={cn(card3dClassName, 'bg-white xl:col-span-1')}>
+                        <CardContent className="p-4">
+                            <p className="text-lg font-semibold">Rekomendasi Klinis</p>
+                            <div className="mt-4 space-y-3">
+                                {(tanpaPrediksiMl ? rekomendasiTanpaMl : rekomendasi).map((item) => (
+                                    <div key={item.title} className={cn('rounded-lg border p-3', item.className)}>
+                                        <p className="text-sm font-semibold">{item.title}</p>
+                                        <p className="mt-1 text-xs text-muted-foreground">{item.description}</p>
                                     </div>
                                 ))}
                             </div>
-                        </div>
-                    </CardContent>
-                </Card>
+                        </CardContent>
+                    </Card>
+                ) : null}
 
-                <Card className={cn(card3dClassName, 'bg-white xl:col-span-2')}>
-                    <CardContent className="p-4">
-                        <div className="mb-4 flex items-center justify-between">
-                            <p className="text-lg font-semibold">Kurva Pertumbuhan WHO</p>
-                            <div className="flex items-center gap-2">
-                                <Badge variant="outline" className="rounded-full bg-emerald-50 text-emerald-700">
-                                    Tinggi/Umur
-                                </Badge>
-                                <Badge variant="outline" className="rounded-full">
-                                    Berat/Umur
-                                </Badge>
-                            </div>
-                        </div>
-                        <ChartContainer
-                            config={growthChartConfig}
-                            className="h-[240px] w-full overflow-hidden rounded-lg border bg-gradient-to-b from-amber-50 to-white p-2"
-                        >
-                            <LineChart
-                                accessibilityLayer
-                                data={growthChartData}
-                                margin={{ left: 12, right: 12, top: 8 }}
-                            >
-                                <CartesianGrid vertical={false} />
-                                <XAxis
-                                    dataKey="month"
-                                    tickLine={false}
-                                    axisLine={false}
-                                    tickMargin={8}
-                                />
-                                <YAxis
-                                    dataKey="zscore"
-                                    tickLine={false}
-                                    axisLine={false}
-                                    tickMargin={8}
-                                    domain={[-3.2, -1.8]}
-                                    tickFormatter={(value) => value.toFixed(1)}
-                                />
-                                <ChartTooltip
-                                    cursor={false}
-                                    content={<ChartTooltipContent indicator="line" />}
-                                />
-                                <Line
-                                    dataKey="zscore"
-                                    type="natural"
-                                    stroke="var(--color-zscore)"
-                                    strokeWidth={2.5}
-                                    dot={{ fill: 'var(--color-zscore)', r: 3 }}
-                                    activeDot={{ r: 5 }}
-                                />
-                                <ChartLegend content={<ChartLegendContent />} />
-                            </LineChart>
-                        </ChartContainer>
-                        <div className="mt-2 flex items-center justify-end text-xs text-muted-foreground">
-                            <Dot className="size-4 text-red-600" />
-                            Z-Score mendekati -3 menandakan risiko makin tinggi
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-                <Card className={cn(card3dClassName, 'bg-white xl:col-span-1')}>
-                    <CardContent className="p-4">
-                        <p className="text-lg font-semibold">Rekomendasi Klinis</p>
-                        <div className="mt-4 space-y-3">
-                            {rekomendasi.map((item) => (
-                                <div key={item.title} className={cn('rounded-lg border p-3', item.className)}>
-                                    <p className="text-sm font-semibold">{item.title}</p>
-                                    <p className="mt-1 text-xs text-muted-foreground">{item.description}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card className={cn(card3dClassName, 'bg-white xl:col-span-2')}>
+                <Card className={cn(card3dClassName, 'bg-white', tanpaPrediksiMl ? 'xl:col-span-1' : 'xl:col-span-2')}>
                     <CardContent className="p-4">
                         <div className="mb-3 flex items-center justify-between">
-                            <p className="text-lg font-semibold">Riwayat Pemeriksaan</p>
+                            <p className="text-lg font-semibold">
+                                {tanpaPrediksiMl ? 'Catatan Antropometri' : 'Riwayat Pemeriksaan'}
+                            </p>
                             <Button type="button" variant="ghost" size="sm">
                                 Lihat Semua
                             </Button>
@@ -382,8 +430,8 @@ export default function ManajemenPasienShow({
                                         <TableHead>Usia</TableHead>
                                         <TableHead>BB (kg)</TableHead>
                                         <TableHead>TB (cm)</TableHead>
-                                        <TableHead>Z-Score (TB/U)</TableHead>
-                                        <TableHead>Status Risiko</TableHead>
+                                        {!tanpaPrediksiMl ? <TableHead>Z-Score (TB/U)</TableHead> : null}
+                                        {!tanpaPrediksiMl ? <TableHead>Status Risiko</TableHead> : null}
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -393,10 +441,14 @@ export default function ManajemenPasienShow({
                                             <TableCell>{row.usia}</TableCell>
                                             <TableCell>{row.bb}</TableCell>
                                             <TableCell>{row.tb}</TableCell>
-                                            <TableCell className="font-semibold text-red-700">{row.zscore}</TableCell>
-                                            <TableCell>
-                                                <RiskBadge status={row.status} />
-                                            </TableCell>
+                                            {!tanpaPrediksiMl ? (
+                                                <TableCell className="font-semibold text-red-700">{row.zscore}</TableCell>
+                                            ) : null}
+                                            {!tanpaPrediksiMl ? (
+                                                <TableCell>
+                                                    <RiskBadge status={row.status} />
+                                                </TableCell>
+                                            ) : null}
                                         </TableRow>
                                     ))}
                                 </TableBody>
