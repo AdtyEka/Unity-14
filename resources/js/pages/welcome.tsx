@@ -3,18 +3,29 @@ import About from '@/components/sections/about';
 import CTA from '@/components/sections/CTA';
 import Footer from '@/components/layouts/footer';
 import MarketingLayout from '@/components/layouts/navbar';
+import { useEffect } from 'react';
 
 export default function Home() {
+    useEffect(() => {
+        const html = document.documentElement;
+        const body = document.body;
+
+        html.classList.add('no-scrollbar');
+        body.classList.add('no-scrollbar', 'overflow-hidden');
+
+        return () => {
+            html.classList.remove('no-scrollbar');
+            body.classList.remove('no-scrollbar', 'overflow-hidden');
+        };
+    }, []);
+
     return (
         <div className="no-scrollbar relative h-screen w-full overflow-x-hidden overflow-y-auto">
-            {/* Global video background — fixed to viewport, never scrolls */}
-            <video
-                src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260319_015952_e1deeb12-8fb7-4071-a42a-60779fc64ab6.mp4"
-                autoPlay
-                muted
-                loop
-                playsInline
-                className="fixed inset-0 -z-10 h-full w-full object-cover"
+            {/* Global background — fixed to viewport, never scrolls */}
+            <div
+                aria-hidden="true"
+                className="fixed inset-0 -z-10 bg-cover bg-center"
+                style={{ backgroundImage: 'url(/assets/images/landing-page/Bg-Landing.webp)' }}
             />
 
             {/* Cinematic overlay — fixed, sits just above video */}

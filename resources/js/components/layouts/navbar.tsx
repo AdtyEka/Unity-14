@@ -21,7 +21,7 @@ const navLinks = [
 
 function Navbar() {
     return (
-        <div className="relative z-20 px-4 pt-4 md:px-10 lg:px-16">
+        <div className="sticky top-0 z-50 px-4 pt-4 md:px-10 lg:px-16">
             <div
                 className="mx-auto w-full max-w-6xl rounded-2xl"
                 style={{
@@ -65,7 +65,7 @@ function Navbar() {
                         className="hidden rounded-full bg-black px-5 text-sm font-medium text-white hover:bg-black/90 md:inline-flex"
                         style={{ fontFamily: 'var(--font-body)' }}
                     >
-                        <Link href="/login">Get started</Link>
+                        <Link href="/login">Mulai</Link>
                     </Button>
 
                     {/* Mobile burger */}

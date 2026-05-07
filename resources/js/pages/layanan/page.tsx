@@ -396,7 +396,7 @@ function PageHeader() {
                 Konfigurasi Fasyankes
             </h1>
             <p
-                className="mt-3 text-base md:text-lg text-muted-foreground"
+                className="mt-3 text-base text-black md:text-lg"
                 style={{ fontFamily: 'var(--font-body)' }}
             >
                 Kelola profil, jam layanan, dan wilayah cakupan Puskesmas Anda.
@@ -408,20 +408,30 @@ function PageHeader() {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function LayananPage() {
+    React.useEffect(() => {
+        const html = document.documentElement;
+        const body = document.body;
+
+        html.classList.add('no-scrollbar');
+        body.classList.add('no-scrollbar', 'overflow-hidden');
+
+        return () => {
+            html.classList.remove('no-scrollbar');
+            body.classList.remove('no-scrollbar', 'overflow-hidden');
+        };
+    }, []);
+
     return (
-        <div className="no-scrollbar relative min-h-screen w-full overflow-x-hidden">
-            {/* Background Video */}
-            <video
-                src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260319_015952_e1deeb12-8fb7-4071-a42a-60779fc64ab6.mp4"
-                autoPlay
-                muted
-                loop
-                playsInline
-                className="fixed inset-0 -z-10 h-full w-full object-cover"
+        <div className="no-scrollbar relative h-screen w-full overflow-x-hidden overflow-y-auto">
+            {/* Background Image */}
+            <div
+                aria-hidden="true"
+                className="fixed inset-0 -z-10 bg-cover bg-center"
+                style={{ backgroundImage: 'url(/assets/images/landing-page/Bg-Landing.webp)' }}
             />
 
             {/* Overlay */}
-            <div className="fixed inset-0 -z-10" />
+            <div className="fixed inset-0 -z-9" />
 
             {/* Content */}
             <div className="relative z-10">

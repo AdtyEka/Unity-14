@@ -58,7 +58,7 @@ export default function Hero() {
                     {/* 3. Subheadline */}
                     <motion.p
                         {...fadeUp(0.2, 16, 0.6)}
-                        className="text-muted-foreground mt-4 max-w-[700px] text-center text-base leading-relaxed md:text-lg"
+                        className="mt-4 max-w-[700px] text-center text-base leading-relaxed text-black md:text-lg"
                         style={{ fontFamily: 'var(--font-body)' }}
                     >
                         Otomatiskan pemantauan tumbuh kembang anak dengan sistem cerdas yang menganalisis, memprediksi, dan memberi rekomendasi MPASI agar anak tumbuh optimal.
