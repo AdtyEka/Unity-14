@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowLeft, Check, ClipboardList, Info } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Calendar, Check, ClipboardList, Info } from 'lucide-react';
 import * as React from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -63,6 +63,7 @@ function WarningBox({ children }: { children: React.ReactNode }) {
 export default function CreateStepTwo({
     usiaBulan,
     prediksiMl,
+    mode = 'new',
     onBack,
     onCancel,
     onSubmit,
@@ -71,10 +72,19 @@ export default function CreateStepTwo({
     usiaBulan: number | null;
     /** `true` hanya untuk rentang 12–60 bulan (prediksi ML dijalankan). */
     prediksiMl: boolean;
+    /** `existing` untuk pasien lama (langsung antropometri). */
+    mode?: 'new' | 'existing';
     onBack: () => void;
     onCancel: () => void;
     onSubmit: () => void;
 }) {
+    const [tanggalPemeriksaan, setTanggalPemeriksaan] = React.useState(() => {
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    });
     const [tinggiBadan, setTinggiBadan] = React.useState('');
     const [beratBadan, setBeratBadan] = React.useState('');
 
@@ -89,16 +99,22 @@ export default function CreateStepTwo({
     return (
         <div className="flex flex-col gap-6 p-4 md:p-6">
             <div>
-                <h1 className="text-2xl font-bold tracking-tight">Pemeriksaan Baru — Langkah 2</h1>
+                <h1 className="text-2xl font-bold tracking-tight">
+                    {mode === 'existing' ? 'Pemeriksaan Antropometri' : 'Pemeriksaan Baru — Langkah 2'}
+                </h1>
                 <p className="mt-1 text-sm text-muted-foreground">
-                    {prediksiMl && (
+                    {mode === 'existing' ? (
+                        <>
+                            Lengkapi tinggi/panjang dan berat badan sesuai pengukuran hari ini. Data identitas pasien
+                            menggunakan data sebelumnya. {prediksiMl ? 'Prediksi ML tersedia untuk usia 1–5 tahun.' : null}
+                        </>
+                    ) : prediksiMl ? (
                         <>
                             Masukkan panjang/tinggi dan berat badan sesuai pengukuran saat ini. Model ML prediksi stunting
                             tersedia untuk usia <span className="font-medium text-foreground">1–5 tahun</span> (12–60
                             bulan).
                         </>
-                    )}
-                    {diBawahSatuTahun && (
+                    ) : diBawahSatuTahun ? (
                         <>
                             Untuk usia <span className="font-medium text-foreground">di bawah 1 tahun</span> tidak ada
                             model ML di sistem ini. Langkah ini hanya untuk{' '}
@@ -106,19 +122,17 @@ export default function CreateStepTwo({
                             dan berat); penilaian risiko mengacu pada{' '}
                             <span className="font-medium text-foreground">kurva pertumbuhan WHO</span> di detail pasien.
                         </>
-                    )}
-                    {!prediksiMl && !diBawahSatuTahun && usiaBulan !== null && (
+                    ) : !diBawahSatuTahun && usiaBulan !== null ? (
                         <>
                             Prediksi ML hanya untuk usia 12–60 bulan. Untuk usia ini Anda tetap dapat menyimpan data
                             pengukuran; interpretasi mengacu pada kriteria klinis dan kurva WHO.
                         </>
-                    )}
-                    {!prediksiMl && usiaBulan === null && (
+                    ) : usiaBulan === null ? (
                         <>
                             Lengkapi tanggal lahir di langkah 1 agar sistem dapat menentukan apakah prediksi ML tersedia
                             (12–60 bulan). Sementara ini Anda dapat menyimpan pengukuran sebagai dokumentasi.
                         </>
-                    )}
+                    ) : null}
                 </p>
                 {deskripsiUsia !== null && (
                     <p className="mt-1 text-xs text-muted-foreground">Usia saat pemeriksaan: {deskripsiUsia}</p>
@@ -127,7 +141,7 @@ export default function CreateStepTwo({
 
             <Card className={cn(card3dClassName, 'bg-white')}>
                 <CardContent className="p-4 md:p-5">
-                    <Stepper prediksiMl={prediksiMl} />
+                    {mode === 'new' ? <Stepper prediksiMl={prediksiMl} /> : null}
                     {diBawahSatuTahun && (
                         <WarningBox>
                             <span className="font-medium">Tidak ada prediksi ML untuk 0–11 bulan.</span> Pengukuran
@@ -168,6 +182,21 @@ export default function CreateStepTwo({
                         </div>
                         <div className="border-t p-4">
                             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                <div className="md:col-span-2">
+                                    <label className="text-sm font-medium" htmlFor="tanggal-pemeriksaan">
+                                        Tanggal pemeriksaan
+                                    </label>
+                                    <div className="relative mt-2">
+                                        <Calendar className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                                        <Input
+                                            id="tanggal-pemeriksaan"
+                                            className="h-10 pl-9"
+                                            type="date"
+                                            value={tanggalPemeriksaan}
+                                            onChange={(e) => setTanggalPemeriksaan(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
                                 <div>
                                     <label className="text-sm font-medium" htmlFor="tinggi-badan">
                                         {labelPanjangTinggi}
@@ -211,7 +240,7 @@ export default function CreateStepTwo({
                     <div className="mt-6 flex items-center justify-between">
                         <Button type="button" variant="outline" className="h-10 rounded-lg px-5" onClick={onBack}>
                             <ArrowLeft className="mr-2 size-4" />
-                            Kembali ke Langkah 1
+                            {mode === 'existing' ? 'Kembali ke daftar pasien' : 'Kembali ke Langkah 1'}
                         </Button>
                         <div className="flex items-center gap-2">
                             <Button type="button" variant="outline" className="h-10 rounded-lg px-5" onClick={onCancel}>

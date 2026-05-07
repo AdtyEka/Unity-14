@@ -169,7 +169,7 @@ function PageHeader() {
                 Semua Tentang Asupan
             </h1>
             <p
-                className="mt-3 max-w-md text-base md:text-lg text-foreground/70 leading-relaxed"
+                className="mt-3 max-w-md text-base text-black leading-relaxed md:text-lg"
                 style={{ fontFamily: 'var(--font-body)' }}
             >
                 Jelajahi berbagai jenis makanan seperti sarapan, makan siang, dan lebih banyak
@@ -183,20 +183,30 @@ function PageHeader() {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function MpasiPage() {
+    React.useEffect(() => {
+        const html = document.documentElement;
+        const body = document.body;
+
+        html.classList.add('no-scrollbar');
+        body.classList.add('no-scrollbar', 'overflow-hidden');
+
+        return () => {
+            html.classList.remove('no-scrollbar');
+            body.classList.remove('no-scrollbar', 'overflow-hidden');
+        };
+    }, []);
+
     return (
-        <div className="no-scrollbar relative min-h-screen w-full overflow-x-hidden">
-            {/* Background Video */}
-            <video
-                src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260319_015952_e1deeb12-8fb7-4071-a42a-60779fc64ab6.mp4"
-                autoPlay
-                muted
-                loop
-                playsInline
-                className="fixed inset-0 -z-10 h-full w-full object-cover"
+        <div className="no-scrollbar relative h-screen w-full overflow-x-hidden overflow-y-auto">
+            {/* Background Image */}
+            <div
+                aria-hidden="true"
+                className="fixed inset-0 -z-10 bg-cover bg-center"
+                style={{ backgroundImage: 'url(/assets/images/landing-page/Bg-Landing.webp)' }}
             />
 
             {/* Overlay */}
-            <div className="fixed inset-0 -z-10" />
+            <div className="fixed inset-0 -z-9" />
 
             {/* Content */}
             <div className="relative z-10">

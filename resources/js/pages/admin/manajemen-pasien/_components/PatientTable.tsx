@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,23 +12,26 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
-import type { RiskStatus } from '@/pages/admin/manajemen-pasien/_components/PatientFilter';
+
+export type StatusGizi = 'Stunting' | 'Risiko Tinggi' | 'Gizi Baik';
 
 export type PatientRow = {
-    uid: string;
-    namaBalita: string;
-    namaIbu: string;
-    usia: string;
-    status: RiskStatus;
+    id: string;
+    namaPasien: string;
+    jenisKelamin: 'Laki-laki' | 'Perempuan';
+    umur: string;
+    usiaBulan: number;
+    tanggalPemeriksaanTerakhir: string;
+    statusGizi: StatusGizi;
 };
 
-const statusPill: Record<RiskStatus, { badge: string }> = {
+const statusPill: Record<StatusGizi, { badge: string }> = {
     Stunting: { badge: 'bg-red-100 text-red-800 border-red-200' },
     'Risiko Tinggi': { badge: 'bg-amber-100 text-amber-800 border-amber-200' },
     'Gizi Baik': { badge: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
 };
 
-function RiskBadge({ status }: { status: RiskStatus }) {
+function StatusBadge({ status }: { status: StatusGizi }) {
     return (
         <Badge
             variant="outline"
@@ -50,6 +53,7 @@ export default function PatientTable({
     onPrev,
     onNext,
     onOpenDetail,
+    onContinue,
 }: {
     rows: PatientRow[];
     page: number;
@@ -60,7 +64,8 @@ export default function PatientTable({
     pageSize: number;
     onPrev: () => void;
     onNext: () => void;
-    onOpenDetail: (uid: string) => void;
+    onOpenDetail: (row: PatientRow) => void;
+    onContinue: (row: PatientRow) => void;
 }) {
     const rowHeightClassName = 'h-[60px]';
 
@@ -71,19 +76,19 @@ export default function PatientTable({
                     <TableHeader>
                         <TableRow className="bg-muted/30">
                             <TableHead className="px-4 text-xs font-semibold uppercase text-muted-foreground">
-                                UID Bayi
+                                Nama Pasien
                             </TableHead>
                             <TableHead className="px-4 text-xs font-semibold uppercase text-muted-foreground">
-                                Nama Balita
+                                Jenis Kelamin
                             </TableHead>
                             <TableHead className="px-4 text-xs font-semibold uppercase text-muted-foreground">
-                                Nama Ibu
+                                Umur
                             </TableHead>
                             <TableHead className="px-4 text-xs font-semibold uppercase text-muted-foreground">
-                                Usia
+                                Pemeriksaan Terakhir
                             </TableHead>
                             <TableHead className="px-4 text-xs font-semibold uppercase text-muted-foreground">
-                                Status Risiko
+                                Status Gizi
                             </TableHead>
                             <TableHead className="px-4 text-right text-xs font-semibold uppercase text-muted-foreground">
                                 Aksi
@@ -101,28 +106,48 @@ export default function PatientTable({
                             <>
                                 {rows.map((p) => (
                                     <TableRow
-                                        key={p.uid}
+                                        key={p.id}
                                         className={cn(rowHeightClassName, 'hover:bg-muted/20')}
                                     >
-                                        <TableCell className="px-4 font-medium text-muted-foreground">
-                                            {p.uid}
-                                        </TableCell>
-                                        <TableCell className="px-4 font-semibold">{p.namaBalita}</TableCell>
-                                        <TableCell className="px-4 text-muted-foreground">{p.namaIbu}</TableCell>
-                                        <TableCell className="px-4 text-muted-foreground">{p.usia}</TableCell>
                                         <TableCell className="px-4">
-                                            <RiskBadge status={p.status} />
-                                        </TableCell>
-                                        <TableCell className="px-4 text-right">
                                             <Button
                                                 type="button"
-                                                variant="outline"
-                                                size="sm"
-                                                className="h-8 rounded-md"
-                                                onClick={() => onOpenDetail(p.uid)}
+                                                variant="link"
+                                                className="h-auto p-0 text-left font-semibold text-foreground underline-offset-4 hover:underline"
+                                                onClick={() => onOpenDetail(p)}
                                             >
-                                                Detail
+                                                {p.namaPasien}
                                             </Button>
+                                        </TableCell>
+                                        <TableCell className="px-4 text-muted-foreground">{p.jenisKelamin}</TableCell>
+                                        <TableCell className="px-4 text-muted-foreground">{p.umur}</TableCell>
+                                        <TableCell className="px-4 text-muted-foreground">
+                                            {p.tanggalPemeriksaanTerakhir}
+                                        </TableCell>
+                                        <TableCell className="px-4">
+                                            <StatusBadge status={p.statusGizi} />
+                                        </TableCell>
+                                        <TableCell className="px-4 text-right">
+                                            <div className="inline-flex flex-wrap items-center justify-end gap-2">
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="h-8 rounded-md"
+                                                    onClick={() => onOpenDetail(p)}
+                                                >
+                                                    Detail
+                                                </Button>
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="h-8 rounded-md"
+                                                    onClick={() => onContinue(p)}
+                                                >
+                                                    Lanjut Pemeriksaan <ArrowRight className="ml-2 size-4" />
+                                                </Button>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))}
