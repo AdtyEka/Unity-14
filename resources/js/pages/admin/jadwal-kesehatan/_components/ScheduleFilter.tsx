@@ -3,9 +3,9 @@ import { Search } from 'lucide-react';
 
 import { Input } from '@/components/ui/input';
 
-export type FilterStatus = 'Semua' | '0–11 Bulan' | 'Stunting' | 'Risiko' | 'Gizi Baik';
+export type FilterStatus = 'Semua' | '0–11 Bulan' | 'Normal' | 'Stunting Ringan' | 'Stunting Berat';
 
-const statusOptions: FilterStatus[] = ['Semua', '0–11 Bulan', 'Stunting', 'Risiko', 'Gizi Baik'];
+const statusOptions: FilterStatus[] = ['Semua', '0–11 Bulan', 'Normal', 'Stunting Ringan', 'Stunting Berat'];
 
 interface ScheduleFilterProps {
     query: string;

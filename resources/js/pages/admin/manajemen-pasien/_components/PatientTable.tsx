@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
 
-export type StatusGizi = 'Stunting' | 'Risiko Tinggi' | 'Gizi Baik' | '0–11 Bulan';
+export type StatusGizi = '0–11 Bulan' | 'Normal' | 'Stunting Ringan' | 'Stunting Berat';
 
 export type PatientRow = {
     id: string;
@@ -26,10 +26,10 @@ export type PatientRow = {
 };
 
 const statusPill: Record<StatusGizi, { badge: string }> = {
-    Stunting: { badge: 'bg-red-100 text-red-800 border-red-200' },
-    'Risiko Tinggi': { badge: 'bg-amber-100 text-amber-800 border-amber-200' },
-    'Gizi Baik': { badge: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
     '0–11 Bulan': { badge: 'bg-sky-100 text-sky-800 border-sky-200' },
+    Normal: { badge: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
+    'Stunting Ringan': { badge: 'bg-amber-100 text-amber-800 border-amber-200' },
+    'Stunting Berat': { badge: 'bg-red-100 text-red-800 border-red-200' },
 };
 
 function StatusBadge({ status }: { status: StatusGizi }) {

@@ -29,7 +29,7 @@ const patientsSeed: PatientRow[] = [
         umur: '18 bulan',
         usiaBulan: 18,
         tanggalPemeriksaanTerakhir: '15 Apr 2024',
-        statusGizi: 'Stunting',
+        statusGizi: 'Stunting Berat',
     },
     {
         id: 'P-1043',
@@ -38,7 +38,7 @@ const patientsSeed: PatientRow[] = [
         umur: '24 bulan',
         usiaBulan: 24,
         tanggalPemeriksaanTerakhir: '03 Mei 2024',
-        statusGizi: 'Gizi Baik',
+        statusGizi: 'Normal',
     },
     {
         id: 'P-1044',
@@ -47,7 +47,7 @@ const patientsSeed: PatientRow[] = [
         umur: '12 bulan',
         usiaBulan: 12,
         tanggalPemeriksaanTerakhir: '21 Mar 2024',
-        statusGizi: 'Risiko Tinggi',
+        statusGizi: 'Stunting Ringan',
     },
     {
         id: 'P-1045',
@@ -65,7 +65,7 @@ const patientsSeed: PatientRow[] = [
         umur: '30 bulan',
         usiaBulan: 30,
         tanggalPemeriksaanTerakhir: '08 Feb 2024',
-        statusGizi: 'Stunting',
+        statusGizi: 'Stunting Berat',
     },
 ];
 
