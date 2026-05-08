@@ -4,8 +4,8 @@ from pydantic import BaseModel, Field, ConfigDict
 class StuntingInput(BaseModel):
     """Input schema for the stunting prediction endpoint.
 
-    Feature names must exactly match the column names the XGBoost model
-    was trained on (see model_metadata.json → features).
+    Feature names match the column names the XGBoost model was trained on
+    (see model_metadata.json → features).
     """
 
     model_config = ConfigDict(strict=True)
@@ -37,14 +37,16 @@ class StuntingInput(BaseModel):
 class StuntingPrediction(BaseModel):
     """Response schema returned by the prediction endpoint."""
 
-    prediction: str = Field(..., description="Predicted stunting label")
+    prediction: int = Field(..., description="Predicted class index (0=Normal, 1=Stunted, 2=Severely Stunted)")
+    prediction_label: str = Field(..., description="Human-readable label for the predicted class")
+    z_score: float = Field(..., description="Height-for-Age Z-Score (TB/U) based on WHO 2006 references")
     confidence: float = Field(
         ...,
         description="Model confidence for the predicted class (0–1)",
         ge=0.0,
         le=1.0,
     )
-    probabilities: dict[str, float] = Field(
+    shap_values: dict[str, float] = Field(
         ...,
-        description="Per-class probabilities keyed by label name",
+        description="SHAP feature contributions for the predicted class, keyed by feature name",
     )
