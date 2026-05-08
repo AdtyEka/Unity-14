@@ -1,0 +1,37 @@
+{
+  "model_name": "XGBoost Tuned",
+  "features": [
+    "jenis_kelamin",
+    "umur_bulan",
+    "tinggi_cm",
+    "berat_kg"
+  ],
+  "label_names": [
+    "Normal",
+    "Stunted",
+    "Severely Stunted"
+  ],
+  "label_map": {
+    "Normal": 0,
+    "Stunted": 1,
+    "Severely Stunted": 2
+  },
+  "berat_kg_cap": 26.0,
+  "metrics": {
+    "accuracy": 0.9971374045801527,
+    "f1_macro": 0.9876717085477624,
+    "f1_weighted": 0.9971311356590435,
+    "recall_normal": 1.0,
+    "recall_stunted": 0.9818181818181818,
+    "recall_severely_stunted": 0.9772727272727273
+  },
+  "best_params": {
+    "subsample": 0.9,
+    "n_estimators": 500,
+    "min_child_weight": 3,
+    "max_depth": 4,
+    "learning_rate": 0.08,
+    "gamma": 0.1,
+    "colsample_bytree": 0.9
+  }
+}
