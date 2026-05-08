@@ -1,0 +1,33 @@
+services:
+  # ── FastAPI ML Microservice ───────────────────────────────────────────────
+  ml-service:
+    build:
+      context: ./ml-service
+      dockerfile: Dockerfile
+      # linux/arm64 for Mac M4; use linux/amd64 when deploying to x86 cloud VMs.
+      platforms:
+        - linux/arm64
+    image: unity-stunting/ml-service:latest
+    container_name: unity_ml_service
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      PYTHONUNBUFFERED: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+    # Mount models directory as read-only so the container can never overwrite
+    # the trained model files, and so you can hot-swap models without rebuilding.
+    volumes:
+      - ./ml-service/models:/app/models:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - unity_network
+
+networks:
+  unity_network:
+    driver: bridge

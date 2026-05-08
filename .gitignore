@@ -24,4 +24,9 @@ yarn-error.log
 /.idea
 /.nova
 /.vscode
-/.zed
+
+# Python virtual environments
+.venv/
+ml-service/.venv/
+**/__pycache__/
+*.pyc

@@ -1,0 +1,46 @@
+# Python runtime artefacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Distribution / packaging
+*.egg-info/
+dist/
+build/
+*.whl
+
+# Development tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+*.log
+
+# macOS artefacts
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# IDE / editor
+.vscode/
+.idea/
+*.iml
+
+# Data exploration (not needed at runtime)
+data/
+
+# Local environment files
+.env
+.env.*
+
+# Jupyter notebooks (if any)
+*.ipynb
+.ipynb_checkpoints/

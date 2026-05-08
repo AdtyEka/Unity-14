@@ -52,7 +52,7 @@ export default function Hero() {
                         className="text-foreground max-w-xl text-center text-5xl leading-[0.95] tracking-tight md:text-6xl lg:text-[5rem] mt-10"
                         style={{ fontFamily: 'var(--font-display)' }}
                     >
-                        Masa Depan Deteksi Cerdas Stunting
+                        Masa Depan Cerdas Deteksi Stunting
                     </motion.h1>
 
                     {/* 3. Subheadline */}

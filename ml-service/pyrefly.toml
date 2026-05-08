@@ -1,0 +1,3 @@
+# Pyrefly configuration — points to the project's virtual environment.
+# This tells VS Code's Pyrefly extension where to find installed packages.
+python_interpreter = ".venv/bin/python"
