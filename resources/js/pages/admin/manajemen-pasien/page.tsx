@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import ManajemenPasienShow from '@/pages/admin/manajemen-pasien/[id]/Show';
 import CreateStepTwo from '@/pages/admin/manajemen-pasien/_components/CreateStepTwo';
 import PatientFilter from '@/pages/admin/manajemen-pasien/_components/PatientFilter';
+import type { FilterOption } from '@/pages/admin/manajemen-pasien/_components/PatientFilter';
 import PatientTable from '@/pages/admin/manajemen-pasien/_components/PatientTable';
 import type { PatientRow } from '@/pages/admin/manajemen-pasien/_components/PatientTable';
 import ManajemenPasienCreate from '@/pages/admin/manajemen-pasien/Create';
@@ -55,7 +56,7 @@ const patientsSeed: PatientRow[] = [
         umur: '9 bulan',
         usiaBulan: 9,
         tanggalPemeriksaanTerakhir: '12 Apr 2024',
-        statusGizi: 'Gizi Baik',
+        statusGizi: '0–11 Bulan',
     },
     {
         id: 'P-1046',
@@ -138,6 +139,7 @@ export default function ManajemenPasienPage() {
     const [route, setRoute] = React.useState<NestedRoute>({ name: 'index' });
     const [query, setQuery] = React.useState('');
     const [page, setPage] = React.useState(1);
+    const [filter, setFilter] = React.useState<FilterOption>('Semua');
     const [isLoading, setIsLoading] = React.useState(true);
     const [confirmOpen, setConfirmOpen] = React.useState(false);
 
@@ -152,19 +154,20 @@ export default function ManajemenPasienPage() {
         const q = query.trim().toLowerCase();
 
         return patientsSeed.filter((p) => {
+            const matchesFilter = filter === 'Semua' ? true : p.statusGizi === filter;
             if (q.length === 0) {
-                return true;
+                return matchesFilter;
             }
 
-            return p.namaPasien.toLowerCase().includes(q);
+            return matchesFilter && p.namaPasien.toLowerCase().includes(q);
         });
-    }, [query]);
+    }, [query, filter]);
 
     const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
 
     React.useEffect(() => {
         setPage(1);
-    }, [query]);
+    }, [query, filter]);
 
     const rows = React.useMemo(() => {
         const start = (page - 1) * pageSize;
@@ -230,31 +233,36 @@ export default function ManajemenPasienPage() {
 
     return (
         <div className="flex flex-col gap-6 p-4 md:p-6">
-            <div>
-                <h1 className="text-2xl font-bold tracking-tight">Data Pemeriksaan Pasien</h1>
-                <p className="mt-1 text-sm text-muted-foreground">
-                    Pilih pasien yang sudah pernah diperiksa atau buat pemeriksaan baru.
-                </p>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                    <h1 className="text-2xl font-bold tracking-tight">Data Pemeriksaan Pasien</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                        Pilih pasien yang sudah pernah diperiksa atau buat pemeriksaan baru.
+                    </p>
+                </div>
+
+                <Button
+                    type="button"
+                    className={cn(
+                        'h-10 rounded-lg bg-emerald-600 px-4 text-white shadow-sm',
+                        'hover:bg-emerald-700',
+                        'focus-visible:ring-2 focus-visible:ring-emerald-500/40',
+                    )}
+                    onClick={() => setConfirmOpen(true)}
+                >
+                    <Plus className="mr-2 size-4" />
+                    Pemeriksaan Baru
+                </Button>
             </div>
 
             <Card className={cn(card3dClassName, 'bg-white')}>
                 <CardContent className="p-4 md:p-5">
-                    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                        <PatientFilter query={query} onQueryChange={setQuery} />
-
-                        <Button
-                            type="button"
-                            className={cn(
-                                'h-10 rounded-lg bg-emerald-600 px-4 text-white shadow-sm',
-                                'hover:bg-emerald-700',
-                                'focus-visible:ring-2 focus-visible:ring-emerald-500/40',
-                            )}
-                            onClick={() => setConfirmOpen(true)}
-                        >
-                            <Plus className="mr-2 size-4" />
-                            Pemeriksaan Baru
-                        </Button>
-                    </div>
+                    <PatientFilter
+                        query={query}
+                        filter={filter}
+                        onQueryChange={setQuery}
+                        onFilterChange={setFilter}
+                    />
 
                     {isLoading ? (
                         <TableSkeleton rows={pageSize} />
