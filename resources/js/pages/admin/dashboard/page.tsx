@@ -41,34 +41,34 @@ const trendData = [
 
 const trendConfig = {
     normal: { label: 'Normal', color: '#10B981' },
-    risiko: { label: 'Risiko', color: '#F59E0B' },
-    stunting: { label: 'Stunting', color: '#BA1A1A' },
+    risiko: { label: 'Stunting Ringan', color: '#F59E0B' },
+    stunting: { label: 'Stunting Berat', color: '#BA1A1A' },
 } satisfies ChartConfig;
 
 const distribusiData = [
     { status: 'Normal', value: 116, fill: '#10B981' },
-    { status: 'Risiko', value: 89, fill: '#F59E0B' },
-    { status: 'Stunting', value: 42, fill: '#BA1A1A' },
+    { status: 'Stunting Ringan', value: 89, fill: '#F59E0B' },
+    { status: 'Stunting Berat', value: 42, fill: '#BA1A1A' },
 ];
 
 const distribusiConfig = {
     value: { label: 'Pasien' },
     Normal: { label: 'Normal', color: '#10B981' },
-    Risiko: { label: 'Risiko', color: '#F59E0B' },
-    Stunting: { label: 'Stunting', color: '#BA1A1A' },
+    'Stunting Ringan': { label: 'Stunting Ringan', color: '#F59E0B' },
+    'Stunting Berat': { label: 'Stunting Berat', color: '#BA1A1A' },
 } satisfies ChartConfig;
 
 const activities = [
-    { initials: 'AM', name: 'Ananda Malik', age: '24 Bulan', date: '12 Okt 2024', status: 'Stunting' as const },
-    { initials: 'BP', name: 'Budi Pratama', age: '18 Bulan', date: '12 Okt 2024', status: 'Risiko' as const },
+    { initials: 'AM', name: 'Ananda Malik', age: '24 Bulan', date: '12 Okt 2024', status: 'Stunting Berat' as const },
+    { initials: 'BP', name: 'Budi Pratama', age: '18 Bulan', date: '12 Okt 2024', status: 'Stunting Ringan' as const },
     { initials: 'CS', name: 'Citra Sari', age: '36 Bulan', date: '11 Okt 2024', status: 'Normal' as const },
-    { initials: 'DW', name: 'Dian Wati', age: '12 Bulan', date: '10 Okt 2024', status: 'Stunting' as const },
+    { initials: 'DW', name: 'Dian Wati', age: '12 Bulan', date: '10 Okt 2024', status: 'Stunting Berat' as const },
 ];
 
 const schedules = [
-    { month: 'Okt', day: 14, name: 'Fatimah Zahra', risk: 'Stunting' as const, time: '09:00 WIB' },
-    { month: 'Okt', day: 15, name: 'Bintang Putra', risk: 'Stunting' as const, time: '10:30 WIB' },
-    { month: 'Okt', day: 15, name: 'Aisyah Putri', risk: 'Stunting' as const, time: '13:00 WIB' },
+    { month: 'Okt', day: 14, name: 'Fatimah Zahra', risk: 'Stunting Berat' as const, time: '09:00 WIB' },
+    { month: 'Okt', day: 15, name: 'Bintang Putra', risk: 'Stunting Berat' as const, time: '10:30 WIB' },
+    { month: 'Okt', day: 15, name: 'Aisyah Putri', risk: 'Stunting Berat' as const, time: '13:00 WIB' },
 ];
 
 const card3dClassName =
@@ -117,8 +117,8 @@ export default function DashboardPage() {
     const scopedDistribusiData = React.useMemo(
         () => [
             { status: 'Normal', value: latestSnapshot.normal, fill: '#10B981' },
-            { status: 'Risiko', value: latestSnapshot.risiko, fill: '#F59E0B' },
-            { status: 'Stunting', value: latestSnapshot.stunting, fill: '#BA1A1A' },
+            { status: 'Stunting Ringan', value: latestSnapshot.risiko, fill: '#F59E0B' },
+            { status: 'Stunting Berat', value: latestSnapshot.stunting, fill: '#BA1A1A' },
         ],
         [latestSnapshot],
     );
@@ -189,7 +189,7 @@ export default function DashboardPage() {
                 <Card className={cn(card3dClassName, 'border-l-4 border-l-destructive')}>
                     <CardContent className="py-5">
                         <div className="flex items-start justify-between">
-                            <span className="text-sm text-muted-foreground">Stunting</span>
+                            <span className="text-sm text-muted-foreground">Stunting Berat</span>
                             <div className="rounded-lg bg-destructive/10 p-2 text-destructive">
                                 <AlertTriangle className="h-5 w-5" />
                             </div>
@@ -206,7 +206,7 @@ export default function DashboardPage() {
                 <Card className={cn(card3dClassName, 'border-l-4 border-l-amber-500')}>
                     <CardContent className="py-5">
                         <div className="flex items-start justify-between">
-                            <span className="text-sm text-muted-foreground">Risiko</span>
+                            <span className="text-sm text-muted-foreground">Stunting Ringan</span>
                             <div className="rounded-lg bg-amber-100 p-2 text-amber-700">
                                 <Info className="h-5 w-5" />
                             </div>

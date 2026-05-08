@@ -8,7 +8,7 @@ import type { StatusGizi } from '@/pages/admin/manajemen-pasien/_components/Pati
 
 export type FilterOption = 'Semua' | StatusGizi;
 
-const filterOptions: FilterOption[] = ['Semua', '0–11 Bulan', 'Gizi Baik', 'Risiko Tinggi', 'Stunting'];
+const filterOptions: FilterOption[] = ['Semua', '0–11 Bulan', 'Normal', 'Stunting Ringan', 'Stunting Berat'];
 
 export default function PatientFilter({
     query,
@@ -47,9 +47,9 @@ export default function PatientFilter({
                             className={cn(
                                 'rounded-full',
                                 active && 'bg-muted text-foreground',
-                                opt === 'Stunting' && active && 'bg-red-100 text-red-900 border-red-200',
-                                opt === 'Risiko Tinggi' && active && 'bg-amber-100 text-amber-900 border-amber-200',
-                                opt === 'Gizi Baik' && active && 'bg-emerald-100 text-emerald-900 border-emerald-200',
+                                opt === 'Stunting Berat' && active && 'bg-red-100 text-red-900 border-red-200',
+                                opt === 'Stunting Ringan' && active && 'bg-amber-100 text-amber-900 border-amber-200',
+                                opt === 'Normal' && active && 'bg-emerald-100 text-emerald-900 border-emerald-200',
                                 opt === '0–11 Bulan' && active && 'bg-sky-100 text-sky-900 border-sky-200',
                             )}
                         >
