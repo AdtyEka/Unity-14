@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\PengurusController;
 use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +22,7 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('role:admin')->group(function () {
         Route::inertia('/admin', 'admin/page')->name('admin.dashboard');
+        Route::resource('admin/pengurus', PengurusController::class);
     });
 
     Route::middleware('role:kader')->group(function () {

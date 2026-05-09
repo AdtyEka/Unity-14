@@ -45,4 +45,12 @@ class User extends Authenticatable
     {
         return $this->role === 'kader';
     }
+
+    /**
+     * Get the pengurus profile associated with the user.
+     */
+    public function pengurus()
+    {
+        return $this->hasOne(Pengurus::class);
+    }
 }

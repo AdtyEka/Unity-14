@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 
 import { AppSidebar, type AdminSection } from '@/components/app-sidebar';
 import {
@@ -51,7 +51,8 @@ function PlaceholderContent({ title }: { title: string }) {
 }
 
 export default function AdminPage() {
-    const [active, setActive] = React.useState<AdminSection>('dashboard');
+    const { activeSection } = usePage<any>().props;
+    const [active, setActive] = React.useState<AdminSection>(activeSection || 'dashboard');
 
     const content = React.useMemo(() => {
         switch (active) {
