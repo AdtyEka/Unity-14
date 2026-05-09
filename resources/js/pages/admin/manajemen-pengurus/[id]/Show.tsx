@@ -23,88 +23,12 @@ type UserDetail = {
     name: string;
     nik: string;
     role: string;
-    fasyankes: string;
-    wilayah: string;
     status: 'Aktif' | 'Nonaktif';
     email: string;
     phone: string;
     joinedAt: string;
 };
 
-const userDetails: Record<string, UserDetail> = {
-    '3271012345678901': {
-        initials: 'SN',
-        name: 'Siti Nurhaliza, A.Md.Keb',
-        nik: '3271012345678901',
-        role: 'Bidan',
-        fasyankes: 'Puskesmas Melati',
-        wilayah: 'Kec. Sukamaju',
-        status: 'Aktif',
-        email: 'siti.nurhaliza@puskesmasmelati.id',
-        phone: '0812-3456-7890',
-        joinedAt: '12 Januari 2024',
-    },
-    '3271098765432109': {
-        initials: 'BW',
-        name: 'Budi Wibowo, S.KM',
-        nik: '3271098765432109',
-        role: 'Admin Puskesmas',
-        fasyankes: 'Puskesmas Melati',
-        wilayah: 'Kec. Sukamaju',
-        status: 'Aktif',
-        email: 'budi.wibowo@puskesmasmelati.id',
-        phone: '0813-9876-5432',
-        joinedAt: '08 Februari 2024',
-    },
-    '3271055566677788': {
-        initials: 'RR',
-        name: 'Rina Rosdiana, A.Md.Keb',
-        nik: '3271055566677788',
-        role: 'Bidan',
-        fasyankes: 'Puskesmas Mawar',
-        wilayah: 'Kec. Sukajaya',
-        status: 'Nonaktif',
-        email: 'rina.rosdiana@puskesmasmawar.id',
-        phone: '0812-7788-9900',
-        joinedAt: '22 Maret 2024',
-    },
-    '3271011122233344': {
-        initials: 'AS',
-        name: 'dr. Ahmad Santoso',
-        nik: '3271011122233344',
-        role: 'Admin Dinas',
-        fasyankes: 'Dinas Kesehatan',
-        wilayah: 'Kab. Bandung',
-        status: 'Aktif',
-        email: 'ahmad.santoso@dinkes.go.id',
-        phone: '0811-2222-3334',
-        joinedAt: '05 April 2024',
-    },
-    '3271044455566677': {
-        initials: 'DP',
-        name: 'Dewi Prameswari, A.Md.Keb',
-        nik: '3271044455566677',
-        role: 'Bidan',
-        fasyankes: 'Puskesmas Anggrek',
-        wilayah: 'Kec. Sukamukti',
-        status: 'Aktif',
-        email: 'dewi.prameswari@puskesmasanggrek.id',
-        phone: '0812-4445-5566',
-        joinedAt: '19 Mei 2024',
-    },
-    '3271077711122233': {
-        initials: 'FN',
-        name: 'Fauzan Nurhadi, S.KM',
-        nik: '3271077711122233',
-        role: 'Admin Puskesmas',
-        fasyankes: 'Puskesmas Anggrek',
-        wilayah: 'Kec. Sukamukti',
-        status: 'Aktif',
-        email: 'fauzan.nurhadi@puskesmasanggrek.id',
-        phone: '0813-7771-1222',
-        joinedAt: '27 Juni 2024',
-    },
-};
 
 function DetailItem({
     icon: Icon,
@@ -129,23 +53,23 @@ function DetailItem({
 }
 
 export default function ManajemenPengurusShow({
-    id,
+    data,
     onBack,
 }: {
-    id: string;
+    data: any;
     onBack: () => void;
 }) {
-    const user = userDetails[id] ?? {
-        initials: 'PG',
-        name: 'Pengguna Tidak Ditemukan',
-        nik: id,
-        role: 'Belum tersedia',
-        fasyankes: '-',
-        wilayah: '-',
-        status: 'Nonaktif' as const,
-        email: '-',
-        phone: '-',
-        joinedAt: '-',
+    if (!data) return null;
+
+    const user = {
+        initials: data.user.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase(),
+        name: data.user.name,
+        nik: data.nik,
+        role: data.role_detail,
+        status: data.status,
+        email: data.user.email,
+        phone: '-', // Not in DB yet
+        joinedAt: new Date(data.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
     };
 
     const statusClassName =
@@ -190,14 +114,6 @@ export default function ManajemenPengurusShow({
                                         <Badge className="border-white/20 bg-white/15 text-white hover:bg-white/15">
                                             <ShieldCheck className="size-3.5" />
                                             {user.role}
-                                        </Badge>
-                                        <Badge className="border-white/20 bg-white/15 text-white hover:bg-white/15">
-                                            <Building2 className="size-3.5" />
-                                            {user.fasyankes}
-                                        </Badge>
-                                        <Badge className="border-white/20 bg-white/15 text-white hover:bg-white/15">
-                                            <MapPin className="size-3.5" />
-                                            {user.wilayah}
                                         </Badge>
                                     </div>
                                 </div>
@@ -264,14 +180,6 @@ export default function ManajemenPengurusShow({
                                             <div className="flex items-center justify-between gap-3">
                                                 <span className="text-muted-foreground">Peran</span>
                                                 <span className="font-semibold">{user.role}</span>
-                                            </div>
-                                            <div className="flex items-center justify-between gap-3">
-                                                <span className="text-muted-foreground">Fasyankes</span>
-                                                <span className="text-right font-semibold">{user.fasyankes}</span>
-                                            </div>
-                                            <div className="flex items-center justify-between gap-3">
-                                                <span className="text-muted-foreground">Wilayah</span>
-                                                <span className="text-right font-semibold">{user.wilayah}</span>
                                             </div>
                                         </div>
                                     </div>
