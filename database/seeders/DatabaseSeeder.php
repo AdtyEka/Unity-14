@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             PuskesmasSeeder::class,
             JamLayananSeeder::class,
             PosyanduSeeder::class,
+            MpasiVideoSeeder::class,
         ]);
     }
 }

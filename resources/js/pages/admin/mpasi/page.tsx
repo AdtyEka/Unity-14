@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { MoreVertical, Search, Upload } from 'lucide-react';
+import { MoreVertical, Search, Upload, X } from 'lucide-react';
+import { useForm, router, usePage } from '@inertiajs/react';
+import MpasiVideoController from '@/actions/App/Http/Controllers/Admin/MpasiVideoController';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,12 +20,22 @@ import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 
 type VideoItem = {
-    id: string;
-    title: string;
-    description: string;
-    duration: string;
+    id: number;
+    judul: string;
+    deskripsi: string | null;
+    kategori: VideoCategory;
     tags: string[];
+    durasi: string | null;
+    path_video: string;
+    video_url: string;
 };
+
+interface PageProps {
+    videos: VideoItem[];
+    filters: {
+        search?: string;
+    };
+}
 
 const card3dClassName =
     'relative overflow-hidden transition-all duration-200 ease-out will-change-transform ' +
@@ -31,44 +43,74 @@ const card3dClassName =
     'before:pointer-events-none before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/40 before:to-transparent before:opacity-0 before:transition-opacity ' +
     'hover:before:opacity-100 dark:before:from-white/10';
 
-const videosSeed: VideoItem[] = [
-    {
-        id: 'v-1',
-        title: 'Bubur Tim Ati Ayam',
-        description:
-            'Panduan praktis membuat bubur tim ati ayam yang kaya zat besi untuk mencegah anemia.',
-        duration: '05:30',
-        tags: ['6-9 Bulan', 'Tinggi Zat Besi'],
-    },
-    {
-        id: 'v-2',
-        title: 'Puree Sayuran Hijau',
-        description:
-            'Cara mudah menyiapkan puree brokoli dan bayam dengan tekstur yang tepat untuk awal MPASI.',
-        duration: '04:15',
-        tags: ['6 Bulan', 'Sayuran'],
-    },
-];
-
 export default function MpasiPage() {
-    const [search, setSearch] = React.useState('');
-    const [category, setCategory] = React.useState<VideoCategory | ''>('');
-    const [title, setTitle] = React.useState('');
-    const [desc, setDesc] = React.useState('');
+    const { videos, filters } = usePage<any>().props;
+    const [search, setSearch] = React.useState(filters.search || '');
+    const [editingId, setEditingId] = React.useState<number | null>(null);
     const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
-    const filtered = React.useMemo(() => {
-        const q = search.trim().toLowerCase();
-        if (q.length === 0) {
-            return videosSeed;
-        }
-        return videosSeed.filter(
-            (v) =>
-                v.title.toLowerCase().includes(q) ||
-                v.description.toLowerCase().includes(q) ||
-                v.tags.some((t) => t.toLowerCase().includes(q)),
-        );
+    const form = useForm({
+        judul: '',
+        deskripsi: '',
+        kategori: '' as VideoCategory | '',
+        tags: [] as string[],
+        video: null as File | null,
+    });
+
+    // Handle Search with debounce
+    React.useEffect(() => {
+        const timeout = setTimeout(() => {
+            if (search !== (filters.search || '')) {
+                router.get(
+                    MpasiVideoController.index.url(),
+                    { search },
+                    { preserveState: true, replace: true },
+                );
+            }
+        }, 500);
+        return () => clearTimeout(timeout);
     }, [search]);
+
+    const handleEdit = (video: VideoItem) => {
+        setEditingId(video.id);
+        form.setData({
+            judul: video.judul,
+            deskripsi: video.deskripsi || '',
+            kategori: video.kategori,
+            tags: video.tags || [],
+            video: null,
+        });
+    };
+
+    const handleDelete = (video: VideoItem) => {
+        if (confirm('Apakah Anda yakin ingin menghapus video ini?')) {
+            router.delete(MpasiVideoController.destroy.url({ mpasiVideo: video.id }));
+        }
+    };
+
+    const handleCancel = () => {
+        setEditingId(null);
+        form.reset();
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (editingId) {
+            form.patch(MpasiVideoController.update.url({ mpasiVideo: editingId }), {
+                forceFormData: true,
+                onSuccess: () => handleCancel(),
+            });
+        } else {
+            form.post(MpasiVideoController.store.url(), {
+                forceFormData: true,
+                onSuccess: () => handleCancel(),
+            });
+        }
+    };
 
     return (
         <div className="flex flex-col gap-6 p-4 md:p-6">
@@ -97,7 +139,7 @@ export default function MpasiPage() {
                     </div>
 
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        {filtered.map((v) => (
+                        {videos.map((v) => (
                             <Card key={v.id} className={cn(card3dClassName, 'gap-0 bg-white py-0')}>
                                 <CardContent className="p-0">
                                     <div className="relative aspect-video w-full overflow-hidden rounded-t-xl bg-black/90">
@@ -107,16 +149,16 @@ export default function MpasiPage() {
                                             </div>
                                         </div>
                                         <div className="absolute bottom-2 right-2 rounded-md bg-black/70 px-2 py-1 text-[11px] font-medium text-white">
-                                            {v.duration}
+                                            {v.durasi || '00:00'}
                                         </div>
                                     </div>
 
                                     <div className="p-4">
                                         <div className="flex items-start justify-between gap-3">
                                             <div className="min-w-0">
-                                                <p className="truncate text-sm font-semibold">{v.title}</p>
+                                                <p className="truncate text-sm font-semibold">{v.judul}</p>
                                                 <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                                                    {v.description}
+                                                    {v.deskripsi}
                                                 </p>
                                             </div>
                                             <DropdownMenu>
@@ -132,10 +174,10 @@ export default function MpasiPage() {
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" className="min-w-36">
-                                                    <DropdownMenuItem onSelect={() => {}}>
+                                                    <DropdownMenuItem onSelect={() => handleEdit(v)}>
                                                         Edit
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem variant="destructive" onSelect={() => {}}>
+                                                    <DropdownMenuItem variant="destructive" onSelect={() => handleDelete(v)}>
                                                         Hapus
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
@@ -143,7 +185,8 @@ export default function MpasiPage() {
                                         </div>
 
                                         <div className="mt-3 flex flex-wrap gap-2">
-                                            {v.tags.map((t) => (
+                                            <Tag>{v.kategori}</Tag>
+                                            {v.tags?.map((t) => (
                                                 <Tag key={t}>{t}</Tag>
                                             ))}
                                         </div>
@@ -156,89 +199,119 @@ export default function MpasiPage() {
 
                 <Card className={cn(card3dClassName, 'bg-white')}>
                     <CardContent className="p-4 md:p-5">
-                        <div className="flex items-center justify-between gap-3">
-                            <div className="flex items-center gap-2">
-                                <div className="text-emerald-700 [&>svg]:size-5">
-                                    <Upload className="size-5" />
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-2">
+                                    <div className="text-emerald-700 [&>svg]:size-5">
+                                        <Upload className="size-5" />
+                                    </div>
+                                    <h2 className="text-base font-semibold text-foreground">
+                                        {editingId ? 'Edit Video' : 'Upload Video'}
+                                    </h2>
                                 </div>
-                                <h2 className="text-base font-semibold text-foreground">
-                                    Upload Video
-                                </h2>
-                            </div>
-                        </div>
-
-                        <Separator className="my-4" />
-
-                        <button
-                            type="button"
-                            onClick={() => fileInputRef.current?.click()}
-                            className={cn(
-                                'w-full rounded-xl border border-dashed bg-muted/10 px-4 py-6 text-left transition-colors',
-                                'hover:bg-muted/20',
-                            )}
-                        >
-                            <div className="flex flex-col items-center gap-2 text-center">
-                                <div className="flex size-10 items-center justify-center rounded-xl bg-muted/30 text-muted-foreground">
-                                    <Upload className="size-5" />
-                                </div>
-                                <p className="text-sm font-semibold text-foreground">
-                                    Tarik &amp; lepas video ke sini
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                    atau klik untuk memilih file (MP4, Max 500MB)
-                                </p>
-                            </div>
-                        </button>
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="video/mp4,video/*"
-                            className="hidden"
-                            onChange={() => {}}
-                        />
-
-                        <div className="mt-4 space-y-4">
-                            <div className="space-y-2">
-                                <p className="text-xs font-medium text-muted-foreground">Judul Video</p>
-                                <Input
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                    placeholder="Masukkan judul..."
-                                    className="h-10 rounded-lg"
-                                />
                             </div>
 
-                            <div className="space-y-2">
-                                <p className="text-xs font-medium text-muted-foreground">Deskripsi Video</p>
-                                <textarea
-                                    value={desc}
-                                    onChange={(e) => setDesc(e.target.value)}
-                                    placeholder="Tulis deskripsi singkat..."
+                            <Separator className="my-4" />
+
+                            <div className="space-y-4">
+                                <button
+                                    type="button"
+                                    onClick={() => fileInputRef.current?.click()}
                                     className={cn(
-                                        'min-h-[92px] w-full resize-none rounded-lg border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none',
-                                        'placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50',
+                                        'w-full rounded-xl border border-dashed bg-muted/10 px-4 py-6 text-left transition-colors',
+                                        'hover:bg-muted/20',
+                                        form.errors.video && 'border-destructive bg-destructive/5',
                                     )}
+                                >
+                                    <div className="flex flex-col items-center gap-2 text-center">
+                                        <div className="flex size-10 items-center justify-center rounded-xl bg-muted/30 text-muted-foreground">
+                                            <Upload className="size-5" />
+                                        </div>
+                                        <p className="text-sm font-semibold text-foreground">
+                                            {form.data.video ? form.data.video.name : 'Tarik & lepas video ke sini'}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {form.data.video ? `${(form.data.video.size / 1024 / 1024).toFixed(2)} MB` : 'atau klik untuk memilih file (MP4, Max 500MB)'}
+                                        </p>
+                                    </div>
+                                </button>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="video/mp4,video/*"
+                                    className="hidden"
+                                    onChange={(e) => form.setData('video', e.target.files?.[0] || null)}
                                 />
+                                {form.errors.video && (
+                                    <p className="text-xs text-destructive">{form.errors.video}</p>
+                                )}
+
+                                <div className="space-y-2">
+                                    <p className="text-xs font-medium text-muted-foreground">Judul Video</p>
+                                    <Input
+                                        value={form.data.judul}
+                                        onChange={(e) => form.setData('judul', e.target.value)}
+                                        placeholder="Masukkan judul..."
+                                        className="h-10 rounded-lg"
+                                    />
+                                    {form.errors.judul && (
+                                        <p className="text-xs text-destructive">{form.errors.judul}</p>
+                                    )}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <p className="text-xs font-medium text-muted-foreground">Deskripsi Video</p>
+                                    <textarea
+                                        value={form.data.deskripsi}
+                                        onChange={(e) => form.setData('deskripsi', e.target.value)}
+                                        placeholder="Tulis deskripsi singkat..."
+                                        className={cn(
+                                            'min-h-[92px] w-full resize-none rounded-lg border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none',
+                                            'placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50',
+                                            form.errors.deskripsi && 'border-destructive',
+                                        )}
+                                    />
+                                    {form.errors.deskripsi && (
+                                        <p className="text-xs text-destructive">{form.errors.deskripsi}</p>
+                                    )}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <p className="text-xs font-medium text-muted-foreground">Kategori Umur</p>
+                                    <CategoryDropdown
+                                        value={form.data.kategori}
+                                        onChange={(val) => form.setData('kategori', val)}
+                                    />
+                                    {form.errors.kategori && (
+                                        <p className="text-xs text-destructive">{form.errors.kategori}</p>
+                                    )}
+                                </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <p className="text-xs font-medium text-muted-foreground">Kategori Umur</p>
-                                <CategoryDropdown value={category} onChange={setCategory} />
+                            <div className="mt-5 flex gap-2">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="h-10 flex-1 rounded-lg"
+                                    onClick={handleCancel}
+                                    disabled={form.processing}
+                                >
+                                    Batal
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    className="h-10 flex-1 rounded-lg"
+                                    disabled={form.processing}
+                                >
+                                    {form.processing ? 'Menyimpan...' : 'Simpan'}
+                                </Button>
                             </div>
-                        </div>
-
-                        <div className="mt-5 flex gap-2">
-                            <Button type="button" variant="outline" className="h-10 flex-1 rounded-lg">
-                                Batal
-                            </Button>
-                            <Button type="button" className="h-10 flex-1 rounded-lg">
-                                Simpan
-                            </Button>
-                        </div>
+                        </form>
                     </CardContent>
                 </Card>
             </div>
         </div>
     );
 }
+
 

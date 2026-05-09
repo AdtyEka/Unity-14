@@ -23,6 +23,10 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin')->group(function () {
         Route::inertia('/admin', 'admin/page')->name('admin.dashboard');
         Route::resource('admin/pengurus', PengurusController::class);
+        Route::get('admin/mpasi', [\App\Http\Controllers\Admin\MpasiVideoController::class, 'index'])->name('admin.mpasi.index');
+        Route::post('admin/mpasi', [\App\Http\Controllers\Admin\MpasiVideoController::class, 'store'])->name('admin.mpasi.store');
+        Route::patch('admin/mpasi/{mpasiVideo}', [\App\Http\Controllers\Admin\MpasiVideoController::class, 'update'])->name('admin.mpasi.update');
+        Route::delete('admin/mpasi/{mpasiVideo}', [\App\Http\Controllers\Admin\MpasiVideoController::class, 'destroy'])->name('admin.mpasi.destroy');
         Route::get('admin/konfigurasi-posyankes', [\App\Http\Controllers\Admin\PuskesmasController::class, 'index'])->name('admin.konfigurasi-posyankes.index');
         Route::patch('admin/konfigurasi-posyankes/{puskesmas}', [\App\Http\Controllers\Admin\PuskesmasController::class, 'update'])->name('admin.konfigurasi-posyankes.update');
         Route::post('admin/konfigurasi-posyankes/{puskesmas}/jam-layanan/batch', [\App\Http\Controllers\Admin\JamLayananController::class, 'updateBatch'])->name('admin.jam-layanan.updateBatch');
