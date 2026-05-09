@@ -179,6 +179,8 @@ export function AppSidebar({
                                                 router.get('/admin/pengurus');
                                             } else if (item.key === 'konfigurasi-posyandu') {
                                                 router.get('/admin/konfigurasi-posyankes');
+                                            } else if (item.key === 'mpasi') {
+                                                router.get('/admin/mpasi');
                                             } else {
                                                 onNavigate(item.key);
                                             }
