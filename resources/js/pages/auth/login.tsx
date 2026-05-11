@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 
@@ -7,6 +7,19 @@ import { Input } from '@/components/ui/input';
 
 export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
+
+    const { data, setData, post, processing, errors, reset } = useForm({
+        email: '',
+        password: '',
+        remember: false,
+    });
+
+    const submit = (e: React.FormEvent) => {
+        e.preventDefault();
+        post('/login', {
+            onFinish: () => reset('password'),
+        });
+    };
 
     return (
         <>
@@ -44,17 +57,21 @@ export default function LoginPage() {
                             Selamat Datang di Dashboard Stunting: Cepat, Akurat, Terarah
                         </p>
 
-                        <form className="mt-7 space-y-4">
+                        <form onSubmit={submit} className="mt-7 space-y-4">
                             <div className="space-y-1.5">
                                 <label htmlFor="email" className="text-[11.5px] font-semibold text-[#374151]">
                                     Email
                                 </label>
                                 <Input
                                     id="email"
-                                    type="text"
+                                    type="email"
+                                    name="email"
+                                    value={data.email}
+                                    onChange={(e) => setData('email', e.target.value)}
                                     placeholder="Email"
                                     className="h-10 rounded-full border-[#d1d5db] bg-white px-4 text-sm text-[#364152] shadow-none placeholder:text-[#b0b8c5] focus-visible:border-[#16a34a] focus-visible:ring-1 focus-visible:ring-[#16a34a]/25"
                                 />
+                                {errors.email && <div className="mt-1 text-[11px] text-red-500">{errors.email}</div>}
                             </div>
 
                             <div className="space-y-1.5">
@@ -65,6 +82,9 @@ export default function LoginPage() {
                                     <Input
                                         id="password"
                                         type={showPassword ? 'text' : 'password'}
+                                        name="password"
+                                        value={data.password}
+                                        onChange={(e) => setData('password', e.target.value)}
                                         placeholder="Password"
                                         className="h-10 rounded-full border-[#d1d5db] bg-white px-4 pr-11 text-sm text-[#364152] shadow-none placeholder:text-[#b0b8c5] focus-visible:border-[#16a34a] focus-visible:ring-1 focus-visible:ring-[#16a34a]/25"
                                     />
@@ -77,12 +97,16 @@ export default function LoginPage() {
                                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                     </button>
                                 </div>
+                                {errors.password && <div className="mt-1 text-[11px] text-red-500">{errors.password}</div>}
                             </div>
 
                             <div className="flex items-center justify-between pt-0.5 text-[11px] text-[#5e6470]">
                                 <label className="flex cursor-pointer items-center gap-1.5">
                                     <input
                                         type="checkbox"
+                                        name="remember"
+                                        checked={data.remember}
+                                        onChange={(e) => setData('remember', e.target.checked)}
                                         className="h-3.5 w-3.5 rounded border-[#cfd4dc] accent-[#16a34a]"
                                     />
                                     <span>Remember Password</span>
@@ -95,9 +119,10 @@ export default function LoginPage() {
                             <div className="pt-2 text-center">
                                 <Button
                                     type="submit"
-                                    className="h-10 min-w-[160px] rounded-full bg-gradient-to-r from-[#0c7a0c] via-[#0d9410] to-[#17d334] px-8 text-sm font-bold tracking-[0.18em] text-white shadow-[0_6px_18px_rgba(22,163,74,0.32)] transition hover:brightness-110 active:brightness-95"
+                                    disabled={processing}
+                                    className="h-10 min-w-[160px] rounded-full bg-gradient-to-r from-[#0c7a0c] via-[#0d9410] to-[#17d334] px-8 text-sm font-bold tracking-[0.18em] text-white shadow-[0_6px_18px_rgba(22,163,74,0.32)] transition hover:brightness-110 active:brightness-95 disabled:opacity-50"
                                 >
-                                    LOGIN
+                                    {processing ? 'LOGGING IN...' : 'LOGIN'}
                                 </Button>
                             </div>
                         </form>

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { router, usePage } from '@inertiajs/react';
 import {
     ClipboardList,
     ChevronsUpDown,
@@ -62,6 +63,12 @@ const navItems: {
     
 function NavUser() {
     const { isMobile } = useSidebar();
+    const { auth } = usePage<any>().props;
+    const user = auth.user;
+
+    const logout = () => {
+        router.post('/logout');
+    };
 
     return (
         <SidebarMenu>
@@ -73,12 +80,14 @@ function NavUser() {
                             className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                         >
                             <Avatar className="h-8 w-8 rounded-lg">
-                                <AvatarImage src="" alt="Admin" />
-                                <AvatarFallback className="rounded-lg">AD</AvatarFallback>
+                                <AvatarImage src="" alt={user.name} />
+                                <AvatarFallback className="rounded-lg">
+                                    {user.name.substring(0, 2).toUpperCase()}
+                                </AvatarFallback>
                             </Avatar>
                             <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
-                                <span className="truncate font-semibold">Admin</span>
-                                <span className="truncate text-xs">admin@unity.id</span>
+                                <span className="truncate font-semibold">{user.name}</span>
+                                <span className="truncate text-xs">{user.email}</span>
                             </div>
                             <ChevronsUpDown className="ml-auto size-4" />
                         </SidebarMenuButton>
@@ -93,17 +102,19 @@ function NavUser() {
                         <DropdownMenuLabel className="p-0 font-normal">
                             <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                                 <Avatar className="h-8 w-8 rounded-lg">
-                                    <AvatarImage src="" alt="Admin" />
-                                    <AvatarFallback className="rounded-lg">AD</AvatarFallback>
+                                    <AvatarImage src="" alt={user.name} />
+                                    <AvatarFallback className="rounded-lg">
+                                        {user.name.substring(0, 2).toUpperCase()}
+                                    </AvatarFallback>
                                 </Avatar>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
-                                    <span className="truncate font-semibold">Admin</span>
-                                    <span className="truncate text-xs">admin@unity.id</span>
+                                    <span className="truncate font-semibold">{user.name}</span>
+                                    <span className="truncate text-xs">{user.email}</span>
                                 </div>
                             </div>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={logout} className="cursor-pointer">
                             <LogOut />
                             Log out
                         </DropdownMenuItem>
@@ -163,7 +174,17 @@ export function AppSidebar({
                                         size="lg"
                                         tooltip={item.label}
                                         isActive={active === item.key}
-                                        onClick={() => onNavigate(item.key)}
+                                        onClick={() => {
+                                            if (item.key === 'manajemen-pengurus') {
+                                                router.get('/admin/pengurus');
+                                            } else if (item.key === 'konfigurasi-posyandu') {
+                                                router.get('/admin/konfigurasi-posyankes');
+                                            } else if (item.key === 'mpasi') {
+                                                router.get('/admin/mpasi');
+                                            } else {
+                                                onNavigate(item.key);
+                                            }
+                                        }}
                                         className={cn(
                                             'h-12 rounded-lg px-3 text-base',
                                             'hover:bg-primary/5 hover:text-primary',

@@ -23,20 +23,27 @@ const redMarkerIcon = new L.Icon({
 });
 
 // ─── Config ───────────────────────────────────────────────────────────────────
-const PUSKESMAS = {
-    name: 'Puskesmas Matraman',
-    address: 'Jl. Matraman Raya No.16, Jakarta Timur',
+const DEFAULT_PUSKESMAS = {
     latitude: -6.175,
     longitude: 106.865,
     coverageRadius: 2000, // meter
 } as const;
 
+interface MapWilayahPuskesmasProps {
+    name: string;
+    address: string;
+    latitude?: number;
+    longitude?: number;
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
-export default function MapWilayahPuskesmas() {
-    const center: [number, number] = [PUSKESMAS.latitude, PUSKESMAS.longitude];
+export default function MapWilayahPuskesmas({ name, address, latitude, longitude }: MapWilayahPuskesmasProps) {
+    const lat = latitude ?? DEFAULT_PUSKESMAS.latitude;
+    const lng = longitude ?? DEFAULT_PUSKESMAS.longitude;
+    const center: [number, number] = [lat, lng];
 
     const handleNavigate = () => {
-        const url = `https://www.google.com/maps/dir/?api=1&destination=${PUSKESMAS.latitude},${PUSKESMAS.longitude}`;
+        const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
         window.open(url, '_blank', 'noopener,noreferrer');
     };
 
@@ -61,7 +68,7 @@ export default function MapWilayahPuskesmas() {
             {/* Coverage area circle */}
             <Circle
                 center={center}
-                radius={PUSKESMAS.coverageRadius}
+                radius={DEFAULT_PUSKESMAS.coverageRadius}
                 pathOptions={{
                     color: '#16a34a',
                     fillColor: '#22c55e',
@@ -75,10 +82,10 @@ export default function MapWilayahPuskesmas() {
                 <Popup>
                     <div style={{ fontFamily: 'sans-serif', minWidth: '180px' }}>
                         <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: '14px' }}>
-                            {PUSKESMAS.name}
+                            {name}
                         </p>
                         <p style={{ margin: '0 0 10px', fontSize: '12px', color: '#6b7280' }}>
-                            {PUSKESMAS.address}
+                            {address}
                         </p>
                         <button
                             onClick={handleNavigate}

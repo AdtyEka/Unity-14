@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { UserPlus } from 'lucide-react';
+import { router, usePage } from '@inertiajs/react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import UserFilters, {
     type RoleFilter,
     type StatusFilter,
-    type UserRole,
 } from '@/pages/admin/manajemen-pengurus/_components/UserFilters';
 import UserTable, { type UserRow } from '@/pages/admin/manajemen-pengurus/_components/UserTable';
 import ManajemenPengurusCreate from '@/pages/admin/manajemen-pengurus/Create';
@@ -17,17 +17,25 @@ import { cn } from '@/lib/utils';
 type NestedRoute =
     | { name: 'index' }
     | { name: 'create' }
-    | { name: 'show'; id: string }
-    | { name: 'edit'; id: string };
+    | { name: 'show'; id: number }
+    | { name: 'edit'; id: number };
 
-const usersSeed: UserRow[] = [
-    { initials: 'SN', name: 'Siti Nurhaliza, A.Md.Keb', nik: '3271012345678901', role: 'Bidan', fasyankes: 'Puskesmas Melati', wilayah: 'Kec. Sukamaju', status: 'Aktif' },
-    { initials: 'BW', name: 'Budi Wibowo, S.KM', nik: '3271098765432109', role: 'Admin Puskesmas', fasyankes: 'Puskesmas Melati', wilayah: 'Kec. Sukamaju', status: 'Aktif' },
-    { initials: 'RR', name: 'Rina Rosdiana, A.Md.Keb', nik: '3271055566677788', role: 'Bidan', fasyankes: 'Puskesmas Mawar', wilayah: 'Kec. Sukajaya', status: 'Nonaktif' },
-    { initials: 'AS', name: 'dr. Ahmad Santoso', nik: '3271011122233344', role: 'Admin Dinas', fasyankes: 'Dinas Kesehatan', wilayah: 'Kab. Bandung', status: 'Aktif' },
-    { initials: 'DP', name: 'Dewi Prameswari, A.Md.Keb', nik: '3271044455566677', role: 'Bidan', fasyankes: 'Puskesmas Anggrek', wilayah: 'Kec. Sukamukti', status: 'Aktif' },
-    { initials: 'FN', name: 'Fauzan Nurhadi, S.KM', nik: '3271077711122233', role: 'Admin Puskesmas', fasyankes: 'Puskesmas Anggrek', wilayah: 'Kec. Sukamukti', status: 'Aktif' },
-];
+interface PageProps {
+    pengurus: {
+        data: any[];
+        current_page: number;
+        last_page: number;
+        from: number;
+        to: number;
+        total: number;
+        per_page: number;
+    };
+    filters: {
+        search?: string;
+        role?: string;
+        status?: string;
+    };
+}
 
 const card3dClassName =
     'relative overflow-hidden transition-all duration-200 ease-out will-change-transform ' +
@@ -36,48 +44,66 @@ const card3dClassName =
     'hover:before:opacity-100 dark:before:from-white/10';
 
 export default function ManajemenPengurusPage() {
+    const { pengurus, filters } = usePage<PageProps>().props;
     const [route, setRoute] = React.useState<NestedRoute>({ name: 'index' });
-    const [query, setQuery] = React.useState('');
-    const [role, setRole] = React.useState<RoleFilter>('Semua Peran');
-    const [status, setStatus] = React.useState<StatusFilter>('Semua Status');
-    const [page, setPage] = React.useState(1);
 
-    const pageSize = 5;
+    // Local state for filters to avoid UI lag, but sync with props
+    const [query, setQuery] = React.useState(filters.search || '');
+    const [role, setRole] = React.useState<RoleFilter>((filters.role as RoleFilter) || 'Semua Peran');
+    const [status, setStatus] = React.useState<StatusFilter>((filters.status as StatusFilter) || 'Semua Status');
 
-    const filtered = React.useMemo(() => {
-        const q = query.trim().toLowerCase();
-        return usersSeed.filter((u) => {
-            const matchesQuery = q.length === 0 || u.name.toLowerCase().includes(q) || u.nik.toLowerCase().includes(q);
-            const matchesRole = role === 'Semua Peran' ? true : u.role === (role as UserRole);
-            const matchesStatus = status === 'Semua Status' ? true : u.status === status;
-            return matchesQuery && matchesRole && matchesStatus;
-        });
+    const handleSearch = React.useCallback(() => {
+        router.get(
+            '/admin/pengurus',
+            { search: query, role, status },
+            { preserveState: true, replace: true }
+        );
     }, [query, role, status]);
 
-    const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
-
+    // Debounced search could be better, but for now let's just trigger on change or enter
     React.useEffect(() => {
-        setPage(1);
-    }, [query, role, status]);
+        const timeout = setTimeout(() => {
+            if (query !== (filters.search || '') || role !== (filters.role || 'Semua Peran') || status !== (filters.status || 'Semua Status')) {
+                handleSearch();
+            }
+        }, 300);
+        return () => clearTimeout(timeout);
+    }, [query, role, status, handleSearch, filters]);
 
-    const rows = React.useMemo(() => {
-        const start = (page - 1) * pageSize;
-        return filtered.slice(start, start + pageSize);
-    }, [filtered, page]);
+    const rows: UserRow[] = React.useMemo(() => {
+        return pengurus.data.map((p) => ({
+            id: p.id,
+            name: p.user.name,
+            initials: p.user.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase(),
+            nik: p.nik,
+            role: p.role_detail,
+            status: p.status,
+        }));
+    }, [pengurus.data]);
 
-    const from = filtered.length === 0 ? 0 : (page - 1) * pageSize + 1;
-    const to = Math.min(filtered.length, page * pageSize);
+    const handleDelete = (id: number) => {
+        if (confirm('Apakah Anda yakin ingin menghapus pengurus ini? Akun user terkait juga akan dihapus.')) {
+            router.delete(`/admin/pengurus/${id}`, {
+                preserveState: true,
+                onSuccess: () => {
+                    // Success notification handled by flash if implemented
+                },
+            });
+        }
+    };
 
     if (route.name === 'create') {
         return <ManajemenPengurusCreate onBack={() => setRoute({ name: 'index' })} />;
     }
 
     if (route.name === 'show') {
-        return <ManajemenPengurusShow id={route.id} onBack={() => setRoute({ name: 'index' })} />;
+        const selected = pengurus.data.find((p) => p.id === route.id);
+        return <ManajemenPengurusShow data={selected} onBack={() => setRoute({ name: 'index' })} />;
     }
 
     if (route.name === 'edit') {
-        return <ManajemenPengurusEdit id={route.id} onBack={() => setRoute({ name: 'index' })} />;
+        const selected = pengurus.data.find((p) => p.id === route.id);
+        return <ManajemenPengurusEdit data={selected} onBack={() => setRoute({ name: 'index' })} />;
     }
 
     return (
@@ -109,17 +135,18 @@ export default function ManajemenPengurusPage() {
 
                     <UserTable
                         rows={rows}
-                        page={page}
-                        pageCount={pageCount}
-                        from={from}
-                        to={to}
-                        total={filtered.length}
-                        pageSize={pageSize}
-                        onPrevPage={() => setPage((p) => Math.max(1, p - 1))}
-                        onNextPage={() => setPage((p) => Math.min(pageCount, p + 1))}
-                        onSetPage={setPage}
-                        onOpenShow={(id) => setRoute({ name: 'show', id })}
-                        onOpenEdit={(id) => setRoute({ name: 'edit', id })}
+                        page={pengurus.current_page}
+                        pageCount={pengurus.last_page}
+                        from={pengurus.from}
+                        to={pengurus.to}
+                        total={pengurus.total}
+                        pageSize={pengurus.per_page}
+                        onPrevPage={() => router.get('/admin/pengurus', { page: pengurus.current_page - 1, search: query, role, status }, { preserveState: true })}
+                        onNextPage={() => router.get('/admin/pengurus', { page: pengurus.current_page + 1, search: query, role, status }, { preserveState: true })}
+                        onSetPage={(p) => router.get('/admin/pengurus', { page: p, search: query, role, status }, { preserveState: true })}
+                        onOpenShow={(id) => setRoute({ name: 'show', id: Number(id) })}
+                        onOpenEdit={(id) => setRoute({ name: 'edit', id: Number(id) })}
+                        onOpenDelete={handleDelete}
                     />
                 </CardContent>
             </Card>

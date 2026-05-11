@@ -22,12 +22,11 @@ import { cn } from '@/lib/utils';
 import type { UserRole, UserStatus } from '@/pages/admin/manajemen-pengurus/_components/UserFilters';
 
 export type UserRow = {
+    id: number;
     initials: string;
     name: string;
     nik: string;
     role: UserRole;
-    fasyankes: string;
-    wilayah: string;
     status: UserStatus;
 };
 
@@ -74,6 +73,7 @@ export default function UserTable({
     onSetPage,
     onOpenShow,
     onOpenEdit,
+    onOpenDelete,
 }: {
     rows: UserRow[];
     page: number;
@@ -87,6 +87,7 @@ export default function UserTable({
     onSetPage: (value: number) => void;
     onOpenShow: (id: string) => void;
     onOpenEdit: (id: string) => void;
+    onOpenDelete: (id: number) => void;
 }) {
     const rowHeightClassName = 'h-[60px]';
 
@@ -102,9 +103,7 @@ export default function UserTable({
                             <TableHead className="px-4 text-xs font-semibold text-muted-foreground">
                                 Peran
                             </TableHead>
-                            <TableHead className="px-4 text-xs font-semibold text-muted-foreground">
-                                Fasyankes (Puskesmas)
-                            </TableHead>
+
                             <TableHead className="px-4 text-xs font-semibold text-muted-foreground">
                                 Status
                             </TableHead>
@@ -117,7 +116,7 @@ export default function UserTable({
                         {rows.length === 0 ? (
                             <TableRow className={rowHeightClassName}>
                                 <TableCell
-                                    colSpan={5}
+                                    colSpan={3}
                                     className="px-4 py-8 text-center text-sm text-muted-foreground"
                                 >
                                     Tidak ada data yang cocok.
@@ -147,12 +146,6 @@ export default function UserTable({
                                             <RoleBadge role={u.role} />
                                         </TableCell>
                                         <TableCell className="px-4">
-                                            <div className="min-w-0">
-                                                <p className="truncate font-medium">{u.fasyankes}</p>
-                                                <p className="text-xs text-muted-foreground">{u.wilayah}</p>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="px-4">
                                             <StatusBadge status={u.status} />
                                         </TableCell>
                                         <TableCell className="px-4 text-right">
@@ -168,14 +161,14 @@ export default function UserTable({
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" className="min-w-36">
-                                                    <DropdownMenuItem onSelect={() => onOpenShow(u.nik)}>
+                                                    <DropdownMenuItem onSelect={() => onOpenShow(u.id.toString())}>
                                                         Lihat Detail
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem onSelect={() => onOpenEdit(u.nik)}>
+                                                    <DropdownMenuItem onSelect={() => onOpenEdit(u.id.toString())}>
                                                         Ubah Akses
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem variant="destructive" onSelect={() => {}}>
-                                                        Nonaktifkan
+                                                    <DropdownMenuItem variant="destructive" onSelect={() => onOpenDelete(u.id)}>
+                                                        Hapus Pengguna
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
@@ -183,16 +176,6 @@ export default function UserTable({
                                     </TableRow>
                                 ))}
 
-                                {Array.from({ length: pageSize - rows.length }).map((_, idx) => (
-                                    <TableRow
-                                        key={`empty-${idx}`}
-                                        className={cn(rowHeightClassName, 'hover:bg-transparent')}
-                                    >
-                                        <TableCell colSpan={5} className="px-4">
-                                            <span className="sr-only">Empty row</span>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
                             </>
                         )}
                     </TableBody>
