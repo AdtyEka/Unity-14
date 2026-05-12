@@ -33,12 +33,14 @@ const statusPill: Record<StatusGizi, { badge: string }> = {
 };
 
 function StatusBadge({ status }: { status: StatusGizi }) {
+    const config = statusPill[status] || { badge: 'bg-slate-100 text-slate-800 border-slate-200' };
+    
     return (
         <Badge
             variant="outline"
-            className={cn('rounded-full px-2.5 py-1 text-xs font-medium', statusPill[status].badge)}
+            className={cn('rounded-full px-2.5 py-1 text-xs font-medium', config.badge)}
         >
-            {status}
+            {status || 'Unknown'}
         </Badge>
     );
 }
@@ -55,6 +57,7 @@ export default function PatientTable({
     onNext,
     onOpenDetail,
     onContinue,
+    onDelete,
 }: {
     rows: PatientRow[];
     page: number;
@@ -67,6 +70,7 @@ export default function PatientTable({
     onNext: () => void;
     onOpenDetail: (row: PatientRow) => void;
     onContinue: (row: PatientRow) => void;
+    onDelete: (row: PatientRow) => void;
 }) {
     const rowHeightClassName = 'h-[60px]';
 
@@ -147,6 +151,15 @@ export default function PatientTable({
                                                     onClick={() => onContinue(p)}
                                                 >
                                                     Lanjut Pemeriksaan <ArrowRight className="ml-2 size-4" />
+                                                </Button>
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="h-8 rounded-md border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                                                    onClick={() => onDelete(p)}
+                                                >
+                                                    Hapus
                                                 </Button>
                                             </div>
                                         </TableCell>

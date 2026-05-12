@@ -1,3 +1,4 @@
+import { router, usePage } from '@inertiajs/react';
 import { LoaderCircle, Plus, UsersRound } from 'lucide-react';
 import * as React from 'react';
 
@@ -20,54 +21,6 @@ type NestedRoute =
     | { name: 'create' }
     | { name: 'anthropometri'; patient: PatientRow }
     | { name: 'show'; id: string; tanpaPrediksiMl?: boolean };
-
-const patientsSeed: PatientRow[] = [
-    {
-        id: 'P-1042',
-        namaPasien: 'Budi Santoso',
-        jenisKelamin: 'Laki-laki',
-        umur: '18 bulan',
-        usiaBulan: 18,
-        tanggalPemeriksaanTerakhir: '15 Apr 2024',
-        statusGizi: 'Stunting Berat',
-    },
-    {
-        id: 'P-1043',
-        namaPasien: 'Aisyah Putri',
-        jenisKelamin: 'Perempuan',
-        umur: '24 bulan',
-        usiaBulan: 24,
-        tanggalPemeriksaanTerakhir: '03 Mei 2024',
-        statusGizi: 'Normal',
-    },
-    {
-        id: 'P-1044',
-        namaPasien: 'Raka Pratama',
-        jenisKelamin: 'Laki-laki',
-        umur: '12 bulan',
-        usiaBulan: 12,
-        tanggalPemeriksaanTerakhir: '21 Mar 2024',
-        statusGizi: 'Stunting Ringan',
-    },
-    {
-        id: 'P-1045',
-        namaPasien: 'Kirana Ayu',
-        jenisKelamin: 'Perempuan',
-        umur: '9 bulan',
-        usiaBulan: 9,
-        tanggalPemeriksaanTerakhir: '12 Apr 2024',
-        statusGizi: '0–11 Bulan',
-    },
-    {
-        id: 'P-1046',
-        namaPasien: 'Dimas Saputra',
-        jenisKelamin: 'Laki-laki',
-        umur: '30 bulan',
-        usiaBulan: 30,
-        tanggalPemeriksaanTerakhir: '08 Feb 2024',
-        statusGizi: 'Stunting Berat',
-    },
-];
 
 const card3dClassName =
     'relative overflow-hidden transition-all duration-200 ease-out will-change-transform ' +
@@ -136,59 +89,94 @@ function TableSkeleton({ rows = 5 }: { rows?: number }) {
 }
 
 export default function ManajemenPasienPage() {
-    const [route, setRoute] = React.useState<NestedRoute>({ name: 'index' });
-    const [query, setQuery] = React.useState('');
-    const [page, setPage] = React.useState(1);
-    const [filter, setFilter] = React.useState<FilterOption>('Semua');
-    const [isLoading, setIsLoading] = React.useState(true);
+    const { pasiens, filters, pasien, tanpaPrediksiMl: propTanpaMl } = usePage<any>().props;
+    const [route, setRoute] = React.useState<NestedRoute>(pasien ? { name: 'show', id: pasien.id } : { name: 'index' });
+    const [query, setQuery] = React.useState(filters?.search || '');
+    const [filter, setFilter] = React.useState<FilterOption>(filters?.status_gizi || 'Semua');
     const [confirmOpen, setConfirmOpen] = React.useState(false);
 
-    const pageSize = 5;
+    const rows: PatientRow[] = (pasiens?.data || []).map((p: any) => ({
+        id: p.id,
+        namaPasien: p.namaPasien,
+        jenisKelamin: p.jenisKelamin,
+        umur: p.umur,
+        usiaBulan: p.usiaBulan,
+        tanggalPemeriksaanTerakhir: p.tanggalPemeriksaanTerakhir,
+        statusGizi: p.statusGizi || 'Normal',
+    }));
+
+    const handleSearch = React.useCallback(
+        (q: string, f: FilterOption) => {
+            router.get(
+                '/admin/pasien',
+                { search: q, status_gizi: f },
+                { preserveState: true, replace: true }
+            );
+        },
+        []
+    );
+
+    const onQueryChange = (q: string) => {
+        setQuery(q);
+        handleSearch(q, filter);
+    };
+
+    const onFilterChange = (f: FilterOption) => {
+        setFilter(f);
+        handleSearch(query, f);
+    };
+
+    const onPrev = () => {
+        if (pasiens?.prev_page_url) {
+            router.get(pasiens.prev_page_url, {}, { preserveState: true });
+        }
+    };
+
+    const onNext = () => {
+        if (pasiens?.next_page_url) {
+            router.get(pasiens.next_page_url, {}, { preserveState: true });
+        }
+    };
+
+    const handleDelete = (row: PatientRow) => {
+        if (confirm(`Apakah Anda yakin ingin menghapus data pasien ${row.namaPasien}? Semua data pemeriksaan terkait juga akan dihapus.`)) {
+            router.delete(`/admin/pasien/${row.id}`, {
+                preserveState: true,
+                onSuccess: () => {
+                    // Success handled by flash
+                }
+            });
+        }
+    };
 
     React.useEffect(() => {
-        const t = window.setTimeout(() => setIsLoading(false), 700);
-        return () => window.clearTimeout(t);
-    }, []);
-
-    const filtered = React.useMemo(() => {
-        const q = query.trim().toLowerCase();
-
-        return patientsSeed.filter((p) => {
-            const matchesFilter = filter === 'Semua' ? true : p.statusGizi === filter;
-            if (q.length === 0) {
-                return matchesFilter;
-            }
-
-            return matchesFilter && p.namaPasien.toLowerCase().includes(q);
-        });
-    }, [query, filter]);
-
-    const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
-
-    React.useEffect(() => {
-        setPage(1);
-    }, [query, filter]);
-
-    const rows = React.useMemo(() => {
-        const start = (page - 1) * pageSize;
-
-        return filtered.slice(start, start + pageSize);
-    }, [filtered, page]);
-
-    const from = filtered.length === 0 ? 0 : (page - 1) * pageSize + 1;
-    const to = Math.min(filtered.length, page * pageSize);
+        if (pasien) {
+            setRoute({ name: 'show', id: pasien.id });
+        } else {
+            setRoute({ name: 'index' });
+        }
+    }, [pasien]);
 
     if (route.name === 'create') {
         return (
             <ManajemenPasienCreate
                 onCancel={() => setRoute({ name: 'index' })}
-                onDone={(pasienId, { prediksiMl }) =>
-                    setRoute({
-                        name: 'show',
-                        id: pasienId,
-                        ...(!prediksiMl ? { tanpaPrediksiMl: true } : {}),
-                    })
-                }
+                onDone={(pasienId, { prediksiMl }) => {
+                    router.get(`/admin/pasien/${pasienId}`);
+                }}
+            />
+        );
+    }
+
+    if (route.name === 'show' && pasien) {
+        return (
+            <ManajemenPasienShow
+                pasien={pasien}
+                tanpaPrediksiMl={propTanpaMl === true}
+                onBack={() => {
+                    setRoute({ name: 'index' });
+                    router.get('/admin/pasien');
+                }}
             />
         );
     }
@@ -196,38 +184,6 @@ export default function ManajemenPasienPage() {
     if (route.name === 'transition-create') {
         return (
             <TransitionCreate onDone={() => setRoute({ name: 'create' })} onCancel={() => setRoute({ name: 'index' })} />
-        );
-    }
-
-    if (route.name === 'anthropometri') {
-        const usiaBulan = route.patient.usiaBulan;
-        const prediksiMl = usiaBulan >= 12 && usiaBulan <= 60;
-
-        return (
-            <CreateStepTwo
-                mode="existing"
-                usiaBulan={usiaBulan}
-                prediksiMl={prediksiMl}
-                onBack={() => setRoute({ name: 'index' })}
-                onCancel={() => setRoute({ name: 'index' })}
-                onSubmit={() =>
-                    setRoute({
-                        name: 'show',
-                        id: route.patient.id,
-                        ...(!prediksiMl ? { tanpaPrediksiMl: true } : {}),
-                    })
-                }
-            />
-        );
-    }
-
-    if (route.name === 'show') {
-        return (
-            <ManajemenPasienShow
-                id={route.id}
-                tanpaPrediksiMl={route.tanpaPrediksiMl === true}
-                onBack={() => setRoute({ name: 'index' })}
-            />
         );
     }
 
@@ -260,43 +216,42 @@ export default function ManajemenPasienPage() {
                     <PatientFilter
                         query={query}
                         filter={filter}
-                        onQueryChange={setQuery}
-                        onFilterChange={setFilter}
+                        onQueryChange={onQueryChange}
+                        onFilterChange={onFilterChange}
                     />
 
-                    {isLoading ? (
-                        <TableSkeleton rows={pageSize} />
-                    ) : filtered.length === 0 && patientsSeed.length === 0 ? (
-                        <div className="mt-4 rounded-lg border bg-white px-6 py-12 text-center">
-                            <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
-                                <UsersRound className="size-6" />
+                    {pasiens?.data?.length === 0 && !query && filter === 'Semua' ? (
+                        <div className="mt-8 flex flex-col items-center justify-center rounded-lg border border-dashed py-12 text-center">
+                            <div className="flex size-12 items-center justify-center rounded-full bg-muted">
+                                <Plus className="size-6 text-muted-foreground" />
                             </div>
-                            <p className="mt-4 text-base font-semibold">Belum ada data pasien</p>
-                            <p className="mt-1 text-sm text-muted-foreground">
-                                Buat pemeriksaan baru untuk mulai mencatat antropometri.
+                            <h3 className="mt-4 text-lg font-semibold">Belum ada data pasien</h3>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                Mulai dengan menambahkan pemeriksaan pasien baru.
                             </p>
                             <Button
                                 type="button"
-                                className="mt-5 h-10 rounded-lg bg-emerald-600 px-4 text-white hover:bg-emerald-700"
+                                variant="outline"
+                                className="mt-4"
                                 onClick={() => setConfirmOpen(true)}
                             >
-                                <Plus className="mr-2 size-4" />
-                                Pemeriksaan Baru
+                                Tambah Pasien
                             </Button>
                         </div>
                     ) : (
                         <PatientTable
                             rows={rows}
-                            page={page}
-                            pageCount={pageCount}
-                            from={from}
-                            to={to}
-                            total={filtered.length}
-                            pageSize={pageSize}
-                            onPrev={() => setPage((p) => Math.max(1, p - 1))}
-                            onNext={() => setPage((p) => Math.min(pageCount, p + 1))}
-                            onOpenDetail={(row) => setRoute({ name: 'show', id: row.id })}
-                            onContinue={(row) => setRoute({ name: 'anthropometri', patient: row })}
+                            page={pasiens?.current_page || 1}
+                            pageCount={pasiens?.last_page || 1}
+                            from={pasiens?.from || 0}
+                            to={pasiens?.to || 0}
+                            total={pasiens?.total || 0}
+                            pageSize={pasiens?.per_page || 10}
+                            onPrev={onPrev}
+                            onNext={onNext}
+                            onOpenDetail={(row) => router.get(`/admin/pasien/${row.id}`)}
+                            onContinue={(row) => router.get(`/admin/pasien/${row.id}`)}
+                            onDelete={handleDelete}
                         />
                     )}
                 </CardContent>

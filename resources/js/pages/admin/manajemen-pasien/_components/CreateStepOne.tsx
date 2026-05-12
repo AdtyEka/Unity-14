@@ -21,6 +21,7 @@ export default function CreateStepOne({
     onNext,
     value,
     onChange,
+    errors,
 }: {
     onCancel: () => void;
     onNext: () => void;
@@ -42,6 +43,7 @@ export default function CreateStepOne({
         namaAyah: string;
         nomorHp: string;
     }) => void;
+    errors?: Record<string, string>;
 }) {
     const jenisKelamin = value.jenisKelamin;
     const setJenisKelamin = (jk: JenisKelamin) => onChange({ ...value, jenisKelamin: jk });
@@ -89,11 +91,12 @@ export default function CreateStepOne({
                                     Nama Lengkap Bayi <span className="text-destructive">*</span>
                                 </label>
                                 <Input
-                                    className="mt-2 h-10"
+                                    className={cn("mt-2 h-10", errors?.nama_bayi && "border-destructive")}
                                     placeholder="Masukkan nama lengkap sesuai akta"
                                     value={value.namaBayi}
                                     onChange={(e) => onChange({ ...value, namaBayi: e.target.value })}
                                 />
+                                {errors?.nama_bayi && <p className="mt-1 text-xs text-destructive">{errors.nama_bayi}</p>}
                             </div>
 
                             <div>
@@ -103,12 +106,13 @@ export default function CreateStepOne({
                                 <div className="relative mt-2">
                                     <Calendar className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                                     <Input
-                                        className="h-10 pl-9"
+                                        className={cn("h-10 pl-9", errors?.tanggal_lahir && "border-destructive")}
                                         type="date"
                                         value={value.tanggalLahir}
                                         onChange={(e) => onChange({ ...value, tanggalLahir: e.target.value })}
                                     />
                                 </div>
+                                {errors?.tanggal_lahir && <p className="mt-1 text-xs text-destructive">{errors.tanggal_lahir}</p>}
                             </div>
 
                             <div>
@@ -122,6 +126,7 @@ export default function CreateStepOne({
                                         className={cn(
                                             'h-10 justify-center',
                                             jenisKelamin === 'Laki-laki' && 'bg-muted text-foreground',
+                                            errors?.jenis_kelamin && "border-destructive text-destructive"
                                         )}
                                         onClick={() => setJenisKelamin('Laki-laki')}
                                     >
@@ -133,12 +138,14 @@ export default function CreateStepOne({
                                         className={cn(
                                             'h-10 justify-center',
                                             jenisKelamin === 'Perempuan' && 'bg-muted text-foreground',
+                                            errors?.jenis_kelamin && "border-destructive text-destructive"
                                         )}
                                         onClick={() => setJenisKelamin('Perempuan')}
                                     >
                                         Perempuan
                                     </Button>
                                 </div>
+                                {errors?.jenis_kelamin && <p className="mt-1 text-xs text-destructive">{errors.jenis_kelamin}</p>}
                             </div>
                         </div>
 
@@ -178,11 +185,12 @@ export default function CreateStepOne({
                                     Nama Ibu Kandung <span className="text-destructive">*</span>
                                 </label>
                                 <Input
-                                    className="mt-2 h-10"
+                                    className={cn("mt-2 h-10", errors?.nama_ibu && "border-destructive")}
                                     placeholder="Masukkan nama ibu"
                                     value={value.namaIbu}
                                     onChange={(e) => onChange({ ...value, namaIbu: e.target.value })}
                                 />
+                                {errors?.nama_ibu && <p className="mt-1 text-xs text-destructive">{errors.nama_ibu}</p>}
                             </div>
 
                             <div>
@@ -190,22 +198,24 @@ export default function CreateStepOne({
                                     NIK Ibu <span className="text-destructive">*</span>
                                 </label>
                                 <Input
-                                    className="mt-2 h-10"
+                                    className={cn("mt-2 h-10", errors?.nik_ibu && "border-destructive")}
                                     inputMode="numeric"
                                     placeholder="16 digit NIK"
                                     value={value.nikIbu}
                                     onChange={(e) => onChange({ ...value, nikIbu: e.target.value })}
                                 />
+                                {errors?.nik_ibu && <p className="mt-1 text-xs text-destructive">{errors.nik_ibu}</p>}
                             </div>
 
                             <div>
                                 <label className="text-sm font-medium">Nama Ayah (Opsional)</label>
                                 <Input
-                                    className="mt-2 h-10"
+                                    className={cn("mt-2 h-10", errors?.nama_ayah && "border-destructive")}
                                     placeholder="Masukkan nama ayah"
                                     value={value.namaAyah}
                                     onChange={(e) => onChange({ ...value, namaAyah: e.target.value })}
                                 />
+                                {errors?.nama_ayah && <p className="mt-1 text-xs text-destructive">{errors.nama_ayah}</p>}
                             </div>
 
                             <div>
@@ -213,13 +223,14 @@ export default function CreateStepOne({
                                 <div className="mt-2 flex gap-2">
                                     <Input className="h-10 w-20" value="+62" readOnly />
                                     <Input
-                                        className="h-10 flex-1"
+                                        className={cn("h-10 flex-1", errors?.nomor_hp && "border-destructive")}
                                         inputMode="tel"
                                         placeholder="8123456789"
                                         value={value.nomorHp}
                                         onChange={(e) => onChange({ ...value, nomorHp: e.target.value })}
                                     />
                                 </div>
+                                {errors?.nomor_hp && <p className="mt-1 text-xs text-destructive">{errors.nomor_hp}</p>}
                             </div>
                         </div>
                     </div>
