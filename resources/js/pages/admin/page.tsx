@@ -54,6 +54,12 @@ export default function AdminPage() {
     const { activeSection } = usePage<any>().props;
     const [active, setActive] = React.useState<AdminSection>(activeSection || 'dashboard');
 
+    React.useEffect(() => {
+        if (activeSection) {
+            setActive(activeSection);
+        }
+    }, [activeSection]);
+
     const content = React.useMemo(() => {
         switch (active) {
             case 'dashboard':

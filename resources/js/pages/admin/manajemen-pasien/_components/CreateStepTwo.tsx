@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowLeft, Calendar, Check, ClipboardList, Info } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Calendar, Check, ClipboardList, Info, LoaderCircle } from 'lucide-react';
 import * as React from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -67,6 +67,10 @@ export default function CreateStepTwo({
     onBack,
     onCancel,
     onSubmit,
+    antropometri,
+    onAntropometriChange,
+    processing,
+    errors,
 }: {
     /** Usia dari tanggal lahir langkah 1; `null` jika tanggal belum valid. */
     usiaBulan: number | null;
@@ -77,16 +81,56 @@ export default function CreateStepTwo({
     onBack: () => void;
     onCancel: () => void;
     onSubmit: () => void;
+    antropometri?: {
+        tanggal_pemeriksaan: string;
+        tinggi_badan: string;
+        berat_badan: string;
+    };
+    onAntropometriChange?: (next: {
+        tanggal_pemeriksaan: string;
+        tinggi_badan: string;
+        berat_badan: string;
+    }) => void;
+    processing?: boolean;
+    errors?: Record<string, string>;
 }) {
-    const [tanggalPemeriksaan, setTanggalPemeriksaan] = React.useState(() => {
+    const [localTanggal, setLocalTanggal] = React.useState(() => {
         const now = new Date();
         const yyyy = now.getFullYear();
         const mm = String(now.getMonth() + 1).padStart(2, '0');
         const dd = String(now.getDate()).padStart(2, '0');
         return `${yyyy}-${mm}-${dd}`;
     });
-    const [tinggiBadan, setTinggiBadan] = React.useState('');
-    const [beratBadan, setBeratBadan] = React.useState('');
+    const [localTinggi, setLocalTinggi] = React.useState('');
+    const [localBerat, setLocalBerat] = React.useState('');
+
+    const tanggalPemeriksaan = antropometri?.tanggal_pemeriksaan ?? localTanggal;
+    const tinggiBadan = antropometri?.tinggi_badan ?? localTinggi;
+    const beratBadan = antropometri?.berat_badan ?? localBerat;
+
+    const setTanggalPemeriksaan = (val: string) => {
+        if (onAntropometriChange && antropometri) {
+            onAntropometriChange({ ...antropometri, tanggal_pemeriksaan: val });
+        } else {
+            setLocalTanggal(val);
+        }
+    };
+
+    const setTinggiBadan = (val: string) => {
+        if (onAntropometriChange && antropometri) {
+            onAntropometriChange({ ...antropometri, tinggi_badan: val });
+        } else {
+            setLocalTinggi(val);
+        }
+    };
+
+    const setBeratBadan = (val: string) => {
+        if (onAntropometriChange && antropometri) {
+            onAntropometriChange({ ...antropometri, berat_badan: val });
+        } else {
+            setLocalBerat(val);
+        }
+    };
 
     const diBawahSatuTahun = usiaBulan !== null && usiaBulan < 12;
     const diAtasLimaTahun = usiaBulan !== null && usiaBulan > 60;
@@ -190,12 +234,13 @@ export default function CreateStepTwo({
                                         <Calendar className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                                         <Input
                                             id="tanggal-pemeriksaan"
-                                            className="h-10 pl-9"
+                                            className={cn("h-10 pl-9", errors?.tanggal_pemeriksaan && "border-destructive")}
                                             type="date"
                                             value={tanggalPemeriksaan}
                                             onChange={(e) => setTanggalPemeriksaan(e.target.value)}
                                         />
                                     </div>
+                                    {errors?.tanggal_pemeriksaan && <p className="mt-1 text-xs text-destructive">{errors.tanggal_pemeriksaan}</p>}
                                 </div>
                                 <div>
                                     <label className="text-sm font-medium" htmlFor="tinggi-badan">
@@ -204,7 +249,7 @@ export default function CreateStepTwo({
                                     <div className="relative mt-2">
                                         <Input
                                             id="tinggi-badan"
-                                            className="h-10 pr-12"
+                                            className={cn("h-10 pr-12", errors?.tinggi_badan && "border-destructive")}
                                             placeholder="0.0"
                                             inputMode="decimal"
                                             value={tinggiBadan}
@@ -214,6 +259,7 @@ export default function CreateStepTwo({
                                             cm
                                         </span>
                                     </div>
+                                    {errors?.tinggi_badan && <p className="mt-1 text-xs text-destructive">{errors.tinggi_badan}</p>}
                                 </div>
                                 <div>
                                     <label className="text-sm font-medium" htmlFor="berat-badan">
@@ -222,7 +268,7 @@ export default function CreateStepTwo({
                                     <div className="relative mt-2">
                                         <Input
                                             id="berat-badan"
-                                            className="h-10 pr-12"
+                                            className={cn("h-10 pr-12", errors?.berat_badan && "border-destructive")}
                                             placeholder="0.0"
                                             inputMode="decimal"
                                             value={beratBadan}
@@ -232,6 +278,7 @@ export default function CreateStepTwo({
                                             kg
                                         </span>
                                     </div>
+                                    {errors?.berat_badan && <p className="mt-1 text-xs text-destructive">{errors.berat_badan}</p>}
                                 </div>
                             </div>
                         </div>
@@ -243,10 +290,13 @@ export default function CreateStepTwo({
                             {mode === 'existing' ? 'Kembali ke daftar pasien' : 'Kembali ke Langkah 1'}
                         </Button>
                         <div className="flex items-center gap-2">
-                            <Button type="button" variant="outline" className="h-10 rounded-lg px-5" onClick={onCancel}>
+                            <Button type="button" variant="outline" className="h-10 rounded-lg px-5" onClick={onCancel} disabled={processing}>
                                 Batal
                             </Button>
-                            <Button type="button" className="h-10 rounded-lg px-5" onClick={onSubmit}>
+                            <Button type="button" className="h-10 rounded-lg px-5" onClick={onSubmit} disabled={processing}>
+                                {processing ? (
+                                    <LoaderCircle className="mr-2 size-4 animate-spin" />
+                                ) : null}
                                 {prediksiMl ? (
                                     <>
                                         Analisis Risiko Stunting <Check className="ml-2 size-4" />

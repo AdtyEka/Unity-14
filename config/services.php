@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'ml_service' => [
+        'base_url' => env('ML_SERVICE_BASE_URL', 'http://localhost:8080'),
+    ],
+
 ];

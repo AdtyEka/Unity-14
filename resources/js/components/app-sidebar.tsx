@@ -177,6 +177,8 @@ export function AppSidebar({
                                         onClick={() => {
                                             if (item.key === 'manajemen-pengurus') {
                                                 router.get('/admin/pengurus');
+                                            } else if (item.key === 'manajemen-pasien') {
+                                                router.get('/admin/pasien');
                                             } else if (item.key === 'konfigurasi-posyandu') {
                                                 router.get('/admin/konfigurasi-posyankes');
                                             } else if (item.key === 'mpasi') {
