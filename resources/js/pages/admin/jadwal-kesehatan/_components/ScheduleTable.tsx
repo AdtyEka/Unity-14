@@ -40,7 +40,14 @@ function buildWaMessage(row: ScheduleRow): string {
         `Tim Posyandu`,
     ].join('\n');
 
-    return `https://wa.me/${row.noWhatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`;
+    let phone = row.noWhatsapp.replace(/\D/g, '');
+    if (phone.startsWith('0')) {
+        phone = '62' + phone.substring(1);
+    } else if (!phone.startsWith('62')) {
+        phone = '62' + phone;
+    }
+
+    return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
 }
 
 interface ScheduleTableProps {

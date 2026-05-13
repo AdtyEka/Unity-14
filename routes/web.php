@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\JadwalKesehatanController;
 use App\Http\Controllers\Admin\JamLayananController;
 use App\Http\Controllers\Admin\MpasiVideoController;
 use App\Http\Controllers\Admin\PasienController;
@@ -43,6 +44,7 @@ Route::middleware('auth')->group(function () {
         Route::post('admin/konfigurasi-posyankes/{puskesmas}/posyandu', [PosyanduController::class, 'store'])->name('admin.posyandu.store');
         Route::patch('admin/konfigurasi-posyankes/{puskesmas}/posyandu/{posyandu}', [PosyanduController::class, 'update'])->name('admin.posyandu.update');
         Route::delete('admin/konfigurasi-posyankes/{puskesmas}/posyandu/{posyandu}', [PosyanduController::class, 'destroy'])->name('admin.posyandu.destroy');
+        Route::get('admin/jadwal-kesehatan', [JadwalKesehatanController::class, 'index'])->name('admin.jadwal-kesehatan.index');
     });
 
     Route::middleware('role:kader')->group(function () {
