@@ -16,7 +16,7 @@ class PasienController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Pasien::with('pemeriksaanTerakhir');
+        $query = Pasien::with('pemeriksaanTerakhir.hasilPrediksi');
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -26,19 +26,36 @@ class PasienController extends Controller
             });
         }
 
-        // Simpel filter gizi sesuai issue.md (proxy usia)
         if ($request->filled('status_gizi') && $request->status_gizi !== 'Semua') {
-            if ($request->status_gizi === '0–11 Bulan') {
-                $query->where('tanggal_lahir', '>', now()->subMonths(12));
-            } else {
-                $query->where('tanggal_lahir', '<=', now()->subMonths(12));
-            }
+            $status = $request->status_gizi;
+            $query->where(function ($q) use ($status) {
+                // Check latest examination status
+                $q->whereHas('pemeriksaanTerakhir.hasilPrediksi', function ($sub) use ($status) {
+                    $sub->where('prediction_label', $status);
+                });
+
+                // Fallback for patients without examinations based on age
+                if ($status === '0–11 Bulan') {
+                    $q->orWhere(function ($sub) {
+                        $sub->where('tanggal_lahir', '>', now()->subMonths(12))
+                            ->doesntHave('pemeriksaans');
+                    });
+                } elseif ($status === 'Normal') {
+                    $q->orWhere(function ($sub) {
+                        $sub->where('tanggal_lahir', '<=', now()->subMonths(12))
+                            ->doesntHave('pemeriksaans');
+                    });
+                }
+            });
         }
 
         $pasiens = $query->latest()->paginate(10)->withQueryString();
 
         $pasiens->getCollection()->transform(function ($p) {
             $usiaBulan = $p->usiaBulan();
+            $statusGizi = $p->pemeriksaanTerakhir && $p->pemeriksaanTerakhir->hasilPrediksi
+                ? $p->pemeriksaanTerakhir->hasilPrediksi->prediction_label
+                : 'Belum Ada Data';
 
             return [
                 'id' => $p->id,
@@ -49,7 +66,7 @@ class PasienController extends Controller
                 'tanggalPemeriksaanTerakhir' => $p->pemeriksaanTerakhir
                     ? Carbon::parse($p->pemeriksaanTerakhir->tanggal_pemeriksaan)->format('d M Y')
                     : '-',
-                'statusGizi' => $usiaBulan < 12 ? '0–11 Bulan' : 'Normal',
+                'statusGizi' => $statusGizi,
                 // Data identitas lengkap untuk detail/edit
                 'namaIbu' => $p->nama_ibu,
                 'nikIbu' => $p->nik_ibu,

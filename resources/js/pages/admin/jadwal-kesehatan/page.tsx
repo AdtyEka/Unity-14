@@ -22,21 +22,13 @@ export default function JadwalKesehatanPage() {
         console.log(pasiens);
 
         return pasiens.map((p) => {
-            let statusStr = 'Normal';
-            if (p.pemeriksaan_terakhir && p.pemeriksaan_terakhir.hasil_prediksi) {
-                statusStr =
-                    p.pemeriksaan_terakhir.hasil_prediksi.prediction_label;
-            } else if (p.usia_bulan < 12) {
-                statusStr = '0–11 Bulan';
-            }
-
             return {
                 uid: p.id,
                 namaBalita: p.nama_bayi,
                 namaIbu: p.nama_ibu,
                 noWhatsapp: p.nomor_hp,
-                usia: `${p.usia_bulan} Bulan`,
-                status: statusStr as FilterStatus,
+                usia: `${p.usia_bulan ?? 0} Bulan`,
+                status: (p.status_gizi || 'Normal') as FilterStatus,
                 tanggalPemeriksaan: p.pemeriksaan_terakhir
                     ? new Date(
                           p.pemeriksaan_terakhir.tanggal_pemeriksaan,
