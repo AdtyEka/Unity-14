@@ -41,8 +41,8 @@ class RunStuntingPrediction implements ShouldQueue
             return;
         }
 
-        // 3. Encode jenis_kelamin: Laki-laki → 1, Perempuan → 0
-        $jenisKelamin = $pasien->jenis_kelamin === 'Laki-laki' ? 1 : 0;
+        // 3. Encode jenis_kelamin: Laki-laki → 1, Perempuan → 2
+        $jenisKelamin = $pasien->jenis_kelamin === 'Laki-laki' ? 1 : 2;
 
         // 4. Hit API ML menggunakan Laravel HTTP Client
         try {
