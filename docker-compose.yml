@@ -82,3 +82,6 @@ volumes:
 networks:
   unity_network:
     driver: bridge
+  npm_network:
+    name: nginx-proxy-manager_default
+    external: true
