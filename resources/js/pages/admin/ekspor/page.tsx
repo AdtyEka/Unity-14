@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Calendar, Download, FileSpreadsheet, FileText, Filter, Play, RefreshCw } from 'lucide-react';
+import { Calendar, Download, FileSpreadsheet, FileText, Filter, Play, RefreshCw, Loader2 } from 'lucide-react';
+import { useForm, usePage } from '@inertiajs/react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,7 +18,9 @@ type RecentReport = {
     id: string;
     title: string;
     subtitle: string;
-    color: 'red' | 'green';
+    color: 'red' | 'green' | 'blue';
+    status: string;
+    file_path: string | null;
 };
 
 const card3dClassName =
@@ -26,33 +29,42 @@ const card3dClassName =
     'before:pointer-events-none before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/40 before:to-transparent before:opacity-0 before:transition-opacity ' +
     'hover:before:opacity-100 dark:before:from-white/10';
 
-const recentSeed: RecentReport[] = [
-    {
-        id: 'r-1',
-        title: 'Laporan Bulanan Surveilans Gizi ...',
-        subtitle: 'Hari ini, 09:41',
-        color: 'red',
-    },
-    {
-        id: 'r-2',
-        title: 'Data Mentah Antropometri - ...',
-        subtitle: 'Kemarin, 14:20',
-        color: 'green',
-    },
-    {
-        id: 'r-3',
-        title: 'Laporan Rujukan Pasien Stunting...',
-        subtitle: '12 Agt 2024',
-        color: 'red',
-    },
-];
-
 export default function EksporPage() {
-    const [type, setType] = React.useState<ReportType>('Mingguan');
-    const [format, setFormat] = React.useState<DownloadFormat>('pdf');
+    const { recentReports } = usePage<any>().props;
+
+    const { data, setData, post, processing, errors } = useForm({
+        type: 'Mingguan' as ReportType,
+        format: 'pdf' as DownloadFormat,
+        start_date: new Date().toISOString().split('T')[0],
+        end_date: new Date().toISOString().split('T')[0],
+    });
+
+    const setType = (type: ReportType) => setData('type', type);
+    const setFormat = (format: DownloadFormat) => setData('format', format);
+
+    const getMaxEndDate = () => {
+        if (!data.start_date) return undefined;
+        const start = new Date(data.start_date);
+        let maxDate = new Date(start);
+        if (data.type === 'Mingguan') {
+            maxDate.setDate(start.getDate() + 7);
+        } else if (data.type === 'Bulanan') {
+            maxDate.setMonth(start.getMonth() + 1);
+        } else if (data.type === 'Tahunan') {
+            maxDate.setFullYear(start.getFullYear() + 1);
+        }
+        return maxDate.toISOString().split('T')[0];
+    };
+
+    const submit = (e: React.FormEvent) => {
+        e.preventDefault();
+        post('/admin/ekspor', {
+            onSuccess: () => alert('Permintaan ekspor berhasil dibuat dan sedang diproses di background.'),
+        });
+    };
 
     return (
-        <div className="flex flex-col gap-6 p-4 md:p-6">
+        <form onSubmit={submit} className="flex flex-col gap-6 p-4 md:p-6">
             <div>
                 <h1 className="text-2xl font-bold tracking-tight">Ekspor Laporan</h1>
                 <p className="mt-1 text-sm text-muted-foreground">
@@ -79,19 +91,19 @@ export default function EksporPage() {
                                 <p className="text-xs font-medium text-muted-foreground">Jenis Laporan</p>
                                 <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                                     <TypeOption
-                                        active={type === 'Mingguan'}
+                                        active={data.type === 'Mingguan'}
                                         title="Mingguan"
                                         subtitle="Ringkasan 7 hari terakhir"
                                         onClick={() => setType('Mingguan')}
                                     />
                                     <TypeOption
-                                        active={type === 'Bulanan'}
+                                        active={data.type === 'Bulanan'}
                                         title="Bulanan"
                                         subtitle="Agregat data bulanan"
                                         onClick={() => setType('Bulanan')}
                                     />
                                     <TypeOption
-                                        active={type === 'Tahunan'}
+                                        active={data.type === 'Tahunan'}
                                         title="Tahunan"
                                         subtitle="Evaluasi program tahunan"
                                         onClick={() => setType('Tahunan')}
@@ -105,56 +117,50 @@ export default function EksporPage() {
                                     <div className="relative">
                                         <Calendar className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                                         <Input
-                                            defaultValue="08/01/2024"
-                                            className="h-10 rounded-lg pl-9"
+                                            type="date"
+                                            value={data.start_date}
+                                            onChange={(e) => setData('start_date', e.target.value)}
+                                            className="h-10 rounded-lg pl-9 w-full"
+                                            required
                                         />
                                     </div>
+                                    {errors.start_date && <p className="text-xs text-red-500">{errors.start_date}</p>}
                                 </div>
                                 <div className="space-y-2">
                                     <p className="text-xs font-medium text-muted-foreground">Sampai Tanggal</p>
                                     <div className="relative">
                                         <Calendar className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                                         <Input
-                                            defaultValue="08/31/2024"
-                                            className="h-10 rounded-lg pl-9"
+                                            type="date"
+                                            value={data.end_date}
+                                            min={data.start_date}
+                                            max={getMaxEndDate()}
+                                            onChange={(e) => setData('end_date', e.target.value)}
+                                            className="h-10 rounded-lg pl-9 w-full"
+                                            required
                                         />
                                     </div>
+                                    {errors.end_date && <p className="text-xs text-red-500">{errors.end_date}</p>}
                                 </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <p className="text-xs font-medium text-muted-foreground">
-                                    Cakupan Wilayah / Fasyankes
-                                </p>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    className="h-10 w-full justify-between rounded-lg"
-                                >
-                                    <span className="truncate text-sm">
-                                        Semua Wilayah Bina (Kec. Melati)
-                                    </span>
-                                    <span className="text-muted-foreground">▾</span>
-                                </Button>
                             </div>
 
                             <div className="space-y-3">
                                 <p className="text-xs font-medium text-muted-foreground">Format Unduhan</p>
                                 <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                                     <FormatOption
-                                        active={format === 'pdf'}
+                                        active={data.format === 'pdf'}
                                         title="PDF Document"
                                         icon={<FileText className="size-4 text-red-600" />}
                                         onClick={() => setFormat('pdf')}
                                     />
                                     <FormatOption
-                                        active={format === 'xlsx'}
+                                        active={data.format === 'xlsx'}
                                         title="Excel (.xlsx)"
                                         icon={<FileSpreadsheet className="size-4 text-emerald-600" />}
                                         onClick={() => setFormat('xlsx')}
                                     />
                                     <FormatOption
-                                        active={format === 'csv'}
+                                        active={data.format === 'csv'}
                                         title="CSV Data"
                                         icon={<Badge variant="outline" className="h-5 rounded-md">CSV</Badge>}
                                         onClick={() => setFormat('csv')}
@@ -164,12 +170,12 @@ export default function EksporPage() {
                         </div>
 
                         <div className="mt-6 flex flex-col-reverse gap-2 md:flex-row md:justify-end">
-                            <Button type="button" variant="outline" className="h-10 rounded-lg px-4">
+                            <Button type="button" variant="outline" className="h-10 rounded-lg px-4" onClick={() => window.location.reload()}>
                                 <RefreshCw className="mr-2 size-4" />
-                                Pratinjau
+                                Segarkan Data
                             </Button>
-                            <Button type="button" className="h-10 rounded-lg px-4">
-                                <Play className="mr-2 size-4" />
+                            <Button type="submit" disabled={processing} className="h-10 rounded-lg px-4">
+                                {processing ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Play className="mr-2 size-4" />}
                                 Buat Laporan
                             </Button>
                         </div>
@@ -195,7 +201,7 @@ export default function EksporPage() {
                         <Separator className="my-4" />
 
                         <div className="space-y-2.5">
-                            {recentSeed.map((r) => (
+                            {recentReports?.map((r: RecentReport) => (
                                 <div
                                     key={r.id}
                                     className="flex items-center justify-between gap-3 rounded-xl border bg-white px-3 py-3"
@@ -206,27 +212,37 @@ export default function EksporPage() {
                                                 'flex size-9 items-center justify-center rounded-lg',
                                                 r.color === 'red'
                                                     ? 'bg-red-50 text-red-700'
-                                                    : 'bg-emerald-50 text-emerald-700',
+                                                    : r.color === 'green'
+                                                    ? 'bg-emerald-50 text-emerald-700'
+                                                    : 'bg-blue-50 text-blue-700',
                                             )}
                                         >
                                             <FileText className="size-4" />
                                         </div>
                                         <div className="min-w-0">
                                             <p className="truncate text-sm font-semibold">{r.title}</p>
-                                            <p className="text-xs text-muted-foreground">{r.subtitle}</p>
+                                            <p className="text-xs text-muted-foreground">{r.subtitle} - <span className="capitalize">{r.status}</span></p>
                                         </div>
                                     </div>
 
-                                    <Button type="button" variant="ghost" size="icon-sm" aria-label="Unduh">
-                                        <Download />
-                                    </Button>
+                                    {r.status === 'completed' && r.file_path && (
+                                        <Button type="button" variant="ghost" size="icon-sm" aria-label="Unduh" onClick={() => window.open(r.file_path!, '_blank')}>
+                                            <Download />
+                                        </Button>
+                                    )}
+                                    {(r.status === 'pending' || r.status === 'processing') && (
+                                        <Loader2 className="size-4 animate-spin text-muted-foreground" />
+                                    )}
                                 </div>
                             ))}
+                            {(!recentReports || recentReports.length === 0) && (
+                                <p className="text-sm text-center text-muted-foreground py-4">Belum ada riwayat ekspor laporan.</p>
+                            )}
                         </div>
                     </CardContent>
                 </Card>
             </div>
-        </div>
+        </form>
     );
 }
 

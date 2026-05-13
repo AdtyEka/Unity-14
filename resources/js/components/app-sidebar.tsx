@@ -228,6 +228,8 @@ export function AppSidebar({
                                                 router.get(
                                                     '/admin/jadwal-kesehatan',
                                                 );
+                                            } else if (item.key === 'ekspor') {
+                                                router.get('/admin/ekspor');
                                             } else {
                                                 onNavigate(item.key);
                                             }
