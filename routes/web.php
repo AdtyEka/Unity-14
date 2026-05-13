@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminExportController;
 use App\Http\Controllers\Admin\JadwalKesehatanController;
 use App\Http\Controllers\Admin\JamLayananController;
 use App\Http\Controllers\Admin\MpasiVideoController;
@@ -45,6 +46,8 @@ Route::middleware('auth')->group(function () {
         Route::patch('admin/konfigurasi-posyankes/{puskesmas}/posyandu/{posyandu}', [PosyanduController::class, 'update'])->name('admin.posyandu.update');
         Route::delete('admin/konfigurasi-posyankes/{puskesmas}/posyandu/{posyandu}', [PosyanduController::class, 'destroy'])->name('admin.posyandu.destroy');
         Route::get('admin/jadwal-kesehatan', [JadwalKesehatanController::class, 'index'])->name('admin.jadwal-kesehatan.index');
+        Route::get('admin/ekspor', [AdminExportController::class, 'index'])->name('admin.ekspor.index');
+        Route::post('admin/ekspor', [AdminExportController::class, 'store'])->name('admin.ekspor.store');
     });
 
     Route::middleware('role:kader')->group(function () {
