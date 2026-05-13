@@ -1,32 +1,82 @@
 services:
-  # ── FastAPI ML Microservice ───────────────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: unity-app:latest
+    container_name: unity_app
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    networks:
+      - unity_network
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      db:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: unity-app:latest
+    container_name: unity_worker
+    restart: unless-stopped
+    command: php artisan queue:work --queue=predictions,default --verbose --tries=3 --timeout=90
+    env_file:
+      - .env.docker
+    networks:
+      - unity_network
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0
+    container_name: unity_db
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    environment:
+      MYSQL_DATABASE: ${DOCKER_DB_DATABASE:-unity}
+      MYSQL_ROOT_PASSWORD: ${DOCKER_DB_PASSWORD:-secret}
+      MYSQL_USER: ${DOCKER_DB_USERNAME:-unity}
+      MYSQL_PASSWORD: ${DOCKER_DB_PASSWORD:-secret}
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - unity_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
   ml-service:
     build:
       context: ./ml-service
       dockerfile: Dockerfile
-      # linux/arm64 for Mac M4; use linux/amd64 when deploying to x86 cloud VMs.
-      platforms:
-        - linux/arm64
     image: unity-stunting/ml-service:latest
     container_name: unity_ml_service
     restart: unless-stopped
-    ports:
-      - "8080:8080"
     environment:
       PYTHONUNBUFFERED: "1"
       PYTHONDONTWRITEBYTECODE: "1"
-    # Mount models directory as read-only so the container can never overwrite
-    # the trained model files, and so you can hot-swap models without rebuilding.
     volumes:
       - ./ml-service/models:/app/models:ro
+    networks:
+      - unity_network
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 15s
-    networks:
-      - unity_network
+
+volumes:
+  db_data:
 
 networks:
   unity_network:
