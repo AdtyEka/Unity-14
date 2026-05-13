@@ -54,13 +54,21 @@ const navItems: {
 }[] = [
     { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { key: 'manajemen-pasien', label: 'Manajemen Pasien', icon: Users },
-    { key: 'manajemen-pengurus', label: 'Manajemen Pengurus', icon: UsersRound },
-    { key: 'konfigurasi-posyandu', label: 'Konfigurasi Posyandu', icon: Settings2 },
+    {
+        key: 'manajemen-pengurus',
+        label: 'Manajemen Pengurus',
+        icon: UsersRound,
+    },
+    {
+        key: 'konfigurasi-posyandu',
+        label: 'Konfigurasi Posyandu',
+        icon: Settings2,
+    },
     { key: 'jadwal-kesehatan', label: 'Jadwal Kesehatan', icon: Calendar },
     { key: 'mpasi', label: 'MPASI', icon: ClipboardList },
     { key: 'ekspor', label: 'Ekspor', icon: Download },
 ];
-    
+
 function NavUser() {
     const { isMobile } = useSidebar();
     const { auth } = usePage<any>().props;
@@ -86,8 +94,12 @@ function NavUser() {
                                 </AvatarFallback>
                             </Avatar>
                             <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
-                                <span className="truncate font-semibold">{user.name}</span>
-                                <span className="truncate text-xs">{user.email}</span>
+                                <span className="truncate font-semibold">
+                                    {user.name}
+                                </span>
+                                <span className="truncate text-xs">
+                                    {user.email}
+                                </span>
                             </div>
                             <ChevronsUpDown className="ml-auto size-4" />
                         </SidebarMenuButton>
@@ -104,17 +116,26 @@ function NavUser() {
                                 <Avatar className="h-8 w-8 rounded-lg">
                                     <AvatarImage src="" alt={user.name} />
                                     <AvatarFallback className="rounded-lg">
-                                        {user.name.substring(0, 2).toUpperCase()}
+                                        {user.name
+                                            .substring(0, 2)
+                                            .toUpperCase()}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
-                                    <span className="truncate font-semibold">{user.name}</span>
-                                    <span className="truncate text-xs">{user.email}</span>
+                                    <span className="truncate font-semibold">
+                                        {user.name}
+                                    </span>
+                                    <span className="truncate text-xs">
+                                        {user.email}
+                                    </span>
                                 </div>
                             </div>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={logout} className="cursor-pointer">
+                        <DropdownMenuItem
+                            onClick={logout}
+                            className="cursor-pointer"
+                        >
                             <LogOut />
                             Log out
                         </DropdownMenuItem>
@@ -135,7 +156,11 @@ export function AppSidebar({
     onNavigate: (key: AdminSection) => void;
 }) {
     return (
-        <Sidebar collapsible="icon" className={cn('bg-white', className)} {...props}>
+        <Sidebar
+            collapsible="icon"
+            className={cn('bg-white', className)}
+            {...props}
+        >
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
@@ -153,8 +178,12 @@ export function AppSidebar({
                                     />
                                 </div>
                                 <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
-                                    <span className="truncate font-semibold">Admin</span>
-                                    <span className="truncate text-xs">Panel kontrol</span>
+                                    <span className="truncate font-semibold">
+                                        Admin
+                                    </span>
+                                    <span className="truncate text-xs">
+                                        Panel kontrol
+                                    </span>
                                 </div>
                             </button>
                         </SidebarMenuButton>
@@ -175,14 +204,30 @@ export function AppSidebar({
                                         tooltip={item.label}
                                         isActive={active === item.key}
                                         onClick={() => {
-                                            if (item.key === 'manajemen-pengurus') {
+                                            if (
+                                                item.key ===
+                                                'manajemen-pengurus'
+                                            ) {
                                                 router.get('/admin/pengurus');
-                                            } else if (item.key === 'manajemen-pasien') {
+                                            } else if (
+                                                item.key === 'manajemen-pasien'
+                                            ) {
                                                 router.get('/admin/pasien');
-                                            } else if (item.key === 'konfigurasi-posyandu') {
-                                                router.get('/admin/konfigurasi-posyankes');
+                                            } else if (
+                                                item.key ===
+                                                'konfigurasi-posyandu'
+                                            ) {
+                                                router.get(
+                                                    '/admin/konfigurasi-posyankes',
+                                                );
                                             } else if (item.key === 'mpasi') {
                                                 router.get('/admin/mpasi');
+                                            } else if (
+                                                item.key === 'jadwal-kesehatan'
+                                            ) {
+                                                router.get(
+                                                    '/admin/jadwal-kesehatan',
+                                                );
                                             } else {
                                                 onNavigate(item.key);
                                             }
@@ -190,7 +235,7 @@ export function AppSidebar({
                                         className={cn(
                                             'h-12 rounded-lg px-3 text-base',
                                             'hover:bg-primary/5 hover:text-primary',
-                                            'data-[active=true]:bg-primary/10 data-[active=true]:text-primary data-[active=true]:font-semibold',
+                                            'data-[active=true]:bg-primary/10 data-[active=true]:font-semibold data-[active=true]:text-primary',
                                             'data-[active=true]:border-r-4 data-[active=true]:border-primary',
                                             // collapsed (icon-only) mode
                                             'group-data-[collapsible=icon]:size-12 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0',
