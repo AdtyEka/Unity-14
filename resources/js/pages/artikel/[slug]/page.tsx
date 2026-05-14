@@ -1,19 +1,16 @@
 import * as React from 'react';
 import { Link } from '@inertiajs/react';
-import { getArticleBySlug } from '@/data/articles';
 import { KategoriBadge } from '../_components/article-card';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 type Props = {
-    slug: string;
+    article: any;
 };
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function ArtikelDetailPage({ slug }: Props) {
-    const artikel = getArticleBySlug(slug);
-
+export default function ArtikelDetailPage({ article }: Props) {
     React.useEffect(() => {
         const html = document.documentElement;
         const body = document.body;
@@ -64,7 +61,7 @@ export default function ArtikelDetailPage({ slug }: Props) {
                         Kembali
                     </Link>
 
-                    {!artikel ? <NotFound /> : <ArticleContent artikel={artikel} />}
+                    {!article ? <NotFound /> : <ArticleContent article={article} />}
                 </main>
             </div>
         </div>
@@ -73,7 +70,15 @@ export default function ArtikelDetailPage({ slug }: Props) {
 
 // ─── Article Content ──────────────────────────────────────────────────────────
 
-function ArticleContent({ artikel }: { artikel: NonNullable<ReturnType<typeof getArticleBySlug>> }) {
+function ArticleContent({ article }: { article: any }) {
+    const formattedDate = new Date(article.published_at).toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+    });
+
+    const imageUrl = article.gambar?.startsWith('http') ? article.gambar : `/storage/${article.gambar}`;
+
     return (
         <article>
             {/* ── Judul & Deskripsi (header ringkas) ───────────────── */}
@@ -82,21 +87,21 @@ function ArticleContent({ artikel }: { artikel: NonNullable<ReturnType<typeof ge
                     className="text-2xl font-bold text-foreground leading-snug md:text-3xl"
                     style={{ fontFamily: 'var(--font-heading)' }}
                 >
-                    {artikel.judul}
+                    {article.judul}
                 </h1>
                 <p
                     className="mt-3 text-sm text-foreground/60 leading-relaxed max-w-2xl mx-auto"
                     style={{ fontFamily: 'var(--font-body)' }}
                 >
-                    {artikel.deskripsi}
+                    {article.deskripsi}
                 </p>
             </div>
 
             {/* ── Gambar Hero ──────────────────────────────────────── */}
             <div className="mb-8 overflow-hidden rounded-2xl shadow-lg">
                 <img
-                    src={artikel.gambar}
-                    alt={artikel.judul}
+                    src={imageUrl}
+                    alt={article.judul}
                     className="w-full h-72 object-cover md:h-96"
                 />
             </div>
@@ -125,14 +130,14 @@ function ArticleContent({ artikel }: { artikel: NonNullable<ReturnType<typeof ge
                             <line x1="8" x2="8" y1="2" y2="6" />
                             <line x1="3" x2="21" y1="10" y2="10" />
                         </svg>
-                        {artikel.publishedAt}
+                        {formattedDate}
                     </span>
                     <span className="flex items-center gap-1.5">
                         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <circle cx="12" cy="12" r="10" />
                             <polyline points="12 6 12 12 16 14" />
                         </svg>
-                        {artikel.readTime}
+                        5 menit baca
                     </span>
                 </div>
 
@@ -141,7 +146,7 @@ function ArticleContent({ artikel }: { artikel: NonNullable<ReturnType<typeof ge
                     className="text-xl font-bold text-foreground leading-snug mb-3"
                     style={{ fontFamily: 'var(--font-heading)' }}
                 >
-                    {artikel.judul}
+                    {article.judul}
                 </h2>
 
                 {/* Deskripsi */}
@@ -149,12 +154,12 @@ function ArticleContent({ artikel }: { artikel: NonNullable<ReturnType<typeof ge
                     className="text-sm text-foreground/65 leading-relaxed mb-4"
                     style={{ fontFamily: 'var(--font-body)' }}
                 >
-                    {artikel.deskripsi}
+                    {article.deskripsi}
                 </p>
 
                 {/* Tags */}
                 <div className="flex flex-wrap gap-2">
-                    {artikel.tags.map((tag) => (
+                    {article.tags?.map((tag: string) => (
                         <KategoriBadge key={tag} label={tag} />
                     ))}
                 </div>
@@ -172,20 +177,20 @@ function ArticleContent({ artikel }: { artikel: NonNullable<ReturnType<typeof ge
                     WebkitBackdropFilter: 'blur(24px)',
                 }}
             >
-                {artikel.content?.length ? (
-                    <ContentBlocks artikel={artikel} />
+                {article.content?.length ? (
+                    <ContentBlocks article={article} />
                 ) : (
-                    <SectionsBlocks artikel={artikel} />
+                    article.sections?.length > 0 && <SectionsBlocks article={article} />
                 )}
             </div>
         </article>
     );
 }
 
-function ContentBlocks({ artikel }: { artikel: NonNullable<ReturnType<typeof getArticleBySlug>> }) {
+function ContentBlocks({ article }: { article: any }) {
     return (
         <div className="space-y-3">
-            {artikel.content?.map((block, index) => {
+            {article.content?.map((block: any, index: number) => {
                 if (block.type === 'heading') {
                     return (
                         <React.Fragment key={index}>
@@ -242,10 +247,10 @@ function ContentBlocks({ artikel }: { artikel: NonNullable<ReturnType<typeof get
     );
 }
 
-function SectionsBlocks({ artikel }: { artikel: NonNullable<ReturnType<typeof getArticleBySlug>> }) {
+function SectionsBlocks({ article }: { article: any }) {
     return (
         <>
-            {artikel.sections.map((section, i) => (
+            {article.sections?.map((section: any, i: number) => (
                 <div key={i}>
                     <div className="my-5 h-px w-full bg-foreground/10" />
 
@@ -257,7 +262,7 @@ function SectionsBlocks({ artikel }: { artikel: NonNullable<ReturnType<typeof ge
                     </h3>
 
                     <div className="space-y-3">
-                        {section.items.map((item, j) => (
+                        {section.items.map((item: any, j: number) => (
                             <div key={j}>
                                 <p
                                     className="text-sm font-semibold text-foreground/80 mb-1"
@@ -266,7 +271,7 @@ function SectionsBlocks({ artikel }: { artikel: NonNullable<ReturnType<typeof ge
                                     {item.label}:
                                 </p>
                                 <ul className="list-disc list-inside space-y-1 pl-1">
-                                    {item.points.map((point, k) => (
+                                    {item.points.map((point: string, k: number) => (
                                         <li
                                             key={k}
                                             className="text-sm text-foreground/70 leading-relaxed"

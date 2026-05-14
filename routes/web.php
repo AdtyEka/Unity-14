@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminExportController;
+use App\Http\Controllers\Admin\ArtikelController as AdminArtikelController;
 use App\Http\Controllers\Admin\JadwalKesehatanController;
 use App\Http\Controllers\Admin\JamLayananController;
 use App\Http\Controllers\Admin\MpasiVideoController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Admin\PengurusController;
 use App\Http\Controllers\Admin\PosyanduController;
 use App\Http\Controllers\Admin\PuskesmasController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\PublicArtikelController;
 use App\Models\MpasiVideo;
 use App\Models\Puskesmas;
 
@@ -28,10 +30,9 @@ Route::get('/mpasi', function () {
         'videos' => MpasiVideo::all(),
     ]);
 })->name('mpasi');
-Route::inertia('/artikel', 'artikel/page')->name('artikel');
-Route::get('/artikel/{slug}', function (string $slug) {
-    return inertia('artikel/[slug]/page', ['slug' => $slug]);
-})->name('artikel.show');
+
+Route::get('/artikel', [PublicArtikelController::class, 'index'])->name('artikel');
+Route::get('/artikel/{slug}', [PublicArtikelController::class, 'show'])->name('artikel.show');
 
 Route::middleware('guest')->group(function () {
     Route::inertia('/login', 'auth/login')->name('login');
@@ -61,6 +62,11 @@ Route::middleware('auth')->group(function () {
         Route::get('admin/jadwal-kesehatan', [JadwalKesehatanController::class, 'index'])->name('admin.jadwal-kesehatan.index');
         Route::get('admin/ekspor', [AdminExportController::class, 'index'])->name('admin.ekspor.index');
         Route::post('admin/ekspor', [AdminExportController::class, 'store'])->name('admin.ekspor.store');
+
+        Route::get('admin/artikel', [AdminArtikelController::class, 'index'])->name('admin.artikel.index');
+        Route::post('admin/artikel', [AdminArtikelController::class, 'store'])->name('admin.artikel.store');
+        Route::put('admin/artikel/{artikel}', [AdminArtikelController::class, 'update'])->name('admin.artikel.update');
+        Route::delete('admin/artikel/{artikel}', [AdminArtikelController::class, 'destroy'])->name('admin.artikel.destroy');
     });
 
     Route::middleware('role:kader')->group(function () {

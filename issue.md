@@ -1,28 +1,34 @@
-# Issue: Fitur Rekomendasi AI Berdasarkan Hasil Prediksi
+# Issue: Migrasi Artikel ke Database & CRUD Admin
 
-## Deskripsi Singkat
-Kita perlu menambahkan sistem untuk membuat rekomendasi intervensi/tindakan secara otomatis berdasarkan hasil prediksi AI dan data SHAP values. Rekomendasi ini akan di-generate menggunakan layanan AI eksternal dan hasilnya akan disimpan ke dalam database untuk dikaitkan dengan data pemeriksaan pasien.
+## Deskripsi Fitur
+Mengubah sistem artikel yang saat ini masih hardcoded (`articles.ts`) menjadi dinamis menggunakan database, lengkap dengan fitur manajemen (CRUD) di dashboard admin.
 
-## Kriteria Penerimaan (Acceptance Criteria)
+## Tugas Utama
 
-1. **Skema Database & Model**
-   - Buat tabel (migration) dan Model baru untuk menyimpan data rekomendasi.
-   - Tabel ini harus memiliki relasi `BelongsTo` (foreign key) ke tabel `pemeriksaan`.
+### 1. Database & Model
+- Buat model dan migration `Artikel` dengan field: `judul`, `slug` (unique), `deskripsi`, `kategori`, `tags` (json), `penulis`, `gambar`, `content` (json/text), dan `published_at`.
+- Buat **Seeder** untuk memindahkan data dari `resources/js/data/articles.ts` ke table `articles`. 
+- *Catatan: Jika gambar tidak ditemukan, gunakan placeholder dari Unsplash atau path lokal.*
 
-2. **Integrasi AI Eksternal**
-   - Buat Service Class khusus untuk menangani request ke layanan AI eksternal (`base-prompt.ai`).
-   - Siapkan prompt dengan menggabungkan data SHAP dan format instruksi dari file `prompt-rekomendasi.txt`.
-   - Implementasikan *error handling* yang baik (seperti *timeout* dan *retry mechanism*) ketika memanggil API eksternal.
+### 2. CRUD Admin
+- Buat `ArtikelController` di `app/Http/Controllers/Admin` (Gunakan `PengurusController` sebagai referensi).
+- Buat view CRUD di `resources/js/pages/admin/artikel` (Gunakan `manajemen-pengurus` sebagai referensi UI).
+- Daftarkan menu "Manajemen Artikel" di `app-sidebar.tsx` dan `admin/page.tsx`.
 
-3. **Modifikasi Job Prediksi (`RunStuntingPredictionJob`)**
-   - Update `RunStuntingPredictionJob` yang sudah ada.
-   - Trigger pembuatan rekomendasi **hanya setelah** proses prediksi utama dan kalkulasi SHAP selesai dilakukan dengan sukses.
-   - *Best Practice*: Dispatch proses pemanggilan AI rekomendasi ini sebagai Job Queue baru (misal: `GenerateRecommendationJob`) agar tidak memblokir atau memperlama eksekusi `RunStuntingPredictionJob`.
+### 3. Route & Halaman Publik
+- Ubah route statis di `web.php` menjadi dinamis:
+    ```php
+    Route::get('/artikel', [ArtikelController::class, 'index'])->name('artikel');
+    Route::get('/artikel/{slug}', [ArtikelController::class, 'show'])->name('artikel.show');
+    ```
+- Update komponen `resources/js/pages/artikel/page.tsx` dan `[slug]/page.tsx` agar menerima data dari props backend (Inertia).
 
-4. **Penyimpanan Data**
-   - Tangkap *response* teks dari AI eksternal dan simpan ke tabel rekomendasi yang sudah dibuat pada poin 1.
+## Petunjuk Implementasi
+- Pastikan **slug** di-generate otomatis dari judul.
+- Gunakan komponen UI yang sudah ada (shadcn/ui) untuk konsistensi.
+- Pastikan relasi data (jika ada) ditangani dengan benar.
+- Jangan menghapus file `articles.ts` sebelum migrasi data di seeder selesai dipastikan berhasil.
 
-## Panduan Pengerjaan
-- **High-Level Design**: Hindari menumpuk logika pemanggilan API di dalam Job. Gunakan Service Class terpisah untuk integrasi API.
-- **Reliability**: Pastikan kegagalan pada saat generate rekomendasi (misal API eksternal down) tidak membatalkan atau merusak data hasil prediksi utama yang sudah berhasil disimpan.
-- Ikuti standar *best practice* Laravel dan konvensi kode yang sudah ada di proyek ini.
+---
+*Status: Open*
+*Priority: Medium*

@@ -43,6 +43,7 @@ type AdminSection =
     | 'konfigurasi-posyandu'
     | 'jadwal-kesehatan'
     | 'mpasi'
+    | 'manajemen-artikel'
     | 'ekspor';
 
 export type { AdminSection };
@@ -66,6 +67,7 @@ const navItems: {
     },
     { key: 'jadwal-kesehatan', label: 'Jadwal Kesehatan', icon: Calendar },
     { key: 'mpasi', label: 'MPASI', icon: ClipboardList },
+    { key: 'manajemen-artikel', label: 'Artikel', icon: ClipboardList }, // Reuse icon or find better one
     { key: 'ekspor', label: 'Ekspor', icon: Download },
 ];
 
@@ -228,6 +230,10 @@ export function AppSidebar({
                                                 router.get(
                                                     '/admin/jadwal-kesehatan',
                                                 );
+                                            } else if (
+                                                item.key === 'manajemen-artikel'
+                                            ) {
+                                                router.get('/admin/artikel');
                                             } else if (item.key === 'ekspor') {
                                                 router.get('/admin/ekspor');
                                             } else {

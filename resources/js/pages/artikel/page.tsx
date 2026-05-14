@@ -1,15 +1,14 @@
 import * as React from 'react';
 import MarketingLayout from '@/components/layouts/navbar';
-import { articles } from '@/data/articles';
 import { FeaturedCard, SideArtikelItem, TrendingCard } from './_components/article-card';
-
-const featuredArtikel = articles[0];
-const sideArtikelList = articles.slice(1, 4);
-const trendingList = articles.slice(1);
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function ArtikelPage() {
+export default function ArtikelPage({ articles = [] }: { articles: any[] }) {
+    // Fallback data structure to avoid crashes if articles is empty
+    const featuredArtikel = articles[0] || {};
+    const sideArtikelList = articles.slice(1, 4) || [];
+    const trendingList = articles.slice(1) || [];
     React.useEffect(() => {
         const html = document.documentElement;
         const body = document.body;

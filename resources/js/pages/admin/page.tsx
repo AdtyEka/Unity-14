@@ -24,6 +24,7 @@ import KonfigurasiPosyankesPage from '@/pages/admin/konfigurasi-posyankes/page';
 import MpasiPage from '@/pages/admin/mpasi/page';
 import EksporPage from '@/pages/admin/ekspor/page';
 import JadwalKesehatanPage from './jadwal-kesehatan/page';
+import ManajemenArtikelPage from './artikel/page';
 
 const sectionLabels: Record<AdminSection, string> = {
     dashboard: 'Dashboard',
@@ -33,6 +34,7 @@ const sectionLabels: Record<AdminSection, string> = {
     'jadwal-kesehatan': 'Jadwal Kesehatan',
     mpasi: 'Mpasi',
     ekspor: 'Ekspor',
+    'manajemen-artikel': 'Manajemen Artikel',
 };
 
 function PlaceholderContent({ title }: { title: string }) {
@@ -76,6 +78,8 @@ export default function AdminPage() {
                 return <EksporPage />;
             case 'jadwal-kesehatan':
                 return <JadwalKesehatanPage />;
+            case 'manajemen-artikel':
+                return <ManajemenArtikelPage />;
             default:
                 return <DashboardPage />;
         }
