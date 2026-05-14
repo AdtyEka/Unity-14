@@ -88,7 +88,7 @@ function TableSkeleton({ rows = 5 }: { rows?: number }) {
     );
 }
 
-export default function ManajemenPasienPage() {
+export default function ManajemenPasienPage({ baseUrl = '/admin/pasien' }: { baseUrl?: string }) {
     const { pasiens, filters, pasien, tanpaPrediksiMl: propTanpaMl } = usePage<any>().props;
     const [route, setRoute] = React.useState<NestedRoute>(pasien ? { name: 'show', id: pasien.id } : { name: 'index' });
     const [query, setQuery] = React.useState(filters?.search || '');
@@ -116,7 +116,7 @@ export default function ManajemenPasienPage() {
     const handleSearch = React.useCallback(
         (q: string, f: FilterOption) => {
             router.get(
-                '/admin/pasien',
+                baseUrl,
                 { search: q, status_gizi: f },
                 { preserveState: true, replace: true }
             );
@@ -148,7 +148,7 @@ export default function ManajemenPasienPage() {
 
     const handleDelete = (row: PatientRow) => {
         if (confirm(`Apakah Anda yakin ingin menghapus data pasien ${row.namaPasien}? Semua data pemeriksaan terkait juga akan dihapus.`)) {
-            router.delete(`/admin/pasien/${row.id}`, {
+            router.delete(`${baseUrl}/${row.id}`, {
                 preserveState: true,
                 onSuccess: () => {
                     // Success handled by flash
@@ -170,7 +170,7 @@ export default function ManajemenPasienPage() {
             <ManajemenPasienCreate
                 onCancel={() => setRoute({ name: 'index' })}
                 onDone={(pasienId, { prediksiMl }) => {
-                    router.get(`/admin/pasien/${pasienId}`);
+                    router.get(`${baseUrl}/${pasienId}`);
                 }}
             />
         );
@@ -183,7 +183,7 @@ export default function ManajemenPasienPage() {
                 tanpaPrediksiMl={propTanpaMl === true}
                 onBack={() => {
                     setRoute({ name: 'index' });
-                    router.get('/admin/pasien');
+                    router.get(baseUrl);
                 }}
             />
         );
@@ -257,7 +257,7 @@ export default function ManajemenPasienPage() {
                             pageSize={pasiens?.per_page || 10}
                             onPrev={onPrev}
                             onNext={onNext}
-                            onOpenDetail={(row) => router.get(`/admin/pasien/${row.id}`)}
+                            onOpenDetail={(row) => router.get(`${baseUrl}/${row.id}`)}
                             onDelete={handleDelete}
                         />
                     )}

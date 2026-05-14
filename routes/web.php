@@ -71,6 +71,11 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware('role:kader')->group(function () {
-        Route::inertia('/kader', 'kader/page')->name('kader.dashboard');
+        Route::get('/kader', [\App\Http\Controllers\Kader\DashboardController::class, 'index'])->name('kader.dashboard');
+        Route::get('/kader/pasien', [\App\Http\Controllers\Admin\PasienController::class, 'index'])->name('kader.pasien.index');
+        Route::get('/kader/pasien/{pasien}', [\App\Http\Controllers\Admin\PasienController::class, 'show'])->name('kader.pasien.show');
+        Route::post('/kader/pasien', [\App\Http\Controllers\Admin\PasienController::class, 'store'])->name('kader.pasien.store');
+        Route::patch('/kader/pasien/{pasien}', [\App\Http\Controllers\Admin\PasienController::class, 'update'])->name('kader.pasien.update');
+        Route::delete('/kader/pasien/{pasien}', [\App\Http\Controllers\Admin\PasienController::class, 'destroy'])->name('kader.pasien.destroy');
     });
 });

@@ -25,19 +25,36 @@ const sectionLabels: Record<KaderSection, string> = {
     'manajemen-pasien': 'Manajemen Pasien',
 };
 
-export default function KaderPage() {
-    const [active, setActive] = React.useState<KaderSection>('dashboard');
+export default function KaderPage(props: any) {
+    const { activeSection } = props;
+    const [active, setActive] = React.useState<KaderSection>(activeSection || 'dashboard');
+
+    React.useEffect(() => {
+        if (activeSection) {
+            setActive(activeSection);
+        }
+    }, [activeSection]);
 
     const content = React.useMemo(() => {
         switch (active) {
             case 'dashboard':
-                return <DashboardPage />;
+                return <DashboardPage
+                    stats={props.stats}
+                    trendData={props.trendData}
+                    activities={props.activities}
+                    schedules={props.schedules}
+                />;
             case 'manajemen-pasien':
-                return <ManajemenPasienPage />;
+                return <ManajemenPasienPage baseUrl="/kader/pasien" />;
             default:
-                return <DashboardPage />;
+                return <DashboardPage
+                    stats={props.stats}
+                    trendData={props.trendData}
+                    activities={props.activities}
+                    schedules={props.schedules}
+                />;
         }
-    }, [active]);
+    }, [active, props.stats, props.trendData, props.activities, props.schedules]);
 
     return (
         <>

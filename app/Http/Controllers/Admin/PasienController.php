@@ -77,7 +77,9 @@ class PasienController extends Controller
             ];
         });
 
-        return Inertia::render('admin/page', [
+        $view = auth()->user()->isAdmin() ? 'admin/page' : 'kader/page';
+
+        return Inertia::render($view, [
             'pasiens' => $pasiens,
             'filters' => $request->only(['search', 'status_gizi']),
             'activeSection' => 'manajemen-pasien',
@@ -95,7 +97,9 @@ class PasienController extends Controller
 
         $usiaBulan = $pasien->usiaBulan();
 
-        return Inertia::render('admin/page', [
+        $view = auth()->user()->isAdmin() ? 'admin/page' : 'kader/page';
+
+        return Inertia::render($view, [
             'activeSection' => 'manajemen-pasien',
             'pasien' => [
                 'id' => $pasien->id,

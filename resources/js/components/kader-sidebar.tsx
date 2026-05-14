@@ -152,7 +152,15 @@ export function KaderSidebar({
                                         size="lg"
                                         tooltip={item.label}
                                         isActive={active === item.key}
-                                        onClick={() => onNavigate(item.key)}
+                                        onClick={() => {
+                                            if (item.key === 'manajemen-pasien') {
+                                                router.get('/kader/pasien');
+                                            } else if (item.key === 'dashboard') {
+                                                router.get('/kader');
+                                            } else {
+                                                onNavigate(item.key);
+                                            }
+                                        }}
                                         className={cn(
                                             'h-12 rounded-lg px-3 text-base',
                                             'hover:bg-primary/5 hover:text-primary',

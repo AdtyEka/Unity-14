@@ -47,6 +47,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if the user has a specific role.
+     */
+    public function hasRole(string $role): bool
+    {
+        return $this->role === $role;
+    }
+
+    /**
      * Get the pengurus profile associated with the user.
      */
     public function pengurus()

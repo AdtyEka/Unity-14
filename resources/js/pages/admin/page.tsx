@@ -72,7 +72,7 @@ export default function AdminPage(props: any) {
                     schedules={props.schedules}
                 />;
             case 'manajemen-pasien':
-                return <ManajemenPasienPage />;
+                return <ManajemenPasienPage baseUrl="/admin/pasien" />;
             case 'manajemen-pengurus':
                 return <ManajemenPengurusPage />;
             case 'konfigurasi-posyandu':
