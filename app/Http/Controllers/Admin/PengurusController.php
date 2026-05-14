@@ -56,7 +56,7 @@ class PengurusController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'admin',
+            'role' => $request->role_detail === 'Kader' ? 'kader' : 'admin',
         ]);
 
         $user->pengurus()->create([
@@ -88,6 +88,10 @@ class PengurusController extends Controller
             'nik' => $request->nik,
             'role_detail' => $request->role_detail,
             'status' => $request->status,
+        ]);
+
+        $penguru->user->update([
+            'role' => $request->role_detail === 'Kader' ? 'kader' : 'admin',
         ]);
 
         return redirect()->back()->with('success', 'Data pengurus berhasil diperbarui.');
