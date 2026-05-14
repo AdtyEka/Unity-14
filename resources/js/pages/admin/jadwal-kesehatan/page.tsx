@@ -21,6 +21,14 @@ export default function JadwalKesehatanPage() {
     const schedulesSeed: ScheduleRow[] = React.useMemo(() => {
         console.log(pasiens);
 
+        const parseStatus = (status: string): HealthStatus => {
+            if (!status) return 'Normal';
+            if (status === 'Severely Stunted') return 'Stunting Berat';
+            if (status === 'Stunted') return 'Stunting';
+            if (status === 'Normal') return 'Normal';
+            return status as HealthStatus;
+        };
+
         return pasiens.map((p) => {
             return {
                 uid: p.id,
@@ -28,7 +36,7 @@ export default function JadwalKesehatanPage() {
                 namaIbu: p.nama_ibu,
                 noWhatsapp: p.nomor_hp,
                 usia: `${p.usia_bulan ?? 0} Bulan`,
-                status: (p.status_gizi || 'Normal') as FilterStatus,
+                status: parseStatus(p.status_gizi),
                 tanggalPemeriksaan: p.pemeriksaan_terakhir
                     ? new Date(
                           p.pemeriksaan_terakhir.tanggal_pemeriksaan,

@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-export type HealthStatus = '0–11 Bulan' | 'Normal' | 'Stunting Ringan' | 'Stunting Berat';
+export type HealthStatus = '0–11 Bulan' | 'Normal' | 'Stunting' | 'Stunting Berat';
 
 export type ScheduleRow = {
     uid: string;
@@ -22,7 +22,7 @@ export type ScheduleRow = {
 const statusVariant: Record<HealthStatus, string> = {
     '0–11 Bulan': 'bg-sky-100 text-sky-800 border-sky-200',
     Normal: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-    'Stunting Ringan': 'bg-amber-100 text-amber-800 border-amber-200',
+    Stunting: 'bg-amber-100 text-amber-800 border-amber-200',
     'Stunting Berat': 'bg-red-100 text-red-800 border-red-200',
 };
 const MAX_VISIBLE_ROWS = 5;

@@ -95,6 +95,14 @@ export default function ManajemenPasienPage() {
     const [filter, setFilter] = React.useState<FilterOption>(filters?.status_gizi || 'Semua');
     const [confirmOpen, setConfirmOpen] = React.useState(false);
 
+    const parseStatusGizi = (status: string): StatusGizi => {
+        if (!status) return 'Normal';
+        if (status === 'Severely Stunted') return 'Stunting Berat';
+        if (status === 'Stunted') return 'Stunting';
+        if (status === 'Normal') return 'Normal';
+        return status as StatusGizi;
+    };
+
     const rows: PatientRow[] = (pasiens?.data || []).map((p: any) => ({
         id: p.id,
         namaPasien: p.namaPasien,
@@ -102,7 +110,7 @@ export default function ManajemenPasienPage() {
         umur: p.umur,
         usiaBulan: p.usiaBulan,
         tanggalPemeriksaanTerakhir: p.tanggalPemeriksaanTerakhir,
-        statusGizi: p.statusGizi || 'Normal',
+        statusGizi: parseStatusGizi(p.statusGizi),
     }));
 
     const handleSearch = React.useCallback(

@@ -129,11 +129,11 @@ const growthChartConfig = {
 
 function RiskBadge({ status }: { status: string }) {
     if (status === 'Severely Stunted' || status === 'Stunting Berat' || status === 'Tinggi') {
-        return <Badge className="rounded-full bg-red-100 text-red-800 hover:bg-red-100">Berat</Badge>;
+        return <Badge className="rounded-full bg-red-100 text-red-800 hover:bg-red-100">Stunting Berat</Badge>;
     }
 
-    if (status === 'Stunted' || status === 'Stunting Ringan' || status === 'Sedang') {
-        return <Badge className="rounded-full bg-amber-100 text-amber-800 hover:bg-amber-100">Ringan</Badge>;
+    if (status === 'Stunted' || status === 'Stunting' || status === 'Stunting Ringan' || status === 'Sedang') {
+        return <Badge className="rounded-full bg-amber-100 text-amber-800 hover:bg-amber-100">Stunting</Badge>;
     }
 
     if (status === 'Normal') {

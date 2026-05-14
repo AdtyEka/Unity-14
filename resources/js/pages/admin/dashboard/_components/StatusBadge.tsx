@@ -2,11 +2,11 @@ import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 
-type RiskLevel = 'Stunting Berat' | 'Stunting Ringan' | 'Normal';
+type RiskLevel = 'Stunting Berat' | 'Stunting' | 'Normal';
 
 const statusStyle: Record<RiskLevel, { bg: string; text: string }> = {
     Normal: { bg: 'bg-emerald-100', text: 'text-emerald-800' },
-    'Stunting Ringan': { bg: 'bg-amber-100', text: 'text-amber-800' },
+    Stunting: { bg: 'bg-amber-100', text: 'text-amber-800' },
     'Stunting Berat': { bg: 'bg-red-100', text: 'text-red-800' },
 };
 
