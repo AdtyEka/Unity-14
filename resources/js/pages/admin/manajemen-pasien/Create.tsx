@@ -22,12 +22,14 @@ export type PemeriksaanBaruDraft = {
 export default function ManajemenPasienCreate({
     onCancel,
     onDone,
+    baseUrl = '/admin/pasien',
 }: {
     onCancel: () => void;
     /**
      * @param prediksiMl `true` hanya jika usia 12–60 bulan (model ML tersedia). Untuk 0–11 bulan selalu `false`.
      */
     onDone: (pasienId: string, meta: { prediksiMl: boolean }) => void;
+    baseUrl?: string;
 }) {
     const [step, setStep] = React.useState<1 | 2>(1);
     
@@ -48,7 +50,7 @@ export default function ManajemenPasienCreate({
     const prediksiMl = usiaBulan !== null && usiaBulan >= 12 && usiaBulan <= 60;
 
     const handleSubmit = () => {
-        post('/admin/pasien', {
+        post(baseUrl, {
             onSuccess: (page) => {
                 // Berasumsi flash message atau state pasiens sudah terupdate
                 // Kita perlu ID pasien yang baru dibuat. 

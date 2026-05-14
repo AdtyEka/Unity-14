@@ -146,11 +146,13 @@ function RiskBadge({ status }: { status: string }) {
 export default function ManajemenPasienShow({
     pasien,
     tanpaPrediksiMl = false,
+    baseUrl = '/admin/pasien',
     onBack,
 }: {
     pasien: any;
     /** Dari pemeriksaan baru di luar rentang model ML (mis. 0–11 bulan). */
     tanpaPrediksiMl?: boolean;
+    baseUrl?: string;
     onBack: () => void;
 }) {
     const [isEditingIdentity, setIsEditingIdentity] = React.useState(false);
@@ -174,7 +176,7 @@ export default function ManajemenPasienShow({
     };
 
     const saveEditIdentity = () => {
-        patch(`/admin/pasien/${pasien.id}`, {
+        patch(`${baseUrl}/${pasien.id}`, {
             onSuccess: () => setIsEditingIdentity(false),
         });
     };
@@ -214,14 +216,14 @@ export default function ManajemenPasienShow({
 
     const submitPemeriksaan = () => {
         if (pemeriksaanMode === 'add') {
-            pemeriksaanForm.post(`/admin/pasien/${pasien.id}/pemeriksaan`, {
+            pemeriksaanForm.post(`${baseUrl}/${pasien.id}/pemeriksaan`, {
                 onSuccess: () => {
                     setIsPemeriksaanDialogOpen(false);
                     pemeriksaanForm.reset();
                 },
             });
         } else {
-            pemeriksaanForm.patch(`/admin/pasien/${pasien.id}/pemeriksaan/${selectedPemeriksaan.id}`, {
+            pemeriksaanForm.patch(`${baseUrl}/${pasien.id}/pemeriksaan/${selectedPemeriksaan.id}`, {
                 onSuccess: () => {
                     setIsPemeriksaanDialogOpen(false);
                     pemeriksaanForm.reset();
@@ -232,7 +234,7 @@ export default function ManajemenPasienShow({
 
     const deletePemeriksaan = (id: number) => {
         if (confirm('Apakah Anda yakin ingin menghapus data pemeriksaan ini?')) {
-            router.delete(`/admin/pasien/${pasien.id}/pemeriksaan/${id}`);
+            router.delete(`${baseUrl}/${pasien.id}/pemeriksaan/${id}`);
         }
     };
 
@@ -295,7 +297,7 @@ export default function ManajemenPasienShow({
                     <p className="text-sm text-muted-foreground">Manajemen Pasien</p>
                     <h1 className="text-2xl font-bold tracking-tight">Detail Pasien</h1>
                 </div>
-                <Button type="button" variant="outline" onClick={() => router.get('/admin/pasien')}>
+                <Button type="button" variant="outline" onClick={() => router.get(baseUrl)}>
                     <ArrowLeft className="mr-2 size-4" />
                     Kembali
                 </Button>
@@ -386,7 +388,7 @@ export default function ManajemenPasienShow({
                                 className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
                                 onClick={() => {
                                     if (confirm(`Apakah Anda yakin ingin menghapus data pasien ${pasien.namaBayi}? Semua data pemeriksaan terkait juga akan dihapus.`)) {
-                                        router.delete(`/admin/pasien/${pasien.id}`);
+                                        router.delete(`${baseUrl}/${pasien.id}`);
                                     }
                                 }}
                                 disabled={processing}

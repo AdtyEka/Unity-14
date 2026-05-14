@@ -78,5 +78,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/kader/pasien', [PasienController::class, 'store'])->name('kader.pasien.store');
         Route::patch('/kader/pasien/{pasien}', [PasienController::class, 'update'])->name('kader.pasien.update');
         Route::delete('/kader/pasien/{pasien}', [PasienController::class, 'destroy'])->name('kader.pasien.destroy');
+        Route::post('/kader/pasien/{pasien}/pemeriksaan', [PemeriksaanController::class, 'store'])->name('kader.pemeriksaan.store');
+        Route::patch('/kader/pasien/{pasien}/pemeriksaan/{pemeriksaan}', [PemeriksaanController::class, 'update'])->name('kader.pemeriksaan.update');
+        Route::delete('/kader/pasien/{pasien}/pemeriksaan/{pemeriksaan}', [PemeriksaanController::class, 'destroy'])->name('kader.pemeriksaan.destroy');
     });
 });

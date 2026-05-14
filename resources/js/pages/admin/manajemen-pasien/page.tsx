@@ -169,6 +169,7 @@ export default function ManajemenPasienPage({ baseUrl = '/admin/pasien' }: { bas
         return (
             <ManajemenPasienCreate
                 onCancel={() => setRoute({ name: 'index' })}
+                baseUrl={baseUrl}
                 onDone={(pasienId, { prediksiMl }) => {
                     router.get(`${baseUrl}/${pasienId}`);
                 }}
@@ -181,6 +182,7 @@ export default function ManajemenPasienPage({ baseUrl = '/admin/pasien' }: { bas
             <ManajemenPasienShow
                 pasien={pasien}
                 tanpaPrediksiMl={propTanpaMl === true}
+                baseUrl={baseUrl}
                 onBack={() => {
                     setRoute({ name: 'index' });
                     router.get(baseUrl);
