@@ -250,7 +250,6 @@ export default function ManajemenPasienPage() {
                             onPrev={onPrev}
                             onNext={onNext}
                             onOpenDetail={(row) => router.get(`/admin/pasien/${row.id}`)}
-                            onContinue={(row) => router.get(`/admin/pasien/${row.id}`)}
                             onDelete={handleDelete}
                         />
                     )}

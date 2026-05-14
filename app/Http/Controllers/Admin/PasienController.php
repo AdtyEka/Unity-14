@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Jobs\RunStuntingPrediction;
 use App\Models\Pasien;
+use App\Services\AiValidationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
@@ -138,7 +139,7 @@ class PasienController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request, AiValidationService $aiValidation)
     {
         $validated = $request->validate([
             'nama_bayi' => 'required|string|max:255',
@@ -153,6 +154,23 @@ class PasienController extends Controller
             'tinggi_badan' => 'nullable|numeric|min:0',
             'berat_badan' => 'nullable|numeric|min:0',
         ]);
+
+        if ($request->filled(['tinggi_badan', 'berat_badan'])) {
+            $usiaBulan = (int) Carbon::parse($request->tanggal_lahir)->diffInMonths($request->tanggal_pemeriksaan ?? now());
+            $aiResult = $aiValidation->validate([
+                'jenis_kelamin' => $request->jenis_kelamin,
+                'umur_bulan' => $usiaBulan,
+                'tinggi_cm' => (float) $request->tinggi_badan,
+                'berat_kg' => (float) $request->berat_badan,
+            ]);
+
+            if ($aiResult && ! $aiResult['valid']) {
+                return redirect()->back()->withErrors([
+                    'tinggi_badan' => $aiResult['tinggi_valid'] === false ? $aiResult['pesan'][0] : null,
+                    'berat_badan' => $aiResult['berat_valid'] === false ? end($aiResult['pesan']) : null,
+                ])->withInput();
+            }
+        }
 
         $pasien = Pasien::create($validated);
 

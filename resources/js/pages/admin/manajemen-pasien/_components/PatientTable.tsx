@@ -56,7 +56,6 @@ export default function PatientTable({
     onPrev,
     onNext,
     onOpenDetail,
-    onContinue,
     onDelete,
 }: {
     rows: PatientRow[];
@@ -69,7 +68,6 @@ export default function PatientTable({
     onPrev: () => void;
     onNext: () => void;
     onOpenDetail: (row: PatientRow) => void;
-    onContinue: (row: PatientRow) => void;
     onDelete: (row: PatientRow) => void;
 }) {
     const rowHeightClassName = 'h-[60px]';
@@ -142,15 +140,6 @@ export default function PatientTable({
                                                     onClick={() => onOpenDetail(p)}
                                                 >
                                                     Detail
-                                                </Button>
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    size="sm"
-                                                    className="h-8 rounded-md"
-                                                    onClick={() => onContinue(p)}
-                                                >
-                                                    Lanjut Pemeriksaan <ArrowRight className="ml-2 size-4" />
                                                 </Button>
                                                 <Button
                                                     type="button"
