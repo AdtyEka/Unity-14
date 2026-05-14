@@ -159,7 +159,7 @@ function ArticleContent({ article }: { article: any }) {
 
                 {/* Tags */}
                 <div className="flex flex-wrap gap-2">
-                    {article.tags?.map((tag: string) => (
+                    {Array.isArray(article.tags) && article.tags.map((tag: string) => (
                         <KategoriBadge key={tag} label={tag} />
                     ))}
                 </div>
@@ -190,7 +190,7 @@ function ArticleContent({ article }: { article: any }) {
 function ContentBlocks({ article }: { article: any }) {
     return (
         <div className="space-y-3">
-            {article.content?.map((block: any, index: number) => {
+            {Array.isArray(article.content) && article.content.map((block: any, index: number) => {
                 if (block.type === 'heading') {
                     return (
                         <React.Fragment key={index}>
@@ -250,7 +250,7 @@ function ContentBlocks({ article }: { article: any }) {
 function SectionsBlocks({ article }: { article: any }) {
     return (
         <>
-            {article.sections?.map((section: any, i: number) => (
+            {Array.isArray(article.sections) && article.sections.map((section: any, i: number) => (
                 <div key={i}>
                     <div className="my-5 h-px w-full bg-foreground/10" />
 

@@ -44,7 +44,14 @@ class ArtikelController extends Controller
             'penulis' => 'nullable|string|max:255',
             'gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'content' => 'nullable|array',
+            'content.*.type' => 'required_with:content|string|in:paragraph,heading,subheading,list',
+            'content.*.text' => 'required_if:content.*.type,paragraph,heading,subheading|string',
+            'content.*.items' => 'required_if:content.*.type,list|array',
             'sections' => 'nullable|array',
+            'sections.*.subtitle' => 'required_with:sections|string',
+            'sections.*.items' => 'required_with:sections|array',
+            'sections.*.items.*.label' => 'required_with:sections|string',
+            'sections.*.items.*.points' => 'required_with:sections|array',
             'published_at' => 'nullable|date',
         ]);
 
@@ -70,7 +77,14 @@ class ArtikelController extends Controller
             'penulis' => 'nullable|string|max:255',
             'gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'content' => 'nullable|array',
+            'content.*.type' => 'required_with:content|string|in:paragraph,heading,subheading,list',
+            'content.*.text' => 'required_if:content.*.type,paragraph,heading,subheading|string',
+            'content.*.items' => 'required_if:content.*.type,list|array',
             'sections' => 'nullable|array',
+            'sections.*.subtitle' => 'required_with:sections|string',
+            'sections.*.items' => 'required_with:sections|array',
+            'sections.*.items.*.label' => 'required_with:sections|string',
+            'sections.*.items.*.points' => 'required_with:sections|array',
             'published_at' => 'nullable|date',
         ]);
 

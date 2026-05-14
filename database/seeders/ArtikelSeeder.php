@@ -18,12 +18,12 @@ class ArtikelSeeder extends Seeder
                 'judul' => 'Tahapan Pertumbuhan dan Perkembangan Bayi Usia 0–6 Bulan',
                 'deskripsi' => 'Ulasan detail mengenai tahapan pertumbuhan bayi usia 0–6 bulan, mulai dari perkembangan fisik, motorik, bahasa, sosial, hingga tanda kesiapan MPASI.',
                 'kategori' => 'Tumbuh Kembang',
-                'tags' => json_encode(['Parenting', 'Tumbuh Kembang', 'Bayi']),
+                'tags' => ['Parenting', 'Tumbuh Kembang', 'Bayi'],
                 'penulis' => 'Admin',
                 'gambar' => '/assets/images/article/article-2.webp',
                 'published_at' => '2026-03-15 00:00:00',
                 'content' => null,
-                'sections' => json_encode([
+                'sections' => [
                     [
                         'subtitle' => '1. Usia 0–1 Bulan (Neonatus)',
                         'items' => [
@@ -83,12 +83,12 @@ class ArtikelSeeder extends Seeder
                 'judul' => 'Makanan dan Gizi yang Tepat untuk Anak Usia 6 Bulan hingga 5 Tahun',
                 'deskripsi' => 'Panduan lengkap tentang kebutuhan gizi anak usia 6 bulan hingga 5 tahun, jenis makanan yang tepat, dan tips pemberian makan sehat untuk mendukung tumbuh kembang optimal.',
                 'kategori' => 'Nutrisi',
-                'tags' => json_encode(['Nutrisi', 'MPASI', 'Parenting']),
+                'tags' => ['Nutrisi', 'MPASI', 'Parenting'],
                 'penulis' => 'Admin',
                 'gambar' => '/assets/images/article/article-1.webp',
                 'published_at' => '2026-03-20 00:00:00',
                 'sections' => null,
-                'content' => json_encode([
+                'content' => [
                     ['type' => 'paragraph', 'text' => 'Makanan dan nutrisi yang tepat sangat penting untuk tumbuh kembang anak, terutama pada usia 6 bulan hingga 5 tahun. Pada usia ini, anak mengalami periode pertumbuhan yang pesat, baik dari segi fisik maupun kognitif. Pemberian makanan bergizi seimbang akan mendukung perkembangan tubuh, otak, dan daya tahan tubuh anak.'],
                     ['type' => 'heading', 'text' => 'Kebutuhan Nutrisi untuk Anak Usia 6 Bulan – 5 Tahun'],
                     ['type' => 'paragraph', 'text' => 'Pada usia ini, anak membutuhkan berbagai jenis nutrisi untuk mendukung pertumbuhannya yang cepat. Berikut adalah nutrisi penting yang harus dipenuhi:'],
@@ -121,13 +121,13 @@ class ArtikelSeeder extends Seeder
                 'judul' => 'Makanan Bergizi untuk Ibu Hamil dan Anak Usia Dini: Apa yang Perlu Diketahui?',
                 'deskripsi' => 'Artikel ini membahas pentingnya gizi seimbang untuk ibu hamil dan anak usia dini, termasuk nutrisi penting, panduan MPASI, pola makan sehat, serta peran edukasi gizi bagi keluarga.',
                 'kategori' => 'Nutrisi',
-                'tags' => json_encode(['Nutrisi', 'Ibu Hamil', 'MPASI']),
+                'tags' => ['Nutrisi', 'Ibu Hamil', 'MPASI'],
                 'penulis' => 'Admin',
                 'gambar' => 'https://images.unsplash.com/photo-1490818387583-1baba5e638af?w=800&q=80',
                 'published_at' => '2026-03-25 00:00:00',
                 'sections' => null,
-                'content' => json_encode([
-                    ['type' => 'paragraph', 'text' => 'Gizi seimbang merupakan kunci utama dalam mendukung tumbuh kembang optimal anak serta menjaga kesehatan ibu selama kehamilan. Pada fase kehamilan dan masa balita (usia 6 bulan–5 tahun), tubuh sangat membutuhkan asupan nutrisi yang mencukupi baik secara kualitas maupun kuantitas. Tanpa gizi yang seimbang, risiko stunting, berat badan lahir rendah, anemia, serta berbagai gangguan perkembangan dapat meningkat secara signifikan.'],
+                'content' => [
+                    ['type' => 'paragraph', 'text' => 'Gizi seimbang merupakan kunci utama dalam mendukung tumbuh kembang optimal anak serta menjaga kesehatan ibu selama kehamilan. Pada fase kehamilan dan masa balita (usia 6 bulan–5 tahun), tubuh sangat membutuhkan asupan nutrisi yang mencukupi baik secara kualitas maupun kuantitas. Tanpa gizi seimbang, risiko stunting, berat badan lahir rendah, anemia, serta berbagai gangguan perkembangan dapat meningkat secara signifikan.'],
                     ['type' => 'heading', 'text' => 'Pentingnya Gizi Seimbang untuk Ibu Hamil'],
                     ['type' => 'paragraph', 'text' => 'Selama masa kehamilan, kebutuhan nutrisi meningkat untuk mendukung perkembangan janin, menjaga kesehatan ibu, serta mencegah komplikasi. Ada tiga kelompok nutrisi utama yang perlu diperhatikan:'],
                     ['type' => 'subheading', 'text' => '1. Asupan Makronutrien yang Tepat'],
@@ -158,12 +158,12 @@ class ArtikelSeeder extends Seeder
                 'judul' => 'Tahapan Perkembangan Balita Usia 1–5 Tahun: Panduan Lengkap untuk Orang Tua',
                 'deskripsi' => 'Panduan tahapan perkembangan balita usia 1–5 tahun meliputi aspek motorik, bahasa, kognitif, sosial, dan emosional untuk membantu orang tua memberikan stimulasi yang tepat.',
                 'kategori' => 'Tumbuh Kembang',
-                'tags' => json_encode(['Tumbuh Kembang', 'Parenting', 'Balita']),
+                'tags' => ['Tumbuh Kembang', 'Parenting', 'Balita'],
                 'penulis' => 'Admin',
                 'gambar' => '/assets/images/article/article-3.webp',
                 'published_at' => '2026-04-01 00:00:00',
                 'sections' => null,
-                'content' => json_encode([
+                'content' => [
                     ['type' => 'paragraph', 'text' => 'Usia 1 sampai 5 tahun merupakan periode emas (golden age) dalam kehidupan anak. Pada tahap ini, perkembangan berlangsung sangat pesat dan menentukan fondasi kecerdasan, emosi, serta fisik anak di masa depan. Memahami setiap tahapan perkembangan sangat penting agar orang tua dapat memberikan stimulasi yang tepat sesuai kebutuhan.'],
                     ['type' => 'heading', 'text' => '1. Usia 1 Tahun (12–23 Bulan)'],
                     ['type' => 'subheading', 'text' => 'Ciri Perkembangan Umum'],

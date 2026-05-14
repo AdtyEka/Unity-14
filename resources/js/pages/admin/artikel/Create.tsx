@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ArrowLeft, Save, Upload, X } from 'lucide-react';
+import { ArrowLeft, Save, Upload, X, Plus, Trash2, ChevronUp, ChevronDown, Type, List, Heading1, Heading2, AlignLeft } from 'lucide-react';
 import { useForm } from '@inertiajs/react';
 
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
 
 interface CreateProps {
     data?: any;
@@ -27,8 +28,8 @@ export default function ArtikelCreate({ data, onBack }: CreateProps) {
         penulis: data?.penulis || 'Admin',
         gambar: null as File | null,
         published_at: data?.published_at ? new Date(data.published_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-        content: data?.content ? JSON.stringify(data.content, null, 2) : '',
-        sections: data?.sections ? JSON.stringify(data.sections, null, 2) : '',
+        content: (data?.content || []) as any[],
+        sections: (data?.sections || []) as any[],
         _method: data ? 'PUT' : 'POST',
     });
 
@@ -47,16 +48,6 @@ export default function ArtikelCreate({ data, onBack }: CreateProps) {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Parse JSON content/sections back to objects if they are valid JSON
-        const preparedData = { ...formData };
-        try {
-            if (formData.content) preparedData.content = JSON.parse(formData.content);
-            if (formData.sections) preparedData.sections = JSON.parse(formData.sections);
-        } catch (e) {
-            alert('Format JSON pada Content atau Sections tidak valid.');
-            return;
-        }
-
         if (data) {
             post(`/admin/artikel/${data.id}`, {
                 onSuccess: () => {
@@ -71,6 +62,84 @@ export default function ArtikelCreate({ data, onBack }: CreateProps) {
                 },
             });
         }
+    };
+
+    // --- Content Block Helpers ---
+    const addContentBlock = (type: 'paragraph' | 'heading' | 'subheading' | 'list') => {
+        const newBlock = type === 'list' 
+            ? { type, items: [''] } 
+            : { type, text: '' };
+        setData('content', [...formData.content, newBlock]);
+    };
+
+    const updateContentBlock = (index: number, value: any) => {
+        const newContent = [...formData.content];
+        newContent[index] = { ...newContent[index], ...value };
+        setData('content', newContent);
+    };
+
+    const removeContentBlock = (index: number) => {
+        setData('content', formData.content.filter((_, i) => i !== index));
+    };
+
+    const moveContentBlock = (index: number, direction: 'up' | 'down') => {
+        const newContent = [...formData.content];
+        const newIndex = direction === 'up' ? index - 1 : index + 1;
+        if (newIndex >= 0 && newIndex < newContent.length) {
+            [newContent[index], newContent[newIndex]] = [newContent[newIndex], newContent[index]];
+            setData('content', newContent);
+        }
+    };
+
+    // --- Section Helpers ---
+    const addSection = () => {
+        setData('sections', [...formData.sections, { subtitle: '', items: [{ label: '', points: [''] }] }]);
+    };
+
+    const updateSection = (index: number, value: any) => {
+        const newSections = [...formData.sections];
+        newSections[index] = { ...newSections[index], ...value };
+        setData('sections', newSections);
+    };
+
+    const removeSection = (index: number) => {
+        setData('sections', formData.sections.filter((_, i) => i !== index));
+    };
+
+    const addSectionItem = (sectionIndex: number) => {
+        const newSections = [...formData.sections];
+        newSections[sectionIndex].items.push({ label: '', points: [''] });
+        setData('sections', newSections);
+    };
+
+    const updateSectionItem = (sectionIndex: number, itemIndex: number, value: any) => {
+        const newSections = [...formData.sections];
+        newSections[sectionIndex].items[itemIndex] = { ...newSections[sectionIndex].items[itemIndex], ...value };
+        setData('sections', newSections);
+    };
+
+    const removeSectionItem = (sectionIndex: number, itemIndex: number) => {
+        const newSections = [...formData.sections];
+        newSections[sectionIndex].items = newSections[sectionIndex].items.filter((_, i: number) => i !== itemIndex);
+        setData('sections', newSections);
+    };
+
+    const addPoint = (sectionIndex: number, itemIndex: number) => {
+        const newSections = [...formData.sections];
+        newSections[sectionIndex].items[itemIndex].points.push('');
+        setData('sections', newSections);
+    };
+
+    const updatePoint = (sectionIndex: number, itemIndex: number, pointIndex: number, value: string) => {
+        const newSections = [...formData.sections];
+        newSections[sectionIndex].items[itemIndex].points[pointIndex] = value;
+        setData('sections', newSections);
+    };
+
+    const removePoint = (sectionIndex: number, itemIndex: number, pointIndex: number) => {
+        const newSections = [...formData.sections];
+        newSections[sectionIndex].items[itemIndex].points = newSections[sectionIndex].items[itemIndex].points.filter((_, i: number) => i !== pointIndex);
+        setData('sections', newSections);
     };
 
     return (
@@ -91,6 +160,7 @@ export default function ArtikelCreate({ data, onBack }: CreateProps) {
 
             <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 <div className="lg:col-span-2 flex flex-col gap-6">
+                    {/* --- Informasi Utama --- */}
                     <Card className={cn(card3dClassName, 'bg-white')}>
                         <CardHeader>
                             <CardTitle>Informasi Utama</CardTitle>
@@ -147,38 +217,174 @@ export default function ArtikelCreate({ data, onBack }: CreateProps) {
                         </CardContent>
                     </Card>
 
+                    {/* --- Content Blocks Builder --- */}
                     <Card className={cn(card3dClassName, 'bg-white')}>
-                        <CardHeader>
-                            <CardTitle>Konten Terstruktur (JSON)</CardTitle>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                            <CardTitle>Konten Artikel (Blocks)</CardTitle>
+                            <div className="flex gap-2">
+                                <Button type="button" variant="outline" size="sm" onClick={() => addContentBlock('heading')} className="h-8 rounded-lg text-[10px]">
+                                    <Heading1 className="mr-1 size-3" /> Heading
+                                </Button>
+                                <Button type="button" variant="outline" size="sm" onClick={() => addContentBlock('subheading')} className="h-8 rounded-lg text-[10px]">
+                                    <Heading2 className="mr-1 size-3" /> Sub
+                                </Button>
+                                <Button type="button" variant="outline" size="sm" onClick={() => addContentBlock('paragraph')} className="h-8 rounded-lg text-[10px]">
+                                    <AlignLeft className="mr-1 size-3" /> Paragraph
+                                </Button>
+                                <Button type="button" variant="outline" size="sm" onClick={() => addContentBlock('list')} className="h-8 rounded-lg text-[10px]">
+                                    <List className="mr-1 size-3" /> List
+                                </Button>
+                            </div>
                         </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="content">Content Block (JSON)</Label>
-                                <Textarea
-                                    id="content"
-                                    value={formData.content}
-                                    onChange={(e) => setData('content', e.target.value)}
-                                    placeholder='[{"type": "paragraph", "text": "..."}]'
-                                    className="min-h-[150px] font-mono text-xs rounded-xl border-white/40 bg-white/50 focus:bg-white"
-                                />
-                                {errors.content && <p className="text-xs text-destructive">{errors.content}</p>}
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="sections">Sections (JSON)</Label>
-                                <Textarea
-                                    id="sections"
-                                    value={formData.sections}
-                                    onChange={(e) => setData('sections', e.target.value)}
-                                    placeholder='[{"subtitle": "...", "items": [...]}]'
-                                    className="min-h-[150px] font-mono text-xs rounded-xl border-white/40 bg-white/50 focus:bg-white"
-                                />
-                                {errors.sections && <p className="text-xs text-destructive">{errors.sections}</p>}
-                            </div>
+                        <CardContent className="space-y-6">
+                            {formData.content.length === 0 && (
+                                <div className="flex flex-col items-center justify-center py-8 text-muted-foreground border-2 border-dashed rounded-2xl">
+                                    <Type className="size-8 mb-2 opacity-20" />
+                                    <p className="text-sm">Belum ada blok konten. Tambahkan di atas.</p>
+                                </div>
+                            )}
+                            {formData.content.map((block, index) => (
+                                <div key={index} className="group relative flex flex-col gap-3 p-4 rounded-2xl border bg-white/50 transition-all hover:bg-white hover:shadow-md">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/50">
+                                                Block #{index + 1} - {block.type}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Button type="button" variant="ghost" size="icon" className="size-7 rounded-lg" onClick={() => moveContentBlock(index, 'up')} disabled={index === 0}>
+                                                <ChevronUp className="size-3" />
+                                            </Button>
+                                            <Button type="button" variant="ghost" size="icon" className="size-7 rounded-lg" onClick={() => moveContentBlock(index, 'down')} disabled={index === formData.content.length - 1}>
+                                                <ChevronDown className="size-3" />
+                                            </Button>
+                                            <Button type="button" variant="ghost" size="icon" className="size-7 rounded-lg text-destructive hover:bg-destructive/10" onClick={() => removeContentBlock(index)}>
+                                                <Trash2 className="size-3" />
+                                            </Button>
+                                        </div>
+                                    </div>
+
+                                    {block.type === 'list' ? (
+                                        <div className="space-y-2">
+                                            {block.items.map((item: string, i: number) => (
+                                                <div key={i} className="flex gap-2">
+                                                    <Input
+                                                        value={item}
+                                                        onChange={(e) => {
+                                                            const newItems = [...block.items];
+                                                            newItems[i] = e.target.value;
+                                                            updateContentBlock(index, { items: newItems });
+                                                        }}
+                                                        placeholder={`Item ${i + 1}`}
+                                                        className="h-9 rounded-lg"
+                                                    />
+                                                    <Button type="button" variant="ghost" size="icon" className="size-9 rounded-lg" onClick={() => {
+                                                        const newItems = block.items.filter((_: any, idx: number) => idx !== i);
+                                                        updateContentBlock(index, { items: newItems });
+                                                    }}>
+                                                        <X className="size-3" />
+                                                    </Button>
+                                                </div>
+                                            ))}
+                                            <Button type="button" variant="ghost" size="sm" className="h-8 w-full rounded-lg border-dashed border-2" onClick={() => {
+                                                updateContentBlock(index, { items: [...block.items, ''] });
+                                            }}>
+                                                <Plus className="mr-1 size-3" /> Tambah Item
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <Textarea
+                                            value={block.text}
+                                            onChange={(e) => updateContentBlock(index, { text: e.target.value })}
+                                            placeholder={`Masukkan ${block.type}...`}
+                                            className={cn(
+                                                "min-h-[80px] rounded-xl border-white/40 bg-white/50 focus:bg-white",
+                                                block.type === 'heading' && "font-bold text-lg",
+                                                block.type === 'subheading' && "font-semibold text-base"
+                                            )}
+                                        />
+                                    )}
+                                </div>
+                            ))}
+                        </CardContent>
+                    </Card>
+
+                    {/* --- Sections Builder --- */}
+                    <Card className={cn(card3dClassName, 'bg-white')}>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                            <CardTitle>Saran & Rekomendasi (Sections)</CardTitle>
+                            <Button type="button" variant="outline" size="sm" onClick={addSection} className="h-8 rounded-lg text-xs">
+                                <Plus className="mr-1 size-3" /> Tambah Section
+                            </Button>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            {formData.sections.length === 0 && (
+                                <div className="flex flex-col items-center justify-center py-8 text-muted-foreground border-2 border-dashed rounded-2xl">
+                                    <List className="size-8 mb-2 opacity-20" />
+                                    <p className="text-sm">Belum ada section. Tambahkan jika diperlukan.</p>
+                                </div>
+                            )}
+                            {formData.sections.map((section: any, sIdx: number) => (
+                                <div key={sIdx} className="p-4 rounded-2xl border bg-white/50 space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <Input
+                                            value={section.subtitle}
+                                            onChange={(e) => updateSection(sIdx, { subtitle: e.target.value })}
+                                            placeholder="Sub-judul Section (e.g. Saran Nutrisi)"
+                                            className="h-10 font-bold rounded-xl border-none bg-transparent focus-visible:ring-0 px-0 text-lg"
+                                        />
+                                        <Button type="button" variant="ghost" size="icon" className="size-8 rounded-lg text-destructive hover:bg-destructive/10" onClick={() => removeSection(sIdx)}>
+                                            <Trash2 className="size-4" />
+                                        </Button>
+                                    </div>
+                                    <Separator className="bg-black/5" />
+                                    
+                                    <div className="space-y-4">
+                                        {section.items.map((item: any, iIdx: number) => (
+                                            <div key={iIdx} className="pl-4 border-l-2 border-primary/20 space-y-2">
+                                                <div className="flex items-center justify-between gap-4">
+                                                    <Input
+                                                        value={item.label}
+                                                        onChange={(e) => updateSectionItem(sIdx, iIdx, { label: e.target.value })}
+                                                        placeholder="Label (e.g. Karbohidrat)"
+                                                        className="h-9 font-semibold rounded-lg"
+                                                    />
+                                                    <Button type="button" variant="ghost" size="icon" className="size-8 rounded-lg text-destructive/50 hover:text-destructive" onClick={() => removeSectionItem(sIdx, iIdx)}>
+                                                        <X className="size-4" />
+                                                    </Button>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    {item.points.map((point: string, pIdx: number) => (
+                                                        <div key={pIdx} className="flex gap-2">
+                                                            <Input
+                                                                value={point}
+                                                                onChange={(e) => updatePoint(sIdx, iIdx, pIdx, e.target.value)}
+                                                                placeholder="Point deskripsi..."
+                                                                className="h-8 rounded-lg text-sm"
+                                                            />
+                                                            <Button type="button" variant="ghost" size="icon" className="size-8 rounded-lg" onClick={() => removePoint(sIdx, iIdx, pIdx)}>
+                                                                <X className="size-3" />
+                                                            </Button>
+                                                        </div>
+                                                    ))}
+                                                    <Button type="button" variant="ghost" size="sm" className="h-7 text-[10px] rounded-lg" onClick={() => addPoint(sIdx, iIdx)}>
+                                                        <Plus className="mr-1 size-3" /> Tambah Point
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        <Button type="button" variant="ghost" size="sm" className="w-full h-9 rounded-xl border-dashed border-2" onClick={() => addSectionItem(sIdx)}>
+                                            <Plus className="mr-1 size-3" /> Tambah Item Ke Section
+                                        </Button>
+                                    </div>
+                                </div>
+                            ))}
                         </CardContent>
                     </Card>
                 </div>
 
                 <div className="flex flex-col gap-6">
+                    {/* --- Gambar Utama --- */}
                     <Card className={cn(card3dClassName, 'bg-white')}>
                         <CardHeader>
                             <CardTitle>Gambar Utama</CardTitle>
@@ -230,6 +436,7 @@ export default function ArtikelCreate({ data, onBack }: CreateProps) {
                         </CardContent>
                     </Card>
 
+                    {/* --- Pengaturan --- */}
                     <Card className={cn(card3dClassName, 'bg-white')}>
                         <CardHeader>
                             <CardTitle>Pengaturan</CardTitle>
