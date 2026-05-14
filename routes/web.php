@@ -61,6 +61,7 @@ Route::middleware('auth')->group(function () {
         Route::patch('admin/konfigurasi-posyankes/{puskesmas}/posyandu/{posyandu}', [PosyanduController::class, 'update'])->name('admin.posyandu.update');
         Route::delete('admin/konfigurasi-posyankes/{puskesmas}/posyandu/{posyandu}', [PosyanduController::class, 'destroy'])->name('admin.posyandu.destroy');
         Route::get('admin/jadwal-kesehatan', [JadwalKesehatanController::class, 'index'])->name('admin.jadwal-kesehatan.index');
+        Route::post('admin/jadwal-kesehatan/{pasien}/mark-reminded', [JadwalKesehatanController::class, 'markReminded'])->name('admin.jadwal-kesehatan.mark-reminded');
         Route::get('admin/ekspor', [AdminExportController::class, 'index'])->name('admin.ekspor.index');
         Route::post('admin/ekspor', [AdminExportController::class, 'store'])->name('admin.ekspor.store');
 
@@ -71,11 +72,11 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware('role:kader')->group(function () {
-        Route::get('/kader', [\App\Http\Controllers\Kader\DashboardController::class, 'index'])->name('kader.dashboard');
-        Route::get('/kader/pasien', [\App\Http\Controllers\Admin\PasienController::class, 'index'])->name('kader.pasien.index');
-        Route::get('/kader/pasien/{pasien}', [\App\Http\Controllers\Admin\PasienController::class, 'show'])->name('kader.pasien.show');
-        Route::post('/kader/pasien', [\App\Http\Controllers\Admin\PasienController::class, 'store'])->name('kader.pasien.store');
-        Route::patch('/kader/pasien/{pasien}', [\App\Http\Controllers\Admin\PasienController::class, 'update'])->name('kader.pasien.update');
-        Route::delete('/kader/pasien/{pasien}', [\App\Http\Controllers\Admin\PasienController::class, 'destroy'])->name('kader.pasien.destroy');
+        Route::get('/kader', [App\Http\Controllers\Kader\DashboardController::class, 'index'])->name('kader.dashboard');
+        Route::get('/kader/pasien', [PasienController::class, 'index'])->name('kader.pasien.index');
+        Route::get('/kader/pasien/{pasien}', [PasienController::class, 'show'])->name('kader.pasien.show');
+        Route::post('/kader/pasien', [PasienController::class, 'store'])->name('kader.pasien.store');
+        Route::patch('/kader/pasien/{pasien}', [PasienController::class, 'update'])->name('kader.pasien.update');
+        Route::delete('/kader/pasien/{pasien}', [PasienController::class, 'destroy'])->name('kader.pasien.destroy');
     });
 });

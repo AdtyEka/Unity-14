@@ -35,14 +35,33 @@ class JadwalKesehatanController extends Controller
                     ? $pasien->pemeriksaanTerakhir->hasilPrediksi->prediction_label
                     : 'Belum Ada Data';
 
+                // logic sudah diingatkan: jika terakhir diingatkan di bulan yang sama dengan sekarang
+                // dan setelah pemeriksaan terakhir (jika ada)
+                $pasien->sudah_diingatkan = false;
+                if ($pasien->terakhir_diingatkan_at) {
+                    $isCurrentMonth = $pasien->terakhir_diingatkan_at->isCurrentMonth();
+                    $isAfterLastPemeriksaan = true;
+                    if ($pasien->pemeriksaanTerakhir) {
+                        $isAfterLastPemeriksaan = $pasien->terakhir_diingatkan_at->gt($pasien->pemeriksaanTerakhir->tanggal_pemeriksaan);
+                    }
+                    $pasien->sudah_diingatkan = $isCurrentMonth && $isAfterLastPemeriksaan;
+                }
+
                 return $pasien;
             });
-
-        // dd($pasiens);
 
         return Inertia::render('admin/page', [
             'pasiens' => $pasiens,
             'activeSection' => 'jadwal-kesehatan',
         ]);
+    }
+
+    public function markReminded(Pasien $pasien)
+    {
+        $pasien->update([
+            'terakhir_diingatkan_at' => now(),
+        ]);
+
+        return back()->with('success', 'Pengingat berhasil dikirim.');
     }
 }

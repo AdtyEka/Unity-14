@@ -23,6 +23,12 @@ class Pasien extends Model
         'nik_ibu',
         'nama_ayah',
         'nomor_hp',
+        'terakhir_diingatkan_at',
+    ];
+
+    protected $casts = [
+        'tanggal_lahir' => 'date',
+        'terakhir_diingatkan_at' => 'datetime',
     ];
 
     /**

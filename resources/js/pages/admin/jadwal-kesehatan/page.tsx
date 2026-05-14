@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { usePage } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
+import { markReminded } from '@/routes/admin/jadwal-kesehatan';
 import { Bell, CalendarCheck, CheckCheck, Clock } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -47,7 +48,7 @@ export default function JadwalKesehatanPage() {
                       })
                     : 'Belum Diperiksa',
                 jadwalBerikutnya: p.tanggal_jadwal_selanjutnya,
-                sudahDiingatkan: false,
+                sudahDiingatkan: p.sudah_diingatkan || false,
             };
         });
     }, [pasiens]);
@@ -102,10 +103,19 @@ export default function JadwalKesehatanPage() {
     ).length;
 
     const handleMarkReminded = React.useCallback((uid: string) => {
-        setSchedules((prev) =>
-            prev.map((r) =>
-                r.uid === uid ? { ...r, sudahDiingatkan: true } : r,
-            ),
+        router.post(
+            markReminded(uid).url,
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setSchedules((prev) =>
+                        prev.map((r) =>
+                            r.uid === uid ? { ...r, sudahDiingatkan: true } : r,
+                        ),
+                    );
+                },
+            },
         );
     }, []);
 
