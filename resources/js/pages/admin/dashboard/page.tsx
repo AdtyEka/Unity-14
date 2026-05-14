@@ -30,26 +30,11 @@ import PeriodSelector, {
 import StatusBadge from '@/pages/admin/dashboard/_components/StatusBadge';
 import { cn } from '@/lib/utils';
 
-const trendData = [
-    { bulan: 'Jan', normal: 40, risiko: 50, stunting: 15 },
-    { bulan: 'Feb', normal: 65, risiko: 55, stunting: 18 },
-    { bulan: 'Mar', normal: 75, risiko: 52, stunting: 16 },
-    { bulan: 'Apr', normal: 85, risiko: 58, stunting: 14 },
-    { bulan: 'Mei', normal: 100, risiko: 65, stunting: 12 },
-    { bulan: 'Jun', normal: 116, risiko: 89, stunting: 42 },
-];
-
 const trendConfig = {
     normal: { label: 'Normal', color: '#10B981' },
     risiko: { label: 'Stunting', color: '#F59E0B' },
     stunting: { label: 'Stunting Berat', color: '#BA1A1A' },
 } satisfies ChartConfig;
-
-const distribusiData = [
-    { status: 'Normal', value: 116, fill: '#10B981' },
-    { status: 'Stunting', value: 89, fill: '#F59E0B' },
-    { status: 'Stunting Berat', value: 42, fill: '#BA1A1A' },
-];
 
 const distribusiConfig = {
     value: { label: 'Pasien' },
@@ -58,60 +43,83 @@ const distribusiConfig = {
     'Stunting Berat': { label: 'Stunting Berat', color: '#BA1A1A' },
 } satisfies ChartConfig;
 
-const activities = [
-    { initials: 'AM', name: 'Ananda Malik', age: '24 Bulan', date: '12 Okt 2024', status: 'Stunting Berat' as const },
-    { initials: 'BP', name: 'Budi Pratama', age: '18 Bulan', date: '12 Okt 2024', status: 'Stunting' as const },
-    { initials: 'CS', name: 'Citra Sari', age: '36 Bulan', date: '11 Okt 2024', status: 'Normal' as const },
-    { initials: 'DW', name: 'Dian Wati', age: '12 Bulan', date: '10 Okt 2024', status: 'Stunting Berat' as const },
-];
-
-const schedules = [
-    { month: 'Okt', day: 14, name: 'Fatimah Zahra', risk: 'Stunting Berat' as const, time: '09:00 WIB' },
-    { month: 'Okt', day: 15, name: 'Bintang Putra', risk: 'Stunting Berat' as const, time: '10:30 WIB' },
-    { month: 'Okt', day: 15, name: 'Aisyah Putri', risk: 'Stunting Berat' as const, time: '13:00 WIB' },
-];
-
 const card3dClassName =
     'relative overflow-hidden transition-all duration-200 ease-out will-change-transform ' +
     'hover:-translate-y-1 hover:shadow-xl hover:shadow-black/5 hover:ring-1 hover:ring-foreground/10 ' +
     'before:pointer-events-none before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/40 before:to-transparent before:opacity-0 before:transition-opacity ' +
     'hover:before:opacity-100 dark:before:from-white/10';
 
-export default function DashboardPage() {
+interface DashboardPageProps {
+    stats?: {
+        total: number;
+        normal: number;
+        stunting: number;
+        stunting_berat: number;
+    };
+    trendData?: Array<{
+        bulan: string;
+        normal: number;
+        risiko: number;
+        stunting: number;
+    }>;
+    activities?: Array<{
+        id: string | number;
+        initials: string;
+        name: string;
+        age: string;
+        date: string;
+        status: 'Normal' | 'Stunting' | 'Stunting Berat' | 'Belum Ada Data';
+    }>;
+    schedules?: Array<{
+        id: string | number;
+        month: string;
+        day: string | number;
+        name: string;
+        risk: 'Normal' | 'Stunting' | 'Stunting Berat' | 'Belum Ada Data';
+        time: string;
+    }>;
+}
+
+export default function DashboardPage({
+    stats,
+    trendData: initialTrendData = [],
+    activities = [],
+    schedules = [],
+}: DashboardPageProps) {
     const [activePeriod, setActivePeriod] = React.useState<PeriodOption>('7 Hari');
     const [customFrom, setCustomFrom] = React.useState('Jan');
     const [customTo, setCustomTo] = React.useState('Jun');
     const [appliedCustomRange, setAppliedCustomRange] = React.useState<{ from: string; to: string } | null>(null);
 
-    const months = React.useMemo(() => trendData.map((item) => item.bulan), []);
+    const months = React.useMemo(() => initialTrendData.map((item) => item.bulan), [initialTrendData]);
 
     const scopedTrendData = React.useMemo(() => {
         if (activePeriod === '7 Hari') {
-            return trendData.slice(-2);
+            return initialTrendData.slice(-2);
         }
 
         if (activePeriod === '30 Hari') {
-            return trendData.slice(-4);
+            return initialTrendData.slice(-4);
         }
 
         if (!appliedCustomRange) {
-            return trendData;
+            return initialTrendData;
         }
 
-        const fromIdx = trendData.findIndex((item) => item.bulan === appliedCustomRange.from);
-        const toIdx = trendData.findIndex((item) => item.bulan === appliedCustomRange.to);
+        const fromIdx = initialTrendData.findIndex((item) => item.bulan === appliedCustomRange.from);
+        const toIdx = initialTrendData.findIndex((item) => item.bulan === appliedCustomRange.to);
 
         if (fromIdx < 0 || toIdx < 0) {
-            return trendData;
+            return initialTrendData;
         }
 
         const start = Math.min(fromIdx, toIdx);
         const end = Math.max(fromIdx, toIdx);
 
-        return trendData.slice(start, end + 1);
-    }, [activePeriod, appliedCustomRange]);
+        return initialTrendData.slice(start, end + 1);
+    }, [activePeriod, appliedCustomRange, initialTrendData]);
 
-    const latestSnapshot = scopedTrendData[scopedTrendData.length - 1] ?? trendData[trendData.length - 1];
+    const latestSnapshot = scopedTrendData[scopedTrendData.length - 1] ?? initialTrendData[initialTrendData.length - 1] ?? { normal: 0, risiko: 0, stunting: 0 };
     const totalPasien = latestSnapshot.normal + latestSnapshot.risiko + latestSnapshot.stunting;
 
     const scopedDistribusiData = React.useMemo(
@@ -424,8 +432,8 @@ export default function DashboardPage() {
                             </thead>
                             <tbody className="divide-y">
                                 {activities.map((p) => (
-                                    <tr
-                                        key={p.name}
+                                <tr
+                                        key={p.id}
                                         className="transition-colors hover:bg-muted/20"
                                     >
                                         <td className="px-4 py-3">
@@ -458,9 +466,9 @@ export default function DashboardPage() {
                         <CardTitle>Riwayat Kontrol Kesehatan</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-3">
-                        {schedules.map((s, i) => (
+                        {schedules.map((s) => (
                             <div
-                                key={i}
+                                key={s.id}
                                 className="flex items-start gap-3 rounded-lg border border-destructive/20 bg-destructive/5 p-3"
                             >
                                 <div className="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg border bg-card shadow-xs">

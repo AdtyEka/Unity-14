@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminExportController;
 use App\Http\Controllers\Admin\ArtikelController as AdminArtikelController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\JadwalKesehatanController;
 use App\Http\Controllers\Admin\JamLayananController;
 use App\Http\Controllers\Admin\MpasiVideoController;
@@ -43,7 +44,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 
     Route::middleware('role:admin')->group(function () {
-        Route::inertia('/admin', 'admin/page')->name('admin.dashboard');
+        Route::get('/admin', [DashboardController::class, 'index'])->name('admin.dashboard');
         Route::resource('admin/pengurus', PengurusController::class);
         Route::resource('admin/pasien', PasienController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
         Route::post('admin/pasien/{pasien}/pemeriksaan', [PemeriksaanController::class, 'store'])->name('admin.pemeriksaan.store');

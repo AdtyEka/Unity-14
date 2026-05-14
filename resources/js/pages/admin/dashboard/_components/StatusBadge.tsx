@@ -10,8 +10,8 @@ const statusStyle: Record<RiskLevel, { bg: string; text: string }> = {
     'Stunting Berat': { bg: 'bg-red-100', text: 'text-red-800' },
 };
 
-export default function StatusBadge({ status }: { status: RiskLevel }) {
-    const s = statusStyle[status];
+export default function StatusBadge({ status }: { status: RiskLevel | string }) {
+    const s = statusStyle[status as RiskLevel] || statusStyle.Normal;
     return (
         <span
             className={cn(

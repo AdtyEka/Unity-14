@@ -52,8 +52,8 @@ function PlaceholderContent({ title }: { title: string }) {
     );
 }
 
-export default function AdminPage() {
-    const { activeSection } = usePage<any>().props;
+export default function AdminPage(props: any) {
+    const { activeSection } = props;
     const [active, setActive] = React.useState<AdminSection>(activeSection || 'dashboard');
 
     React.useEffect(() => {
@@ -65,7 +65,12 @@ export default function AdminPage() {
     const content = React.useMemo(() => {
         switch (active) {
             case 'dashboard':
-                return <DashboardPage />;
+                return <DashboardPage
+                    stats={props.stats}
+                    trendData={props.trendData}
+                    activities={props.activities}
+                    schedules={props.schedules}
+                />;
             case 'manajemen-pasien':
                 return <ManajemenPasienPage />;
             case 'manajemen-pengurus':
