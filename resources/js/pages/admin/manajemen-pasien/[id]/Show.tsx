@@ -61,6 +61,19 @@ const kontribusiUtama = [
     { label: 'Asupan Protein (Kurang)', value: 14, color: 'bg-amber-500' },
 ];
 
+const categoryStyles: Record<string, string> = {
+    'Rujukan Medis': 'border-red-200 bg-red-50',
+    'Edukasi PMBA': 'border-emerald-200 bg-emerald-50',
+    'Perbaikan Gizi': 'border-amber-200 bg-amber-50',
+    'Pemantauan Pertumbuhan': 'border-slate-200 bg-slate-50',
+    'Sanitasi dan Kebersihan': 'border-blue-200 bg-blue-50',
+    'Konseling Orang Tua': 'border-purple-200 bg-purple-50',
+    'Jadwal Kontrol': 'border-indigo-200 bg-indigo-50',
+    'Pencegahan Infeksi': 'border-orange-200 bg-orange-50',
+    'Imunisasi': 'border-cyan-200 bg-cyan-50',
+    'Asupan Protein': 'border-teal-200 bg-teal-50',
+};
+
 const rekomendasiTanpaMl = [
     {
         title: 'Pertumbuhan menurut WHO',
@@ -249,6 +262,21 @@ export default function ManajemenPasienShow({
             { label: 'Jenis Kelamin', value: Math.abs(shap.jenis_kelamin * 10), color: shap.jenis_kelamin > 0 ? 'bg-emerald-500' : 'bg-red-500' },
         ].sort((a, b) => b.value - a.value).slice(0, 3);
     }, [latestPemeriksaan]);
+
+    const dynamicRekomendasi = React.useMemo(() => {
+        // Cari pemeriksaan terbaru yang memiliki rekomendasi
+        const pemeriksaanWithRekomendasi = pasien.riwayatPemeriksaan?.find((p: any) => p.rekomendasi);
+
+        if (!pemeriksaanWithRekomendasi) {
+            return [];
+        }
+
+        return pemeriksaanWithRekomendasi.rekomendasi.map((item: any) => ({
+            title: item.title,
+            description: item.description,
+            className: categoryStyles[item.category] || 'border-slate-200 bg-slate-50',
+        }));
+    }, [pasien.riwayatPemeriksaan]);
 
     const dynamicGrowthData = React.useMemo(() => {
         return [...pasien.riwayatPemeriksaan]
@@ -542,12 +570,21 @@ export default function ManajemenPasienShow({
                         <CardContent className="p-4">
                             <p className="text-lg font-semibold">Rekomendasi Klinis</p>
                             <div className="mt-4 space-y-3">
-                                {(tanpaPrediksiMl ? rekomendasiTanpaMl : rekomendasi).map((item) => (
-                                    <div key={item.title} className={cn('rounded-lg border p-3', item.className)}>
-                                        <p className="text-sm font-semibold">{item.title}</p>
-                                        <p className="mt-1 text-xs text-muted-foreground">{item.description}</p>
+                                {dynamicRekomendasi.length > 0 ? (
+                                    dynamicRekomendasi.map((item: any) => (
+                                        <div key={item.title} className={cn('rounded-lg border p-3', item.className)}>
+                                            <p className="text-sm font-semibold">{item.title}</p>
+                                            <p className="mt-1 text-xs text-muted-foreground">{item.description}</p>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                                        <p className="text-sm font-medium text-muted-foreground">Belum ada rekomendasi</p>
+                                        <p className="mt-1 text-xs text-muted-foreground">
+                                            Rekomendasi akan muncul setelah pemeriksaan diproses oleh AI.
+                                        </p>
                                     </div>
-                                ))}
+                                )}
                             </div>
                         </CardContent>
                     </Card>

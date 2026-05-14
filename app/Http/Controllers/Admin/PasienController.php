@@ -89,7 +89,7 @@ class PasienController extends Controller
     public function show(Pasien $pasien)
     {
         $pasien->load(['pemeriksaans' => function ($q) {
-            $q->with('hasilPrediksi')->latest('tanggal_pemeriksaan');
+            $q->with(['hasilPrediksi', 'rekomendasi'])->latest('tanggal_pemeriksaan');
         }]);
 
         $usiaBulan = $pasien->usiaBulan();
@@ -109,6 +109,7 @@ class PasienController extends Controller
                 'tanggalLahir' => $pasien->tanggal_lahir,
                 'riwayatPemeriksaan' => $pasien->pemeriksaans->map(function ($p) use ($pasien) {
                     $prediksi = $p->hasilPrediksi;
+                    $rekomendasi = $p->rekomendasi;
 
                     return [
                         'id' => $p->id,
@@ -120,6 +121,7 @@ class PasienController extends Controller
                         'zscore' => $prediksi ? (string) $prediksi->z_score : '-',
                         'status' => $prediksi ? $prediksi->prediction_label : 'Menunggu prediksi',
                         'confidence' => $prediksi ? round($prediksi->confidence * 100, 1).'%' : null,
+                        'rekomendasi' => $rekomendasi ? $rekomendasi->rekomendasi : null,
                         'shap' => $prediksi ? [
                             'jenis_kelamin' => $prediksi->shap_jenis_kelamin,
                             'umur_bulan' => $prediksi->shap_umur_bulan,

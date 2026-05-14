@@ -34,6 +34,11 @@ class Pemeriksaan extends Model
         return $this->hasOne(HasilPrediksi::class);
     }
 
+    public function rekomendasi(): HasOne
+    {
+        return $this->hasOne(RekomendasiPemeriksaan::class);
+    }
+
     /**
      * Get the pasien that owns the pemeriksaan.
      */

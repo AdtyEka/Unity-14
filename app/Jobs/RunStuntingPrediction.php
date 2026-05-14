@@ -72,6 +72,9 @@ class RunStuntingPrediction implements ShouldQueue
                 ]);
 
                 Log::info("Prediction successful for Pemeriksaan ID: {$this->pemeriksaan->id}");
+
+                // Dispatch recommendation generation job
+                GenerateRecommendationJob::dispatch($this->pemeriksaan);
             } else {
                 Log::error("ML Service error for Pemeriksaan ID: {$this->pemeriksaan->id}", [
                     'status' => $response->status(),
