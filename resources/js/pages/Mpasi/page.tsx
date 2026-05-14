@@ -2,11 +2,21 @@ import * as React from 'react';
 import { ChefHat } from 'lucide-react';
 import MarketingLayout from '@/components/layouts/navbar';
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
 type TagKategori = 'Semua' | '6 - 8 bulan' | '9 - 11 bulan' | '12 - 23 bulan';
 
 const TAG_KATEGORI: TagKategori[] = ['Semua', '6 - 8 bulan', '9 - 11 bulan', '12 - 23 bulan'];
+
+type MpasiVideoProp = {
+    id: number;
+    judul: string;
+    deskripsi: string;
+    kategori: string;
+    tags: string[];
+    durasi: string;
+    path_video: string;
+    thumbnail_path: string;
+    video_url: string;
+};
 
 // ─── Shared Glass Primitives ──────────────────────────────────────────────────
 
@@ -102,8 +112,15 @@ function TagsFilter({
 
 // ─── Resep Section ────────────────────────────────────────────────────────────
 
-function ResepSection() {
+function ResepSection({ videos }: { videos: MpasiVideoProp[] }) {
     const [activeTag, setActiveTag] = React.useState<TagKategori>('Semua');
+
+    const filteredVideos = React.useMemo(() => {
+        if (activeTag === 'Semua') {
+            return videos;
+        }
+        return videos.filter((v) => v.kategori === activeTag);
+    }, [activeTag, videos]);
 
     return (
         <GlassSurface>
@@ -120,13 +137,54 @@ function ResepSection() {
 
             <TagsFilter active={activeTag} onChange={setActiveTag} />
 
-            {/* Empty state resep */}
-            <p
-                className="mt-5 text-sm text-foreground/60"
-                style={{ fontFamily: 'var(--font-body)' }}
-            >
-                Resep makanan untuk kategori ini belum ada
-            </p>
+            {/* Video List */}
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredVideos.length > 0 ? (
+                    filteredVideos.map((video) => (
+                        <div key={video.id} className="group flex flex-col gap-3">
+                            <div className="relative aspect-video overflow-hidden rounded-xl border border-white/40 bg-white/20 shadow-sm transition-all hover:shadow-md">
+                                <img
+                                    src={video.thumbnail_path || '/assets/images/placeholder-mpasi.jpg'}
+                                    alt={video.judul}
+                                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                />
+                                <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100 bg-black/20">
+                                    <a
+                                        href={video.video_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="rounded-full bg-white/90 p-3 text-emerald-600 shadow-xl backdrop-blur-sm transition-transform active:scale-90"
+                                    >
+                                        <svg className="size-6 fill-current" viewBox="0 0 24 24">
+                                            <path d="M8 5v14l11-7z" />
+                                        </svg>
+                                    </a>
+                                </div>
+                                {video.durasi && (
+                                    <span className="absolute bottom-2 right-2 rounded-lg bg-black/60 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">
+                                        {video.durasi}
+                                    </span>
+                                )}
+                            </div>
+                            <div>
+                                <h4 className="text-sm font-semibold text-foreground line-clamp-1">
+                                    {video.judul}
+                                </h4>
+                                <p className="text-xs text-foreground/60 line-clamp-2 mt-1">
+                                    {video.deskripsi}
+                                </p>
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <p
+                        className="text-sm text-foreground/60 py-10 text-center col-span-full"
+                        style={{ fontFamily: 'var(--font-body)' }}
+                    >
+                        Resep makanan untuk kategori ini belum ada
+                    </p>
+                )}
+            </div>
         </GlassSurface>
     );
 }
@@ -136,25 +194,7 @@ function ResepSection() {
 // ─── Snack MPASI Section ──────────────────────────────────────────────────────
 
 function SnackMpasiSection() {
-    return (
-        <div className="mt-6">
-            {/* Empty state card penuh lebar */}
-            <GlassCard>
-                <div className="flex flex-col items-center justify-center gap-3 py-10 text-center">
-                    <ChefHat
-                        className="size-12 text-foreground/25"
-                        strokeWidth={1.2}
-                    />
-                    <p
-                        className="text-sm text-foreground/55"
-                        style={{ fontFamily: 'var(--font-body)' }}
-                    >
-                        Rekomendasi Snack MPASI Belum Ada
-                    </p>
-                </div>
-            </GlassCard>
-        </div>
-    );
+    return null; // Combined with ResepSection for now as they use the same data source
 }
 
 // ─── Page Header ──────────────────────────────────────────────────────────────
@@ -182,7 +222,7 @@ function PageHeader() {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function MpasiPage() {
+export default function MpasiPage({ videos }: { videos: MpasiVideoProp[] }) {
     React.useEffect(() => {
         const html = document.documentElement;
         const body = document.body;
@@ -216,10 +256,7 @@ export default function MpasiPage() {
                         <PageHeader />
 
                         {/* Top grid: Resep Tags (kiri 2/3) — standalone, tanpa galeri di atas */}
-                        <ResepSection />
-
-                        {/* Snack MPASI section: judul+galeri desc row, lalu empty state card */}
-                        <SnackMpasiSection />
+                        <ResepSection videos={videos} />
                     </main>
                 </MarketingLayout>
             </div>

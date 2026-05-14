@@ -10,11 +10,24 @@ use App\Http\Controllers\Admin\PengurusController;
 use App\Http\Controllers\Admin\PosyanduController;
 use App\Http\Controllers\Admin\PuskesmasController;
 use App\Http\Controllers\Auth\LoginController;
-use Illuminate\Support\Facades\Route;
+use App\Models\MpasiVideo;
+use App\Models\Puskesmas;
 
 Route::inertia('/', 'welcome')->name('home');
-Route::inertia('/layanan', 'layanan/page')->name('layanan');
-Route::inertia('/mpasi', 'Mpasi/page')->name('mpasi');
+
+Route::get('/layanan', function () {
+    $puskesmas = Puskesmas::with(['jamLayanans', 'posyandus'])->first();
+
+    return inertia('layanan/page', [
+        'puskesmas' => $puskesmas,
+    ]);
+})->name('layanan');
+
+Route::get('/mpasi', function () {
+    return inertia('Mpasi/page', [
+        'videos' => MpasiVideo::all(),
+    ]);
+})->name('mpasi');
 Route::inertia('/artikel', 'artikel/page')->name('artikel');
 Route::get('/artikel/{slug}', function (string $slug) {
     return inertia('artikel/[slug]/page', ['slug' => $slug]);

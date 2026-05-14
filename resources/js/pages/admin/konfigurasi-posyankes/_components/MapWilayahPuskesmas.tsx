@@ -34,12 +34,14 @@ interface MapWilayahPuskesmasProps {
     address: string;
     latitude?: number;
     longitude?: number;
+    radius?: number;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
-export default function MapWilayahPuskesmas({ name, address, latitude, longitude }: MapWilayahPuskesmasProps) {
+export default function MapWilayahPuskesmas({ name, address, latitude, longitude, radius }: MapWilayahPuskesmasProps) {
     const lat = latitude ?? DEFAULT_PUSKESMAS.latitude;
     const lng = longitude ?? DEFAULT_PUSKESMAS.longitude;
+    const rad = radius ?? DEFAULT_PUSKESMAS.coverageRadius;
     const center: [number, number] = [lat, lng];
 
     const handleNavigate = () => {
@@ -68,7 +70,7 @@ export default function MapWilayahPuskesmas({ name, address, latitude, longitude
             {/* Coverage area circle */}
             <Circle
                 center={center}
-                radius={DEFAULT_PUSKESMAS.coverageRadius}
+                radius={rad}
                 pathOptions={{
                     color: '#16a34a',
                     fillColor: '#22c55e',

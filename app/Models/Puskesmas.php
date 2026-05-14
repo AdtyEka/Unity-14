@@ -15,6 +15,7 @@ class Puskesmas extends Model
         'email',
         'latitude',
         'longitude',
+        'radius',
     ];
 
     public function jamLayanans()
