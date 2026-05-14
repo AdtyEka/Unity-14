@@ -165,10 +165,10 @@ class PasienController extends Controller
             ]);
 
             if ($aiResult && ! $aiResult['valid']) {
-                return redirect()->back()->withErrors([
+                return redirect()->back()->withErrors(array_filter([
                     'tinggi_badan' => $aiResult['tinggi_valid'] === false ? $aiResult['pesan'][0] : null,
                     'berat_badan' => $aiResult['berat_valid'] === false ? end($aiResult['pesan']) : null,
-                ])->withInput();
+                ]))->withInput();
             }
         }
 
