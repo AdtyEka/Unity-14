@@ -15,24 +15,30 @@ class DashboardController extends Controller
     {
         $totalPasien = Pasien::count();
 
-        // Latest status for each patient
+        // Latest status for each patient (excluding 0-11 months for these categories)
         $latestPemeriksaans = Pemeriksaan::with(['hasilPrediksi', 'pasien'])
             ->whereIn('id', function ($query) {
                 $query->selectRaw('max(id)')
                     ->from('pemeriksaans')
+                    ->whereIn('tanggal_pemeriksaan', function ($sub) {
+                        $sub->selectRaw('max(tanggal_pemeriksaan)')
+                            ->from('pemeriksaans')
+                            ->groupBy('pasien_id');
+                    })
                     ->groupBy('pasien_id');
             })->get();
 
         $stats = [
             'total' => $totalPasien,
-            'normal' => $latestPemeriksaans->filter(fn ($p) => optional($p->hasilPrediksi)->prediction_label === 'Normal')->count(),
-            'stunting' => $latestPemeriksaans->filter(fn ($p) => optional($p->hasilPrediksi)->prediction_label === 'Stunted')->count(),
-            'stunting_berat' => $latestPemeriksaans->filter(fn ($p) => optional($p->hasilPrediksi)->prediction_label === 'Severely Stunted')->count(),
+            'normal' => $latestPemeriksaans->filter(fn ($p) => $p->pasien->usiaBulan() >= 12 && optional($p->hasilPrediksi)->prediction_label === 'Normal')->count(),
+            'stunting' => $latestPemeriksaans->filter(fn ($p) => $p->pasien->usiaBulan() >= 12 && optional($p->hasilPrediksi)->prediction_label === 'Stunted')->count(),
+            'stunting_berat' => $latestPemeriksaans->filter(fn ($p) => $p->pasien->usiaBulan() >= 12 && optional($p->hasilPrediksi)->prediction_label === 'Severely Stunted')->count(),
+            'bayi_baru_lahir' => Pasien::where('tanggal_lahir', '>', now()->subMonths(12))->count(),
         ];
 
-        // Trend data (last 6 months)
+        // Trend data (last 12 months)
         $months = [];
-        for ($i = 5; $i >= 0; $i--) {
+        for ($i = 11; $i >= 0; $i--) {
             $months[] = now()->subMonths($i)->format('Y-m');
         }
 
@@ -41,12 +47,13 @@ class DashboardController extends Controller
             $start = Carbon::parse($month)->startOfMonth();
             $end = Carbon::parse($month)->endOfMonth();
 
-            $monthExams = Pemeriksaan::with('hasilPrediksi')
+            $monthExams = Pemeriksaan::with(['hasilPrediksi', 'pasien'])
                 ->whereBetween('tanggal_pemeriksaan', [$start, $end])
-                ->get();
+                ->get()
+                ->filter(fn ($p) => $p->pasien->usiaBulan() >= 12);
 
             $trendData[] = [
-                'bulan' => Carbon::parse($month)->translatedFormat('M'),
+                'bulan' => Carbon::parse($month)->translatedFormat('M Y'),
                 'normal' => $monthExams->filter(fn ($p) => optional($p->hasilPrediksi)->prediction_label === 'Normal')->count(),
                 'risiko' => $monthExams->filter(fn ($p) => optional($p->hasilPrediksi)->prediction_label === 'Stunted')->count(),
                 'stunting' => $monthExams->filter(fn ($p) => optional($p->hasilPrediksi)->prediction_label === 'Severely Stunted')->count(),
@@ -67,7 +74,7 @@ class DashboardController extends Controller
                     ->implode(''),
                 'age' => $p->pasien->usiaBulan().' Bulan',
                 'date' => $p->tanggal_pemeriksaan->translatedFormat('d M Y'),
-                'status' => $this->mapLabel($p->hasilPrediksi?->prediction_label),
+                'status' => $p->pasien->usiaBulan() < 12 ? '0-11 Bulan' : $this->mapLabel($p->hasilPrediksi?->prediction_label),
             ]);
 
         // Upcoming schedules (1 month after last exam)
@@ -76,7 +83,7 @@ class DashboardController extends Controller
             'month' => $p->tanggal_pemeriksaan->copy()->addMonth()->translatedFormat('M'),
             'day' => $p->tanggal_pemeriksaan->copy()->addMonth()->format('d'),
             'name' => $p->pasien->nama_bayi,
-            'risk' => $this->mapLabel($p->hasilPrediksi?->prediction_label),
+            'risk' => $p->pasien->usiaBulan() < 12 ? '0-11 Bulan' : $this->mapLabel($p->hasilPrediksi?->prediction_label),
             'time' => '09:00 WIB',
         ]);
 

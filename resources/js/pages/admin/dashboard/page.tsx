@@ -55,6 +55,7 @@ interface DashboardPageProps {
         normal: number;
         stunting: number;
         stunting_berat: number;
+        bayi_baru_lahir?: number;
     };
     trendData?: Array<{
         bulan: string;
@@ -87,11 +88,18 @@ export default function DashboardPage({
     schedules = [],
 }: DashboardPageProps) {
     const [activePeriod, setActivePeriod] = React.useState<PeriodOption>('7 Hari');
-    const [customFrom, setCustomFrom] = React.useState('Jan');
-    const [customTo, setCustomTo] = React.useState('Jun');
+    const [customFrom, setCustomFrom] = React.useState('');
+    const [customTo, setCustomTo] = React.useState('');
     const [appliedCustomRange, setAppliedCustomRange] = React.useState<{ from: string; to: string } | null>(null);
 
     const months = React.useMemo(() => initialTrendData.map((item) => item.bulan), [initialTrendData]);
+
+    React.useEffect(() => {
+        if (months.length > 0) {
+            setCustomFrom(months[0]);
+            setCustomTo(months[months.length - 1]);
+        }
+    }, [months]);
 
     const scopedTrendData = React.useMemo(() => {
         if (activePeriod === '7 Hari') {
@@ -119,8 +127,35 @@ export default function DashboardPage({
         return initialTrendData.slice(start, end + 1);
     }, [activePeriod, appliedCustomRange, initialTrendData]);
 
-    const latestSnapshot = scopedTrendData[scopedTrendData.length - 1] ?? initialTrendData[initialTrendData.length - 1] ?? { normal: 0, risiko: 0, stunting: 0 };
-    const totalPasien = latestSnapshot.normal + latestSnapshot.risiko + latestSnapshot.stunting;
+    const displayStats = React.useMemo(() => {
+        // If no custom range is applied and we have backend stats, use them
+        // This ensures the dashboard matches the actual database totals
+        if (!appliedCustomRange && stats) {
+            return {
+                total: stats.total,
+                normal: stats.normal,
+                risiko: stats.stunting,
+                stunting: stats.stunting_berat,
+                bayi_baru_lahir: stats.bayi_baru_lahir,
+            };
+        }
+
+        // Fallback to trend data snapshot (useful for custom ranges)
+        const snapshot =
+            scopedTrendData[scopedTrendData.length - 1] ??
+            initialTrendData[initialTrendData.length - 1] ??
+            { normal: 0, risiko: 0, stunting: 0 };
+
+        return {
+            total: snapshot.normal + snapshot.risiko + snapshot.stunting,
+            normal: snapshot.normal,
+            risiko: snapshot.risiko,
+            stunting: snapshot.stunting,
+        };
+    }, [appliedCustomRange, stats, scopedTrendData, initialTrendData]);
+
+    const latestSnapshot = displayStats;
+    const totalPasien = displayStats.total;
 
     const scopedDistribusiData = React.useMemo(
         () => [
@@ -182,6 +217,11 @@ export default function DashboardPage({
                         </div>
                         <div className="mt-3">
                             <p className="text-4xl font-bold">{totalPasien}</p>
+                            {latestSnapshot.bayi_baru_lahir ? (
+                                <p className="text-[10px] text-muted-foreground mt-0.5">
+                                    Termasuk {latestSnapshot.bayi_baru_lahir} bayi 0-11 bulan
+                                </p>
+                            ) : null}
                             <div className="mt-1 flex items-center gap-1 text-emerald-700">
                                 <TrendingUp className="h-4 w-4" />
                                 <span className="text-xs font-medium">
