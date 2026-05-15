@@ -36,6 +36,10 @@ import {
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 
+import admin from '@/routes/admin';
+import pengurus from '@/routes/pengurus';
+import pasien from '@/routes/pasien';
+
 type AdminSection =
     | 'dashboard'
     | 'manajemen-pasien'
@@ -210,32 +214,34 @@ export function AppSidebar({
                                                 item.key ===
                                                 'manajemen-pengurus'
                                             ) {
-                                                router.get('/admin/pengurus');
+                                                router.get(pengurus.index.url());
                                             } else if (
                                                 item.key === 'manajemen-pasien'
                                             ) {
-                                                router.get('/admin/pasien');
+                                                router.get(pasien.index.url());
                                             } else if (
                                                 item.key ===
                                                 'konfigurasi-posyandu'
                                             ) {
                                                 router.get(
-                                                    '/admin/konfigurasi-posyankes',
+                                                    admin.konfigurasiPosyankes.index.url(),
                                                 );
                                             } else if (item.key === 'mpasi') {
-                                                router.get('/admin/mpasi');
+                                                router.get(admin.mpasi.index.url());
                                             } else if (
                                                 item.key === 'jadwal-kesehatan'
                                             ) {
                                                 router.get(
-                                                    '/admin/jadwal-kesehatan',
+                                                    admin.jadwalKesehatan.index.url(),
                                                 );
                                             } else if (
                                                 item.key === 'manajemen-artikel'
                                             ) {
-                                                router.get('/admin/artikel');
+                                                router.get(admin.artikel.index.url());
                                             } else if (item.key === 'ekspor') {
-                                                router.get('/admin/ekspor');
+                                                router.get(admin.ekspor.index.url());
+                                            } else if (item.key === 'dashboard') {
+                                                router.get(admin.dashboard.url());
                                             } else {
                                                 onNavigate(item.key);
                                             }
@@ -250,6 +256,7 @@ export function AppSidebar({
                                             'group-data-[collapsible=icon]:border-r-0',
                                         )}
                                     >
+
                                         <Icon />
                                         <span className="truncate group-data-[collapsible=icon]:hidden">
                                             {item.label}

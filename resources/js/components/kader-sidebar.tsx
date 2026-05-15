@@ -26,6 +26,8 @@ import {
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 
+import kader from '@/routes/kader';
+
 type KaderSection = 'dashboard' | 'manajemen-pasien';
 
 export type { KaderSection };
@@ -154,9 +156,9 @@ export function KaderSidebar({
                                         isActive={active === item.key}
                                         onClick={() => {
                                             if (item.key === 'manajemen-pasien') {
-                                                router.get('/kader/pasien');
+                                                router.get(kader.pasien.index.url());
                                             } else if (item.key === 'dashboard') {
-                                                router.get('/kader');
+                                                router.get(kader.dashboard.url());
                                             } else {
                                                 onNavigate(item.key);
                                             }
