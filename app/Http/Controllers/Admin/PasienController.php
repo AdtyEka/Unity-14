@@ -39,23 +39,20 @@ class PasienController extends Controller
                 $dbStatus = $map[$status] ?? $status;
 
                 if ($status === '0–11 Bulan') {
-                    $q->where('tanggal_lahir', '>', now()->subMonths(12))
-                        ->doesntHave('pemeriksaans');
+                    $q->where('tanggal_lahir', '>', now()->subMonths(12));
                 } else {
-                    $q->where(function ($sub) use ($status, $dbStatus) {
-                        // Check latest examination status
-                        $sub->whereHas('pemeriksaanTerakhir.hasilPrediksi', function ($p) use ($dbStatus) {
-                            $p->where('prediction_label', $dbStatus);
-                        });
-
-                        // Fallback for Normal status if no examinations yet
-                        if ($status === 'Normal') {
-                            $sub->orWhere(function ($s) {
-                                $s->where('tanggal_lahir', '<=', now()->subMonths(12))
-                                    ->doesntHave('pemeriksaans');
+                    $q->where('tanggal_lahir', '<=', now()->subMonths(12))
+                        ->where(function ($sub) use ($status, $dbStatus) {
+                            // Check latest examination status
+                            $sub->whereHas('pemeriksaanTerakhir.hasilPrediksi', function ($p) use ($dbStatus) {
+                                $p->where('prediction_label', $dbStatus);
                             });
-                        }
-                    });
+
+                            // Fallback for Normal status if no examinations yet
+                            if ($status === 'Normal') {
+                                $sub->orWhereDoesntHave('pemeriksaans');
+                            }
+                        });
                 }
             });
         }
@@ -64,9 +61,11 @@ class PasienController extends Controller
 
         $pasiens->getCollection()->transform(function ($p) {
             $usiaBulan = $p->usiaBulan();
-            $statusGizi = $p->pemeriksaanTerakhir && $p->pemeriksaanTerakhir->hasilPrediksi
-                ? $p->pemeriksaanTerakhir->hasilPrediksi->prediction_label
-                : 'Belum Ada Data';
+            $statusGizi = $usiaBulan < 12
+                ? '0–11 Bulan'
+                : ($p->pemeriksaanTerakhir && $p->pemeriksaanTerakhir->hasilPrediksi
+                    ? $p->pemeriksaanTerakhir->hasilPrediksi->prediction_label
+                    : 'Belum Ada Data');
 
             return [
                 'id' => $p->id,

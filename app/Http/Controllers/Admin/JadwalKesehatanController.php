@@ -31,9 +31,11 @@ class JadwalKesehatanController extends Controller
                 $pasien->tanggal_jadwal_selanjutnya = $nextSchedule->translatedFormat('j F Y');
                 $pasien->usia_bulan = $pasien->usiaBulan();
 
-                $pasien->status_gizi = $pasien->pemeriksaanTerakhir && $pasien->pemeriksaanTerakhir->hasilPrediksi
-                    ? $pasien->pemeriksaanTerakhir->hasilPrediksi->prediction_label
-                    : 'Belum Ada Data';
+                $pasien->status_gizi = $pasien->usia_bulan < 12
+                    ? '0–11 Bulan'
+                    : ($pasien->pemeriksaanTerakhir && $pasien->pemeriksaanTerakhir->hasilPrediksi
+                        ? $pasien->pemeriksaanTerakhir->hasilPrediksi->prediction_label
+                        : 'Belum Ada Data');
 
                 // logic sudah diingatkan: jika terakhir diingatkan di bulan yang sama dengan sekarang
                 // dan setelah pemeriksaan terakhir (jika ada)
