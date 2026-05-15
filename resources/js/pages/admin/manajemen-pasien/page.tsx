@@ -113,16 +113,31 @@ export default function ManajemenPasienPage({ baseUrl = '/admin/pasien' }: { bas
         statusGizi: parseStatusGizi(p.statusGizi),
     }));
 
-    const handleSearch = React.useCallback(
-        (q: string, f: FilterOption) => {
-            router.get(
-                baseUrl,
-                { search: q, status_gizi: f },
-                { preserveState: true, replace: true }
-            );
-        },
-        []
-    );
+    React.useEffect(() => {
+        setQuery(filters?.search || '');
+        setFilter(filters?.status_gizi || 'Semua');
+    }, [filters]);
+
+    const handleSearch = React.useMemo(() => {
+        let timeout: ReturnType<typeof setTimeout>;
+        return (q: string, f: FilterOption, immediate = false) => {
+            if (timeout) clearTimeout(timeout);
+            
+            const doSearch = () => {
+                router.get(
+                    baseUrl,
+                    { search: q, status_gizi: f },
+                    { preserveState: true, replace: true }
+                );
+            };
+
+            if (immediate) {
+                doSearch();
+            } else {
+                timeout = setTimeout(doSearch, 300);
+            }
+        };
+    }, [baseUrl]);
 
     const onQueryChange = (q: string) => {
         setQuery(q);
@@ -131,7 +146,7 @@ export default function ManajemenPasienPage({ baseUrl = '/admin/pasien' }: { bas
 
     const onFilterChange = (f: FilterOption) => {
         setFilter(f);
-        handleSearch(query, f);
+        handleSearch(query, f, true);
     };
 
     const onPrev = () => {

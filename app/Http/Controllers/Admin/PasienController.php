@@ -30,21 +30,31 @@ class PasienController extends Controller
         if ($request->filled('status_gizi') && $request->status_gizi !== 'Semua') {
             $status = $request->status_gizi;
             $query->where(function ($q) use ($status) {
-                // Check latest examination status
-                $q->whereHas('pemeriksaanTerakhir.hasilPrediksi', function ($sub) use ($status) {
-                    $sub->where('prediction_label', $status);
-                });
+                // Map Indonesian labels to database labels
+                $map = [
+                    'Stunting' => 'Stunted',
+                    'Stunting Berat' => 'Severely Stunted',
+                    'Normal' => 'Normal',
+                ];
+                $dbStatus = $map[$status] ?? $status;
 
-                // Fallback for patients without examinations based on age
                 if ($status === '0–11 Bulan') {
-                    $q->orWhere(function ($sub) {
-                        $sub->where('tanggal_lahir', '>', now()->subMonths(12))
-                            ->doesntHave('pemeriksaans');
-                    });
-                } elseif ($status === 'Normal') {
-                    $q->orWhere(function ($sub) {
-                        $sub->where('tanggal_lahir', '<=', now()->subMonths(12))
-                            ->doesntHave('pemeriksaans');
+                    $q->where('tanggal_lahir', '>', now()->subMonths(12))
+                        ->doesntHave('pemeriksaans');
+                } else {
+                    $q->where(function ($sub) use ($status, $dbStatus) {
+                        // Check latest examination status
+                        $sub->whereHas('pemeriksaanTerakhir.hasilPrediksi', function ($p) use ($dbStatus) {
+                            $p->where('prediction_label', $dbStatus);
+                        });
+
+                        // Fallback for Normal status if no examinations yet
+                        if ($status === 'Normal') {
+                            $sub->orWhere(function ($s) {
+                                $s->where('tanggal_lahir', '<=', now()->subMonths(12))
+                                    ->doesntHave('pemeriksaans');
+                            });
+                        }
                     });
                 }
             });
@@ -157,6 +167,27 @@ class PasienController extends Controller
             'tanggal_pemeriksaan' => 'nullable|date',
             'tinggi_badan' => 'nullable|numeric|min:0',
             'berat_badan' => 'nullable|numeric|min:0',
+        ], [
+            'required' => ':attribute wajib diisi.',
+            'string' => ':attribute harus berupa teks.',
+            'max' => ':attribute maksimal :max karakter.',
+            'date' => ':attribute harus berupa tanggal yang valid.',
+            'in' => ':attribute harus salah satu dari: :values.',
+            'digits' => ':attribute harus :digits digit.',
+            'unique' => ':attribute sudah terdaftar.',
+            'numeric' => ':attribute harus berupa angka.',
+            'min' => ':attribute minimal :min.',
+        ], [
+            'nama_bayi' => 'Nama bayi',
+            'tanggal_lahir' => 'Tanggal lahir',
+            'jenis_kelamin' => 'Jenis kelamin',
+            'nama_ibu' => 'Nama ibu',
+            'nik_ibu' => 'NIK ibu',
+            'nama_ayah' => 'Nama ayah',
+            'nomor_hp' => 'Nomor HP',
+            'tanggal_pemeriksaan' => 'Tanggal pemeriksaan',
+            'tinggi_badan' => 'Tinggi badan',
+            'berat_badan' => 'Berat badan',
         ]);
 
         if ($request->filled(['tinggi_badan', 'berat_badan'])) {
@@ -204,6 +235,24 @@ class PasienController extends Controller
             'nik_ibu' => 'required|digits:16|unique:pasiens,nik_ibu,'.$pasien->id,
             'nama_ayah' => 'nullable|string|max:255',
             'nomor_hp' => 'nullable|string|max:20',
+        ], [
+            'required' => ':attribute wajib diisi.',
+            'string' => ':attribute harus berupa teks.',
+            'max' => ':attribute maksimal :max karakter.',
+            'date' => ':attribute harus berupa tanggal yang valid.',
+            'in' => ':attribute harus salah satu dari: :values.',
+            'digits' => ':attribute harus :digits digit.',
+            'unique' => ':attribute sudah terdaftar.',
+            'numeric' => ':attribute harus berupa angka.',
+            'min' => ':attribute minimal :min.',
+        ], [
+            'nama_bayi' => 'Nama bayi',
+            'tanggal_lahir' => 'Tanggal lahir',
+            'jenis_kelamin' => 'Jenis kelamin',
+            'nama_ibu' => 'Nama ibu',
+            'nik_ibu' => 'NIK ibu',
+            'nama_ayah' => 'Nama ayah',
+            'nomor_hp' => 'Nomor HP',
         ]);
 
         $pasien->update($validated);

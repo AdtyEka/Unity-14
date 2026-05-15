@@ -47,6 +47,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin', [DashboardController::class, 'index'])->name('admin.dashboard');
         Route::resource('admin/pengurus', PengurusController::class);
         Route::resource('admin/pasien', PasienController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
+        Route::get('admin/pasien/{pasien}/pemeriksaan/download', [PemeriksaanController::class, 'downloadReport'])->name('admin.pemeriksaan.download');
         Route::post('admin/pasien/{pasien}/pemeriksaan', [PemeriksaanController::class, 'store'])->name('admin.pemeriksaan.store');
         Route::patch('admin/pasien/{pasien}/pemeriksaan/{pemeriksaan}', [PemeriksaanController::class, 'update'])->name('admin.pemeriksaan.update');
         Route::delete('admin/pasien/{pasien}/pemeriksaan/{pemeriksaan}', [PemeriksaanController::class, 'destroy'])->name('admin.pemeriksaan.destroy');
@@ -75,6 +76,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/kader', [App\Http\Controllers\Kader\DashboardController::class, 'index'])->name('kader.dashboard');
         Route::get('/kader/pasien', [PasienController::class, 'index'])->name('kader.pasien.index');
         Route::get('/kader/pasien/{pasien}', [PasienController::class, 'show'])->name('kader.pasien.show');
+        Route::get('/kader/pasien/{pasien}/pemeriksaan/download', [PemeriksaanController::class, 'downloadReport'])->name('kader.pemeriksaan.download');
         Route::post('/kader/pasien', [PasienController::class, 'store'])->name('kader.pasien.store');
         Route::patch('/kader/pasien/{pasien}', [PasienController::class, 'update'])->name('kader.pasien.update');
         Route::delete('/kader/pasien/{pasien}', [PasienController::class, 'destroy'])->name('kader.pasien.destroy');

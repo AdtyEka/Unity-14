@@ -7,6 +7,7 @@ use App\Jobs\RunStuntingPrediction;
 use App\Models\Pasien;
 use App\Models\Pemeriksaan;
 use App\Services\AiValidationService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
@@ -23,7 +24,6 @@ class PemeriksaanController extends Controller
             'berat_badan' => 'required|numeric|min:0',
         ]);
 
-        $usiaBulan = (int) $pasien->usiaBulan(); // Assuming this calculates age at now, but we should use tanggal_pemeriksaan
         $usiaBulan = (int) Carbon::parse($pasien->tanggal_lahir)->diffInMonths(Carbon::parse($request->tanggal_pemeriksaan));
 
         $aiResult = $aiValidation->validate([
@@ -93,5 +93,20 @@ class PemeriksaanController extends Controller
         $pemeriksaan->delete();
 
         return redirect()->back()->with('success', 'Pemeriksaan berhasil dihapus.');
+    }
+
+    /**
+     * Download report for the latest examination.
+     */
+    public function downloadReport(Pasien $pasien)
+    {
+        $pemeriksaan = $pasien->pemeriksaans()->with(['hasilPrediksi'])->latest('tanggal_pemeriksaan')->first();
+
+        $pdf = Pdf::loadView('exports.pemeriksaan', [
+            'pasien' => $pasien,
+            'pemeriksaan' => $pemeriksaan,
+        ]);
+
+        return $pdf->download("Laporan_Pemeriksaan_{$pasien->nama_bayi}_{$pasien->id}.pdf");
     }
 }

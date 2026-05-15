@@ -60,6 +60,34 @@ function WarningBox({ children }: { children: React.ReactNode }) {
     );
 }
 
+function ErrorBox({ title, errors, onAction, actionLabel }: { title: string; errors: string[]; onAction: () => void; actionLabel: string }) {
+    return (
+        <div className="mt-4 flex flex-col gap-2 rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+            <div className="flex items-start gap-3">
+                <AlertTriangle className="mt-0.5 size-4 shrink-0 text-destructive" />
+                <div className="flex-1">
+                    <p className="font-semibold">{title}</p>
+                    <ul className="mt-1 list-inside list-disc space-y-0.5 opacity-90">
+                        {errors.map((err, i) => (
+                            <li key={i}>{err}</li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+            <div className="mt-1 flex justify-end">
+                <Button 
+                    variant="link" 
+                    size="sm" 
+                    className="h-auto p-0 text-destructive underline decoration-destructive/30 underline-offset-4 hover:decoration-destructive" 
+                    onClick={onAction}
+                >
+                    {actionLabel}
+                </Button>
+            </div>
+        </div>
+    );
+}
+
 export default function CreateStepTwo({
     usiaBulan,
     prediksiMl,
@@ -140,6 +168,11 @@ export default function CreateStepTwo({
             ? null
             : `${usiaBulan} bulan (${Math.floor(usiaBulan / 12)} th ${usiaBulan % 12} bln)`;
 
+    const step1Fields = ['nama_bayi', 'tanggal_lahir', 'jenis_kelamin', 'nama_ibu', 'nik_ibu', 'nama_ayah', 'nomor_hp'];
+    const step1Errors = Object.keys(errors || {})
+        .filter(key => step1Fields.includes(key))
+        .map(key => errors![key]);
+
     return (
         <div className="flex flex-col gap-6 p-4 md:p-6">
             <div>
@@ -186,6 +219,16 @@ export default function CreateStepTwo({
             <Card className={cn(card3dClassName, 'bg-white')}>
                 <CardContent className="p-4 md:p-5">
                     {mode === 'new' ? <Stepper prediksiMl={prediksiMl} /> : null}
+
+                    {step1Errors.length > 0 && mode === 'new' && (
+                        <ErrorBox 
+                            title="Terjadi kesalahan pada Langkah 1:" 
+                            errors={step1Errors} 
+                            onAction={onBack}
+                            actionLabel="Kembali ke Langkah 1 untuk memperbaikinya"
+                        />
+                    )}
+
                     {diBawahSatuTahun && (
                         <WarningBox>
                             <span className="font-medium">Tidak ada prediksi ML untuk 0–11 bulan.</span> Pengukuran

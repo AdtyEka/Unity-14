@@ -370,11 +370,32 @@ export default function ManajemenPasienShow({
                         </div>
 
                         <div className="flex flex-wrap items-center gap-2">
-                            <Button type="button" variant="outline">
+                            <Button type="button" variant="outline" onClick={() => window.open(`${baseUrl}/${pasien.id}/pemeriksaan/download`, '_blank')}>
                                 <Printer className="mr-2 size-4" />
                                 Cetak Laporan
                             </Button>
-                            <Button type="button" variant="outline">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => {
+                                    if (!latestPemeriksaan) return;
+                                    const message =
+                                        `Halo, berikut adalah hasil pemeriksaan terbaru untuk *${pasien.namaBayi}*:\n\n` +
+                                        `- Tanggal: ${latestPemeriksaan.tanggal}\n` +
+                                        `- Tinggi: ${latestPemeriksaan.tb} cm\n` +
+                                        `- Berat: ${latestPemeriksaan.bb} kg\n` +
+                                        `- Status Risiko: *${latestPemeriksaan.status}*\n\n` +
+                                        `Terima kasih.`;
+                                    const encodedMessage = encodeURIComponent(message);
+                                    const phoneNumber = pasien.nomorHp ? pasien.nomorHp.replace(/[^0-9]/g, '') : '';
+                                    const finalPhone = phoneNumber.startsWith('0')
+                                        ? '62' + phoneNumber.substring(1)
+                                        : phoneNumber.startsWith('62')
+                                          ? phoneNumber
+                                          : '62' + phoneNumber;
+                                    window.open(`https://wa.me/${finalPhone}?text=${encodedMessage}`, '_blank');
+                                }}
+                            >
                                 <Send className="mr-2 size-4" />
                                 Kirim via WhatsApp
                             </Button>
@@ -551,6 +572,7 @@ export default function ManajemenPasienShow({
                                         type="natural"
                                         stroke="var(--color-zscore)"
                                         strokeWidth={2.5}
+                                        strokeLinecap="round"
                                         dot={{ fill: 'var(--color-zscore)', r: 3 }}
                                         activeDot={{ r: 5 }}
                                     />
@@ -750,4 +772,3 @@ export default function ManajemenPasienShow({
         </div>
     );
 }
-

@@ -16,6 +16,34 @@ const card3dClassName =
 
 type JenisKelamin = 'Laki-laki' | 'Perempuan';
 
+function ErrorBox({ title, errors, onAction, actionLabel }: { title: string; errors: string[]; onAction: () => void; actionLabel: string }) {
+    return (
+        <div className="mb-5 flex flex-col gap-2 rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+            <div className="flex items-start gap-3">
+                <AlertTriangle className="mt-0.5 size-4 shrink-0 text-destructive" />
+                <div className="flex-1">
+                    <p className="font-semibold">{title}</p>
+                    <ul className="mt-1 list-inside list-disc space-y-0.5 opacity-90">
+                        {errors.map((err, i) => (
+                            <li key={i}>{err}</li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+            <div className="mt-1 flex justify-end">
+                <Button 
+                    variant="link" 
+                    size="sm" 
+                    className="h-auto p-0 text-destructive underline decoration-destructive/30 underline-offset-4 hover:decoration-destructive" 
+                    onClick={onAction}
+                >
+                    {actionLabel}
+                </Button>
+            </div>
+        </div>
+    );
+}
+
 export default function CreateStepOne({
     onCancel,
     onNext,
@@ -51,6 +79,11 @@ export default function CreateStepOne({
     const diBawahSatuTahun = usiaBulan !== null && usiaBulan < 12;
     const diAtasLimaTahun = usiaBulan !== null && usiaBulan > 60;
 
+    const step2Fields = ['tanggal_pemeriksaan', 'tinggi_badan', 'berat_badan'];
+    const step2Errors = Object.keys(errors || {})
+        .filter(key => step2Fields.includes(key))
+        .map(key => errors![key]);
+
     return (
         <div className="flex flex-col gap-6 p-4 md:p-6">
             <div>
@@ -63,7 +96,7 @@ export default function CreateStepOne({
 
             <Card className={cn(card3dClassName, 'bg-white')}>
                 <CardContent className="p-4 md:p-5">
-                    <div className="flex items-center justify-between gap-4 rounded-lg border bg-muted/10 px-4 py-3">
+                    <div className="flex items-center justify-between gap-4 rounded-lg border bg-muted/10 px-4 py-3 mb-5">
                         <div className="flex items-center gap-3">
                             <span className="inline-flex size-7 items-center justify-center rounded-full bg-emerald-600 text-sm font-semibold text-white">
                                 1
@@ -78,7 +111,16 @@ export default function CreateStepOne({
                         </div>
                     </div>
 
-                    <div className="mt-5 rounded-lg border bg-white">
+                    {step2Errors.length > 0 && (
+                        <ErrorBox 
+                            title="Terjadi kesalahan pada Langkah 2:" 
+                            errors={step2Errors} 
+                            onAction={onNext}
+                            actionLabel="Lanjutkan ke Langkah 2 untuk memperbaikinya"
+                        />
+                    )}
+
+                    <div className="rounded-lg border bg-white">
                         <div className="flex items-center gap-2 px-4 py-3">
                             <User className="size-4 text-emerald-700" />
                             <p className="text-sm font-semibold">Data Bayi</p>
@@ -249,4 +291,3 @@ export default function CreateStepOne({
         </div>
     );
 }
-
