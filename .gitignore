@@ -30,3 +30,7 @@ yarn-error.log
 ml-service/.venv/
 **/__pycache__/
 *.pyc
+
+# Docker overrides
+docker-compose.override.yml
+.env.docker

@@ -24,6 +24,7 @@ import KonfigurasiPosyankesPage from '@/pages/admin/konfigurasi-posyankes/page';
 import MpasiPage from '@/pages/admin/mpasi/page';
 import EksporPage from '@/pages/admin/ekspor/page';
 import JadwalKesehatanPage from './jadwal-kesehatan/page';
+import ManajemenArtikelPage from './artikel/page';
 
 const sectionLabels: Record<AdminSection, string> = {
     dashboard: 'Dashboard',
@@ -33,6 +34,7 @@ const sectionLabels: Record<AdminSection, string> = {
     'jadwal-kesehatan': 'Jadwal Kesehatan',
     mpasi: 'Mpasi',
     ekspor: 'Ekspor',
+    'manajemen-artikel': 'Manajemen Artikel',
 };
 
 function PlaceholderContent({ title }: { title: string }) {
@@ -50,16 +52,27 @@ function PlaceholderContent({ title }: { title: string }) {
     );
 }
 
-export default function AdminPage() {
-    const { activeSection } = usePage<any>().props;
+export default function AdminPage(props: any) {
+    const { activeSection } = props;
     const [active, setActive] = React.useState<AdminSection>(activeSection || 'dashboard');
+
+    React.useEffect(() => {
+        if (activeSection) {
+            setActive(activeSection);
+        }
+    }, [activeSection]);
 
     const content = React.useMemo(() => {
         switch (active) {
             case 'dashboard':
-                return <DashboardPage />;
+                return <DashboardPage
+                    stats={props.stats}
+                    trendData={props.trendData}
+                    activities={props.activities}
+                    schedules={props.schedules}
+                />;
             case 'manajemen-pasien':
-                return <ManajemenPasienPage />;
+                return <ManajemenPasienPage baseUrl="/admin/pasien" />;
             case 'manajemen-pengurus':
                 return <ManajemenPengurusPage />;
             case 'konfigurasi-posyandu':
@@ -70,6 +83,8 @@ export default function AdminPage() {
                 return <EksporPage />;
             case 'jadwal-kesehatan':
                 return <JadwalKesehatanPage />;
+            case 'manajemen-artikel':
+                return <ManajemenArtikelPage />;
             default:
                 return <DashboardPage />;
         }

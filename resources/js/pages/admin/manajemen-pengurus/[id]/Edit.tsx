@@ -13,9 +13,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
-type UserRole = 'Bidan' | 'Admin Puskesmas' | 'Admin Dinas';
+type UserRole = 'Bidan' | 'Admin Puskesmas' | 'Admin Dinas' | 'Kader';
 
-const roleOptions: UserRole[] = ['Bidan', 'Admin Puskesmas', 'Admin Dinas'];
+const roleOptions: UserRole[] = ['Bidan', 'Admin Puskesmas', 'Admin Dinas', 'Kader'];
 
 function RoleDropdown({
     value,

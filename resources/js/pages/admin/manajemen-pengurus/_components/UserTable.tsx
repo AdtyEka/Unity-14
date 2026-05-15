@@ -34,6 +34,7 @@ const rolePill: Record<UserRole, string> = {
     Bidan: 'bg-emerald-100 text-emerald-800 border-emerald-200',
     'Admin Puskesmas': 'bg-emerald-100 text-emerald-800 border-emerald-200',
     'Admin Dinas': 'bg-muted text-foreground border-border',
+    Kader: 'bg-emerald-100 text-emerald-800 border-emerald-200',
 };
 
 const statusPill: Record<UserStatus, string> = {

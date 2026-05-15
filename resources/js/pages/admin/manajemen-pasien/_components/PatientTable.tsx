@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
 
-export type StatusGizi = '0–11 Bulan' | 'Normal' | 'Stunting Ringan' | 'Stunting Berat';
+export type StatusGizi = '0–11 Bulan' | 'Normal' | 'Stunting' | 'Stunting Berat';
 
 export type PatientRow = {
     id: string;
@@ -28,17 +28,19 @@ export type PatientRow = {
 const statusPill: Record<StatusGizi, { badge: string }> = {
     '0–11 Bulan': { badge: 'bg-sky-100 text-sky-800 border-sky-200' },
     Normal: { badge: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
-    'Stunting Ringan': { badge: 'bg-amber-100 text-amber-800 border-amber-200' },
+    Stunting: { badge: 'bg-amber-100 text-amber-800 border-amber-200' },
     'Stunting Berat': { badge: 'bg-red-100 text-red-800 border-red-200' },
 };
 
 function StatusBadge({ status }: { status: StatusGizi }) {
+    const config = statusPill[status] || { badge: 'bg-slate-100 text-slate-800 border-slate-200' };
+    
     return (
         <Badge
             variant="outline"
-            className={cn('rounded-full px-2.5 py-1 text-xs font-medium', statusPill[status].badge)}
+            className={cn('rounded-full px-2.5 py-1 text-xs font-medium', config.badge)}
         >
-            {status}
+            {status || 'Unknown'}
         </Badge>
     );
 }
@@ -54,7 +56,7 @@ export default function PatientTable({
     onPrev,
     onNext,
     onOpenDetail,
-    onContinue,
+    onDelete,
 }: {
     rows: PatientRow[];
     page: number;
@@ -66,7 +68,7 @@ export default function PatientTable({
     onPrev: () => void;
     onNext: () => void;
     onOpenDetail: (row: PatientRow) => void;
-    onContinue: (row: PatientRow) => void;
+    onDelete: (row: PatientRow) => void;
 }) {
     const rowHeightClassName = 'h-[60px]';
 
@@ -143,10 +145,10 @@ export default function PatientTable({
                                                     type="button"
                                                     variant="outline"
                                                     size="sm"
-                                                    className="h-8 rounded-md"
-                                                    onClick={() => onContinue(p)}
+                                                    className="h-8 rounded-md border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                                                    onClick={() => onDelete(p)}
                                                 >
-                                                    Lanjut Pemeriksaan <ArrowRight className="ml-2 size-4" />
+                                                    Hapus
                                                 </Button>
                                             </div>
                                         </TableCell>

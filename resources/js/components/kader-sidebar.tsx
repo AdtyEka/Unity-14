@@ -26,6 +26,8 @@ import {
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 
+import kader from '@/routes/kader';
+
 type KaderSection = 'dashboard' | 'manajemen-pasien';
 
 export type { KaderSection };
@@ -152,7 +154,15 @@ export function KaderSidebar({
                                         size="lg"
                                         tooltip={item.label}
                                         isActive={active === item.key}
-                                        onClick={() => onNavigate(item.key)}
+                                        onClick={() => {
+                                            if (item.key === 'manajemen-pasien') {
+                                                router.get(kader.pasien.index.url());
+                                            } else if (item.key === 'dashboard') {
+                                                router.get(kader.dashboard.url());
+                                            } else {
+                                                onNavigate(item.key);
+                                            }
+                                        }}
                                         className={cn(
                                             'h-12 rounded-lg px-3 text-base',
                                             'hover:bg-primary/5 hover:text-primary',

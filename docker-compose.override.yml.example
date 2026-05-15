@@ -1,0 +1,17 @@
+# Development overrides for Docker Compose
+# Copy this file to docker-compose.override.yml to enable local ports and volume mounts
+
+services:
+  app:
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html
+
+  db:
+    ports:
+      - "3306:3306"
+
+  ml-service:
+    ports:
+      - "8080:8080"

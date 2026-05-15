@@ -153,7 +153,7 @@ export default function ManajemenPengurusCreate({
                                         value={data.role_detail}
                                         onChange={(v) => setData('role_detail', v)}
                                         placeholder="Pilih Peran"
-                                        options={['Bidan', 'Admin Puskesmas', 'Admin Dinas']}
+                                        options={['Bidan', 'Admin Puskesmas', 'Admin Dinas', 'Kader']}
                                         error={errors.role_detail}
                                     />
                                 </div>

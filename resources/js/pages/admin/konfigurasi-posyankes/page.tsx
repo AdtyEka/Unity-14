@@ -57,6 +57,7 @@ type Puskesmas = {
     email: string;
     latitude?: number;
     longitude?: number;
+    radius: number;
     jam_layanans: JamLayananRow[];
     posyandus: KelurahanRow[];
 };
@@ -73,6 +74,7 @@ export default function KonfigurasiPosyankesPage() {
         email: puskesmas.email,
         latitude: puskesmas.latitude,
         longitude: puskesmas.longitude,
+        radius: puskesmas.radius,
     });
 
     const { errors } = usePage<any>().props;
@@ -87,6 +89,7 @@ export default function KonfigurasiPosyankesPage() {
             email: puskesmas.email,
             latitude: puskesmas.latitude ? Number(puskesmas.latitude) : null,
             longitude: puskesmas.longitude ? Number(puskesmas.longitude) : null,
+            radius: puskesmas.radius || 2000,
         });
     }, [puskesmas]);
 
@@ -212,6 +215,18 @@ export default function KonfigurasiPosyankesPage() {
                                             placeholder="106.865"
                                         />
                                     </div>
+
+                                    <div className="space-y-2 md:col-span-2">
+                                        <p className="text-xs font-medium text-muted-foreground">Radius Cakupan (meter)</p>
+                                        <Input
+                                            type="number"
+                                            value={data.radius}
+                                            onChange={(e) => setData('radius', parseInt(e.target.value) || 0)}
+                                            className="h-10 rounded-lg"
+                                            placeholder="2000"
+                                        />
+                                        {errors.radius && <p className="text-xs text-destructive">{errors.radius}</p>}
+                                    </div>
                                 </div>
 
                                 <div className="mt-5 flex flex-col-reverse gap-2 md:flex-row md:justify-end">
@@ -284,6 +299,7 @@ export default function KonfigurasiPosyankesPage() {
                                     address={puskesmas.alamat_lengkap}
                                     latitude={puskesmas.latitude}
                                     longitude={puskesmas.longitude}
+                                    radius={puskesmas.radius}
                                 />
                             </div>
 

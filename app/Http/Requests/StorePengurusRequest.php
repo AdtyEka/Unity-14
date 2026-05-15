@@ -27,7 +27,7 @@ class StorePengurusRequest extends FormRequest
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8'],
             'nik' => ['required', 'string', 'size:16', 'unique:pengurus,nik'],
-            'role_detail' => ['required', 'string', 'in:Bidan,Admin Puskesmas,Admin Dinas'],
+            'role_detail' => ['required', 'string', 'in:Bidan,Admin Puskesmas,Admin Dinas,Kader'],
             'status' => ['required', 'string', 'in:Aktif,Nonaktif'],
         ];
     }

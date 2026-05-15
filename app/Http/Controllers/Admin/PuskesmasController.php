@@ -33,6 +33,7 @@ class PuskesmasController extends Controller
             'email' => 'required|email|max:255',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
+            'radius' => 'required|integer|min:0',
         ]);
 
         $puskesmas->update($validated);

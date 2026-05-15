@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    'ml_service' => [
+        'base_url' => env('ML_SERVICE_BASE_URL', 'http://localhost:8080'),
+    ],
+
+    'ai_recommendation' => [
+        'base_url' => env('AI_RECOMMENDATION_BASE_URL', 'https://api.base-prompt.ai'),
+        'token' => env('AI_RECOMMENDATION_TOKEN'),
+    ],
+
 ];

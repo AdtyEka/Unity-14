@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { Clock, Hospital, Map } from 'lucide-react';
+import { Clock, Hospital, Map as MapIcon } from 'lucide-react';
 import MarketingLayout from '@/components/layouts/navbar';
-
-// ─── Types ───────────────────────────────────────────────────────────────────
+import MapWilayahPuskesmas from '@/pages/admin/konfigurasi-posyankes/_components/MapWilayahPuskesmas';
 
 type JenisPuskesmas = 'Rawat Inap' | 'Non-Rawat Inap';
 
@@ -12,24 +11,23 @@ type JamLayananRow = {
     status: 'Buka' | 'Tutup';
 };
 
-type KelurahanRow = {
-    nama: string;
-    populasiBalita: number;
+type PuskesmasProp = {
+    id: number;
+    nama_puskesmas: string;
+    kode_fasyankes: string;
+    jenis_puskesmas: JenisPuskesmas;
+    alamat_lengkap: string;
+    no_telepon: string;
+    email: string;
+    latitude?: number;
+    longitude?: number;
+    radius: number;
+    jam_layanans: JamLayananRow[];
+    posyandus: {
+        nama: string;
+        populasi_balita: number;
+    }[];
 };
-
-// ─── Seed Data ───────────────────────────────────────────────────────────────
-
-const jamLayananSeed: JamLayananRow[] = [
-    { hari: 'Senin - Kamis', jam: '07:30 - 16:00 WIB', status: 'Buka' },
-    { hari: 'Jumat', jam: '07:30 - 16:30 WIB', status: 'Buka' },
-    { hari: 'Sabtu', jam: '08:00 - 12:00 WIB', status: 'Buka' },
-];
-
-const kelurahanSeed: KelurahanRow[] = [
-    { nama: 'Kelurahan Mawar', populasiBalita: 1240 },
-    { nama: 'Kelurahan Melati', populasiBalita: 980 },
-    { nama: 'Kelurahan Anggrek', populasiBalita: 850 },
-];
 
 // ─── Glass Card ──────────────────────────────────────────────────────────────
 
@@ -193,8 +191,10 @@ function JenisPuskesmasSelect({
 
 // ─── Profil Puskesmas Card ────────────────────────────────────────────────────
 
-function ProfilPuskesmasCard() {
-    const [jenis, setJenis] = React.useState<JenisPuskesmas>('Non-Rawat Inap');
+function ProfilPuskesmasCard({ puskesmas }: { puskesmas?: PuskesmasProp }) {
+    const [jenis, setJenis] = React.useState<JenisPuskesmas>(
+        puskesmas?.jenis_puskesmas || 'Non-Rawat Inap'
+    );
 
     return (
         <GlassCard>
@@ -209,7 +209,7 @@ function ProfilPuskesmasCard() {
                     >
                         Nama Puskesmas
                     </p>
-                    <GlassInput defaultValue="Puskesmas Kecamatan Melati" />
+                    <GlassInput defaultValue={puskesmas?.nama_puskesmas || '-'} />
                 </div>
 
                 <div className="space-y-1.5">
@@ -219,7 +219,7 @@ function ProfilPuskesmasCard() {
                     >
                         Kode Fasyankes
                     </p>
-                    <GlassInput defaultValue="P3173050101" />
+                    <GlassInput defaultValue={puskesmas?.kode_fasyankes || '-'} />
                 </div>
 
                 <div className="space-y-1.5 md:col-span-2">
@@ -243,8 +243,7 @@ function ProfilPuskesmasCard() {
                         className="rounded-xl border border-white/45 bg-white/40 px-3 py-2.5 text-sm text-foreground/70"
                         style={{ fontFamily: 'var(--font-body)' }}
                     >
-                        Jl. Bunga Rampai No. 45, Kelurahan Mawar, Kecamatan Melati, Kota Jakarta
-                        Barat, 11460
+                        {puskesmas?.alamat_lengkap || '-'}
                     </div>
                 </div>
 
@@ -255,7 +254,7 @@ function ProfilPuskesmasCard() {
                     >
                         Nomor Telepon
                     </p>
-                    <GlassInput defaultValue="(021) 567-8910" />
+                    <GlassInput defaultValue={puskesmas?.no_telepon || '-'} />
                 </div>
 
                 <div className="space-y-1.5">
@@ -265,7 +264,7 @@ function ProfilPuskesmasCard() {
                     >
                         Email Klinik
                     </p>
-                    <GlassInput defaultValue="info@pkm-melati.go.id" />
+                    <GlassInput defaultValue={puskesmas?.email || '-'} />
                 </div>
             </div>
         </GlassCard>
@@ -274,38 +273,41 @@ function ProfilPuskesmasCard() {
 
 // ─── Jam Layanan Card ─────────────────────────────────────────────────────────
 
-function JamLayananCard() {
+function JamLayananCard({ jamLayanan }: { jamLayanan: JamLayananRow[] }) {
     return (
         <GlassCard>
-            <SectionTitle
-                icon={<Clock className="size-5" />}
-                title="Jam Layanan"
-            />
+            <SectionTitle icon={<Clock className="size-5" />} title="Jam Layanan" />
             <GlassDivider />
 
             <div className="space-y-2.5">
-                {jamLayananSeed.map((row) => (
-                    <div
-                        key={row.hari}
-                        className="flex items-center justify-between gap-3 rounded-xl border border-white/45 bg-white/35 px-4 py-3 transition-colors hover:bg-white/45"
-                    >
-                        <p
-                            className="text-sm font-semibold text-foreground"
-                            style={{ fontFamily: 'var(--font-body)' }}
+                {jamLayanan.length > 0 ? (
+                    jamLayanan.map((row, idx) => (
+                        <div
+                            key={idx}
+                            className="flex items-center justify-between gap-3 rounded-xl border border-white/45 bg-white/35 px-4 py-3 transition-colors hover:bg-white/45"
                         >
-                            {row.hari}
-                        </p>
-                        <div className="flex items-center gap-3">
                             <p
-                                className="text-xs text-foreground/60"
+                                className="text-sm font-semibold text-foreground"
                                 style={{ fontFamily: 'var(--font-body)' }}
                             >
-                                {row.jam}
+                                {row.hari}
                             </p>
-                            <StatusChip status={row.status} />
+                            <div className="flex items-center gap-3">
+                                <p
+                                    className="text-xs text-foreground/60"
+                                    style={{ fontFamily: 'var(--font-body)' }}
+                                >
+                                    {row.jam}
+                                </p>
+                                <StatusChip status={row.status} />
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))
+                ) : (
+                    <p className="text-center text-sm text-foreground/50 py-4">
+                        Data jam layanan belum tersedia
+                    </p>
+                )}
             </div>
         </GlassCard>
     );
@@ -313,10 +315,10 @@ function JamLayananCard() {
 
 // ─── Pemetaan Wilayah Card ────────────────────────────────────────────────────
 
-function PemetaanWilayahCard() {
+function PemetaanWilayahCard({ puskesmas }: { puskesmas: PuskesmasProp }) {
     return (
         <GlassCard>
-            <SectionTitle icon={<Map className="size-5" />} title="Pemetaan Wilayah" />
+            <SectionTitle icon={<MapIcon className="size-5" />} title="Pemetaan Wilayah" />
             <GlassDivider />
 
             <p
@@ -327,16 +329,18 @@ function PemetaanWilayahCard() {
                 untuk Puskesmas ini.
             </p>
 
-            {/* Map Placeholder */}
+            {/* Map Component */}
             <div
                 className="mt-4 overflow-hidden rounded-xl border border-white/30"
                 style={{ background: 'rgba(255,255,255,0.2)' }}
             >
-                <div className="relative h-40 w-full bg-[radial-gradient(circle_at_30%_30%,rgba(16,185,129,0.25),transparent_55%),radial-gradient(circle_at_70%_60%,rgba(15,23,42,0.08),transparent_60%)]">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <GlassButton variant="outline">Lihat Peta Besar</GlassButton>
-                    </div>
-                </div>
+                <MapWilayahPuskesmas 
+                    name={puskesmas.nama_puskesmas}
+                    address={puskesmas.alamat_lengkap}
+                    latitude={puskesmas.latitude}
+                    longitude={puskesmas.longitude}
+                    radius={puskesmas.radius}
+                />
             </div>
 
             {/* Kelurahan Header */}
@@ -345,40 +349,39 @@ function PemetaanWilayahCard() {
                     className="text-xs font-semibold text-foreground/70"
                     style={{ fontFamily: 'var(--font-body)' }}
                 >
-                    Cakupan Kelurahan ({kelurahanSeed.length})
+                    Cakupan Kelurahan ({puskesmas.posyandus.length})
                 </p>
             </div>
 
             {/* Kelurahan List */}
             <div className="mt-2 space-y-2">
-                {kelurahanSeed.map((k) => (
-                    <div
-                        key={k.nama}
-                        className="flex items-center justify-between gap-3 rounded-xl border border-white/45 bg-white/40 px-3 py-3 transition-colors hover:bg-white/55"
-                    >
-                        <div className="min-w-0">
-                            <p
-                                className="truncate text-sm font-semibold text-foreground"
-                                style={{ fontFamily: 'var(--font-body)' }}
-                            >
-                                {k.nama}
-                            </p>
-                            <p
-                                className="text-xs text-foreground/60"
-                                style={{ fontFamily: 'var(--font-body)' }}
-                            >
-                                Populasi Balita: {k.populasiBalita.toLocaleString('id-ID')}
-                            </p>
-                        </div>
-                        <button
-                            type="button"
-                            className="inline-flex size-7 items-center justify-center rounded-lg text-foreground/55 transition-colors hover:bg-white/55 hover:text-foreground"
-                            aria-label="Aksi"
+                {puskesmas.posyandus.length > 0 ? (
+                    puskesmas.posyandus.map((k, idx) => (
+                        <div
+                            key={idx}
+                            className="flex items-center justify-between gap-3 rounded-xl border border-white/45 bg-white/40 px-3 py-3 transition-colors hover:bg-white/55"
                         >
-                            ⋮
-                        </button>
-                    </div>
-                ))}
+                            <div className="min-w-0">
+                                <p
+                                    className="truncate text-sm font-semibold text-foreground"
+                                    style={{ fontFamily: 'var(--font-body)' }}
+                                >
+                                    {k.nama}
+                                </p>
+                                <p
+                                    className="text-xs text-foreground/60"
+                                    style={{ fontFamily: 'var(--font-body)' }}
+                                >
+                                    Populasi Balita: {k.populasi_balita.toLocaleString('id-ID')}
+                                </p>
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <p className="text-center text-sm text-foreground/50 py-4">
+                        Data wilayah belum tersedia
+                    </p>
+                )}
             </div>
         </GlassCard>
     );
@@ -407,7 +410,7 @@ function PageHeader() {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function LayananPage() {
+export default function LayananPage({ puskesmas }: { puskesmas: PuskesmasProp }) {
     React.useEffect(() => {
         const html = document.documentElement;
         const body = document.body;
@@ -442,13 +445,13 @@ export default function LayananPage() {
                         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 ">
                             {/* Left column */}
                             <div className="flex flex-col gap-4 lg:col-span-2">
-                                <ProfilPuskesmasCard />
-                                <JamLayananCard />
+                                <ProfilPuskesmasCard puskesmas={puskesmas} />
+                                <JamLayananCard jamLayanan={puskesmas?.jam_layanans || []} />
                             </div>
 
                             {/* Right column */}
                             <div className="flex flex-col gap-4">
-                                <PemetaanWilayahCard />
+                                <PemetaanWilayahCard puskesmas={puskesmas} />
                             </div>
                         </div>
                     </main>
